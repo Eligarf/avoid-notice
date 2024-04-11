@@ -1,0 +1,46 @@
+{
+  "id": "pf2e-avoid-notice",
+  "title": "PF2e Avoid Notice",
+  "description": "Shows results of initiative stealth check vs combatant perception DCs on chat card",
+  "authors": [
+    {
+      "name": "Eligarf",
+      "flags": {}
+    }
+  ],
+  "version": "autoreplaced",
+  "compatibility": {
+    "minimum": "11.315",
+    "verified": "11.315"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf2e",
+        "type": "system",
+        "compatibility": {
+          "verified": "5.15.0"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json",
+      "flags": {}
+    }
+  ],
+  "socket": true,
+  "url": "autoreplaced",
+  "manifest": "autoreplaced",
+  "download": "autoreplaced",
+  "changelog": "ChangeLog.md",
+  "bugs": "autoreplaced",
+  "readme": "README.md",
+  "license": "LICENSE"
+}
