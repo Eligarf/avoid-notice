@@ -1,5 +1,6 @@
 {
   "pf2e-avoid-notice": {
-    "title": "PF2e Avoid Notice"
+    "undetected-by": "undetected by",
+    "maybe-undetected-by": "depending on cover, maybe undetected by"
   }
 }
