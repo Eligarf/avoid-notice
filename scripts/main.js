@@ -1,6 +1,7 @@
 const CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
 const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
+
 class AvoidNotice {
 
   static colorizeOutput(format, ...args) {
@@ -53,8 +54,7 @@ Hooks.once('init', () => {
 
       // Find enemies whose perception we beat if we had greater cover
       const disposition = combatant.token.disposition;
-      const optimisticStealth = combatant.initiative + 4;
-      const others = encounter.combatants.contents.filter((c) => c.token.disposition != disposition && optimisticStealth >= c.actor.system.perception.dc);
+      const others = encounter.combatants.contents.filter((c) => c.token.disposition != disposition);
       if (!others.length) continue;
 
       // Now extract the details for the template
@@ -64,9 +64,17 @@ Hooks.once('init', () => {
           dc: other.actor.system.perception.dc,
           name: other.token.name,
         };
-        target.delta = combatant.initiative - target.dc;
-        target.result = (target.delta >= 0) ? `Undetected by +${target.delta}` : `Observed by ${target.delta}`;
-        target.resultClass = (target.delta >= 0) ? 'avoid-notice-success' : 'avoid-notice-failure';
+        const delta = combatant.initiative - target.dc;
+        if (delta < 0) {
+          target.result = 'Observed';
+          target.delta = `by ${delta}`;
+        }
+        else {
+          target.result =
+            (combatant.initiative > other.initiative) ? 'Unnoticed' : 'Undetected';
+          target.delta = `by +${delta}`;
+        }
+        target.resultClass = (delta >= 0) ? 'success' : 'failure';
         return target;
       });
 
@@ -75,7 +83,10 @@ Hooks.once('init', () => {
         m.data.speaker.token === combatant.tokenId && m.data.flags?.core?.initiativeRoll
       );
       // AvoidNotice.log('messages', messages);
-      if (!messages.length) continue;
+      if (!messages.length) {
+        AvoidNotice.log(`Couldn't find initiative card for ${combatant.token.name}`);
+        continue;
+      }
       const lastMessage = messages.pop();
       let chatMessage = await game.messages.get(lastMessage._id);
       const content = await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, data);

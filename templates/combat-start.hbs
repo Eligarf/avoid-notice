@@ -5,6 +5,6 @@
 </div>
 <div>
   {{#each undetected as |target|}}
-  <b>{{target.name}} DC{{target.dc}}</b>: {{target.result}}.<br>
+  <b>{{target.name}}</b> DC{{target.dc}}: <span class="{{target.resultClass}}"><b>{{target.result}}</b></span> <span data-visibility="gm" data-whose="opposer">{{target.delta}}</span>.<br>
   {{/each}}
 </div>

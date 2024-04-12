@@ -1,3 +1,6 @@
+# v0.4.0
+* Use Unnoticed if stealth initiative beats perception initiative
+
 # v0.3.0
 * Use templates to format the chat info
 
