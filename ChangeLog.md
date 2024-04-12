@@ -1,3 +1,6 @@
+# v0.6.0
+* Don't show results on player-rolled initiative cards
+
 # v0.5.0
 * Group results by detection type
 
