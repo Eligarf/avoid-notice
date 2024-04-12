@@ -27,25 +27,25 @@ class AvoidNotice {
 }
 
 Hooks.once('init', () => {
-  Hooks.on('createChatMessage', async (message, options, id) => {
-    // AvoidNotice.log('createChatMessage', message);
-    const pf2eContext = message.flags.pf2e.context;
-    switch (pf2eContext?.type) {
-      case 'perception-check':
-        if (pf2eContext?.options.includes('action:seek')) {
-          AvoidNotice.log('perception-check', message);
-          // await this.rollPerception(message, options, id);
-        }
-        break;
-      case 'skill-check':
-        const tags = pf2eContext?.options.filter((t) => HIDDEN.includes(t));
-        if (tags.length > 0) {
-          AvoidNotice.log('skill-check', tags);
-          // await this.rollStealth(message, options, id);
-        }
-        break;
-    }
-  });
+  // Hooks.on('createChatMessage', async (message, options, id) => {
+  //   // AvoidNotice.log('createChatMessage', message);
+  //   const pf2eContext = message.flags.pf2e.context;
+  //   switch (pf2eContext?.type) {
+  //     case 'perception-check':
+  //       if (pf2eContext?.options.includes('action:seek')) {
+  //         AvoidNotice.log('perception-check', message);
+  //         // await this.rollPerception(message, options, id);
+  //       }
+  //       break;
+  //     case 'skill-check':
+  //       const tags = pf2eContext?.options.filter((t) => HIDDEN.includes(t));
+  //       if (tags.length > 0) {
+  //         AvoidNotice.log('skill-check', tags);
+  //         // await this.rollStealth(message, options, id);
+  //       }
+  //       break;
+  //   }
+  // });
 
   Hooks.on('combatStart', async (encounter, ...args) => {
     const sneakers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
