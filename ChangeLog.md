@@ -1,3 +1,6 @@
+# v0.5.0
+* Group results by detection type
+
 # v0.4.0
 * Use Unnoticed if stealth initiative beats perception initiative
 

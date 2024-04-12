@@ -59,7 +59,8 @@ Hooks.once('init', () => {
 
       // Now extract the details for the template
       let data = { stealth: combatant.initiative };
-      data.undetected = others.map((other) => {
+      for (const other of others) {
+        AvoidNotice.log('other', other);
         let target = {
           dc: other.actor.system.perception.dc,
           name: other.token.name,
@@ -74,9 +75,17 @@ Hooks.once('init', () => {
             (combatant.initiative > other.initiative) ? 'Unnoticed' : 'Undetected';
           target.delta = `by +${delta}`;
         }
-        target.resultClass = (delta >= 0) ? 'success' : 'failure';
-        return target;
-      });
+
+        if (!Object.hasOwn(data, target.result)) {
+          data[target.result] = {
+            resultClass: (delta >= 0) ? 'success' : 'failure',
+            targets: [target]
+          };
+        }
+        else {
+          data[target.result].targets.push(target);
+        }
+      }
 
       // AvoidNotice.log('game.messages', game.messages);
       const messages = game.messages.contents.filter((m) =>

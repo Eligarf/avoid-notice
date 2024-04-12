@@ -3,8 +3,27 @@
     <h4 class="dice-total">{{stealth}}</h4>
   </div>
 </div>
+{{#if Unnoticed}}
 <div>
-  {{#each undetected as |target|}}
-  <b>{{target.name}}</b> DC{{target.dc}}: <span class="{{target.resultClass}}"><b>{{target.result}}</b></span> <span data-visibility="gm" data-whose="opposer">{{target.delta}}</span>.<br>
+  <hr>is <strong>Unnoticed</strong> by<br>
+  {{#each Unnoticed.targets as |target|}}
+  <b>{{target.name}}</b> <span data-visibility="gm" data-whose="opposer">{{target.delta}}</span>.<br>
   {{/each}}
 </div>
+{{/if}}
+{{#if Undetected}}
+<div>
+  <hr>is <strong>Undetected</strong> by<br>
+  {{#each Undetected.targets as |target|}}
+  <b>{{target.name}}</b> <span data-visibility="gm" data-whose="opposer">{{target.delta}}</span>.<br>
+  {{/each}}
+</div>
+{{/if}}
+{{#if Observed}}
+<div>
+  <hr>is <strong>Observed</strong> by <i>(Check for +2 standard cover or +4 greater cover)</i><br>
+  {{#each Observed.targets as |target|}}
+  <b>{{target.name}}</b> <span data-visibility="gm" data-whose="opposer">{{target.delta}}</span>.<br>
+  {{/each}}
+</div>
+{{/if}}
