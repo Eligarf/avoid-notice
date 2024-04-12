@@ -1,0 +1,10 @@
+<div class="dice-roll">
+  <div class="dice-result">
+    <h4 class="dice-total">{{stealth}}</h4>
+  </div>
+</div>
+<div>
+  {{#each undetected as |target|}}
+  <b>{{target.name}} DC{{target.dc}}</b>: {{target.result}}.<br>
+  {{/each}}
+</div>

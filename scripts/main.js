@@ -1,11 +1,12 @@
+const CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
+const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
+const MODULE_ID = 'pf2e-avoid-notice';
 class AvoidNotice {
-  static CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
-  static HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 
   static colorizeOutput(format, ...args) {
     return [
       `%cpf2e-avoid-notice %c|`,
-      ...AvoidNotice.CONSOLE_COLORS,
+      ...CONSOLE_COLORS,
       format,
       ...args,
     ];
@@ -36,8 +37,7 @@ Hooks.once('init', () => {
         }
         break;
       case 'skill-check':
-        const hidden = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
-        const tags = pf2eContext?.options.filter((t) => AvoidNotice.HIDDEN.includes(t));
+        const tags = pf2eContext?.options.filter((t) => HIDDEN.includes(t));
         if (tags.length > 0) {
           AvoidNotice.log('skill-check', tags);
           // await this.rollStealth(message, options, id);
@@ -50,32 +50,36 @@ Hooks.once('init', () => {
     const sneakers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
     for (const combatant of sneakers) {
       // AvoidNotice.log('combatant', combatant);
+
+      // Find enemies whose perception we beat if we had greater cover
       const disposition = combatant.token.disposition;
-      const others = encounter.combatants.contents.filter((c) => c.token.disposition != disposition);
-      let undetected = '';
-      for (const other of others) {
-        const dc = other.actor.system.perception.dc;
-        if (combatant.initiative >= dc) {
-          undetected += `${other.token.name}<div class="target - dc - result" data-tooltip-class="pf2e" data-tooltip-direction="UP">\n    <div class="target - dc" data-visibility="gm"><span data-visibility="gm" data-whose="opposer">DC ${dc}</span></div>\n    <div class="result degree - of - success">Result: <span class="success">Success</span> <span data-visibility="gm" data-whose="opposer">by +${combatant.initiative - dc}</span></div>\n</div><hr>`
-        }
-        else if (combatant.initiative >= dc - 4) {
-          undetected += `${other.token.name}<div class="target - dc - result" data-tooltip-class="pf2e" data-tooltip-direction="UP">\n    <div class="target - dc" data-visibility="gm"><span data-visibility="gm" data-whose="opposer">DC ${dc}</span></div>\n    <div class="result degree - of - success">Result: <span class="failure">Failure</span> <span data-visibility="gm" data-whose="opposer">by ${combatant.initiative - dc}</span></div>\n</div><hr>`
-        }
-      }
-      if (undetected.length > 0) {
-        // AvoidNotice.log('game.messages', game.messages);
-        const messages = game.messages.contents.filter((m) =>
-          m.data.speaker.token === combatant.tokenId && m.data.flags?.core?.initiativeRoll
-        );
-        // AvoidNotice.log('messages', messages);
-        if (!messages.length) return;
-        const lastMessage = messages.pop();
-        let chatMessage = await game.messages.get(lastMessage._id);
-        // AvoidNotice.log('chatMessage', await duplicate(chatMessage));
-        let content = await duplicate(chatMessage.data.content);
-        content = `<h1><strong>${content}</strong></h1>` + undetected;
-        await chatMessage.update({ content });
-      }
+      const optimisticStealth = combatant.initiative + 4;
+      const others = encounter.combatants.contents.filter((c) => c.token.disposition != disposition && optimisticStealth >= c.actor.system.perception.dc);
+      if (!others.length) continue;
+
+      // Now extract the details for the template
+      let data = { stealth: combatant.initiative };
+      data.undetected = others.map((other) => {
+        let target = {
+          dc: other.actor.system.perception.dc,
+          name: other.token.name,
+        };
+        target.delta = combatant.initiative - target.dc;
+        target.result = (target.delta >= 0) ? `Undetected by +${target.delta}` : `Observed by ${target.delta}`;
+        target.resultClass = (target.delta >= 0) ? 'avoid-notice-success' : 'avoid-notice-failure';
+        return target;
+      });
+
+      // AvoidNotice.log('game.messages', game.messages);
+      const messages = game.messages.contents.filter((m) =>
+        m.data.speaker.token === combatant.tokenId && m.data.flags?.core?.initiativeRoll
+      );
+      // AvoidNotice.log('messages', messages);
+      if (!messages.length) continue;
+      const lastMessage = messages.pop();
+      let chatMessage = await game.messages.get(lastMessage._id);
+      const content = await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, data);
+      await chatMessage.update({ content });
     }
   });
 });
