@@ -1,10 +1,12 @@
 {
   "pf2e-avoid-notice": {
-    "detectionStatus": {
-      "observed": "Observed",
-      "undetected": "Undetected",
-      "unnoticed": "Unnoticed"
+    "detectionTitle": {
+      "observed": "is Observed by",
+      "undetected": "is Undetected by",
+      "unnoticed": "is Unnoticed by"
     },
+    "negativeDelta": "",
+    "positiveDelta": "",
     "logLevel": {
       "name": "Logging Level",
       "none": "No logging",

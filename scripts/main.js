@@ -68,7 +68,6 @@ Hooks.once('init', () => {
         let target = {
           dc: other.actor.system.perception.dc,
           name: otherDoc.name,
-          id: otherDoc.id,
         };
         const perceptionData = combatantDoc?.flags?.[PERCEPTION_ID]?.data;
 
@@ -100,6 +99,7 @@ Hooks.once('init', () => {
         // Add a new category if necessary, and put this other token's result in the message data
         if (!(target.result in messageData)) {
           messageData[target.result] = {
+            title: game.i18n.localize(`${MODULE_ID}.detectionTitle.${target.result}`),
             resultClass: (delta >= 0) ? 'success' : 'failure',
             targets: [target]
           };
@@ -151,7 +151,7 @@ Hooks.once('setup', () => {
     scope: 'world',
     config: true,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   game.settings.register(MODULE_ID, 'logLevel', {
