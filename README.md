@@ -6,4 +6,4 @@
 ![Total Downloads](https://img.shields.io/github/downloads/eligarf/stealthy/total?color=blue&label=total%20downloads)
 # PF2e Avoid Notice
 
-A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on chat card
+A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on chat card. If the unlisted Pf2e-perception module is active, it will also update the unnoticed/undetected/observed states for those tokens when combat begins.

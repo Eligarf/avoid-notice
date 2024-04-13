@@ -1,6 +1,7 @@
 const CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
 const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
+const PERCEPTION_ID = 'pf2e-perception'
 
 class AvoidNotice {
 
@@ -49,6 +50,8 @@ Hooks.once('init', () => {
 
   Hooks.on('combatStart', async (encounter, ...args) => {
     const sneakers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
+
+    let changes = {};
     for (const combatant of sneakers) {
       // AvoidNotice.log('combatant', combatant);
 
@@ -58,32 +61,51 @@ Hooks.once('init', () => {
       if (!others.length) continue;
 
       // Now extract the details for the template
-      let data = { stealth: combatant.initiative };
+      const combatantDoc = combatant.token instanceof Token ? combatant.token.document : combatant.token;
+      // AvoidNotice.log('combatantDoc', combatantDoc);
+      let uiData = { stealth: combatant.initiative };
+      changes[combatantDoc.id] = {};
+      let tokenUpdate = changes[combatantDoc.id];
       for (const other of others) {
-        AvoidNotice.log('other', other);
+        const otherDoc = other.token instanceof Token ? other.token.document : other.token;
+
         let target = {
           dc: other.actor.system.perception.dc,
-          name: other.token.name,
+          name: otherDoc.name,
+          id: otherDoc.id,
         };
         const delta = combatant.initiative - target.dc;
+        
+        const data = combatantDoc?.flags?.[PERCEPTION_ID]?.data;
         if (delta < 0) {
           target.result = 'Observed';
           target.delta = `by ${delta}`;
+          target.perception = 'observed';
+          if (data && other.token.id in data)
+            tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
         }
         else {
-          target.result =
-            (combatant.initiative > other.initiative) ? 'Unnoticed' : 'Undetected';
+          let visibility;
           target.delta = `by +${delta}`;
+          if (combatant.initiative > other.initiative) {
+            target.result = "Unnoticed";
+            visibility = 'unnoticed';
+          } else {
+            target.result = "Undetected";
+            visibility = 'undetected';
+          }
+          if (data?.[other.token.id]?.visibility !== visibility)
+            tokenUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
 
-        if (!Object.hasOwn(data, target.result)) {
-          data[target.result] = {
+        if (!Object.hasOwn(uiData, target.result)) {
+          uiData[target.result] = {
             resultClass: (delta >= 0) ? 'success' : 'failure',
             targets: [target]
           };
         }
         else {
-          data[target.result].targets.push(target);
+          uiData[target.result].targets.push(target);
         }
       }
 
@@ -98,8 +120,20 @@ Hooks.once('init', () => {
       }
       const lastMessage = messages.pop();
       let chatMessage = await game.messages.get(lastMessage._id);
-      const content = await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, data);
+      const content = await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, uiData);
       await chatMessage.update({ content });
+    }
+
+    // If PF2e-perception is around, te
+    if (game.modules.get(PERCEPTION_ID)?.active) {
+      let updates = [];
+      for (const id in changes) {
+        const update = changes[id];
+        if (!Object.keys(update).length) continue;
+        updates.push({ _id: id, ...update });
+      }
+      // AvoidNotice.log('updates', updates);
+      canvas.scene.updateEmbeddedDocuments("Token", updates);
     }
   });
 });
