@@ -3,27 +3,27 @@
     <h4 class="dice-total">{{stealth}}</h4>
   </div>
 </div>
-{{#if Unnoticed}}
+{{#if unnoticed}}
 <div data-visibility="gm">
   is <strong>Unnoticed</strong> by<hr>
-  {{#each Unnoticed.targets as |target|}}
+  {{#each unnoticed.targets as |target|}}
   <b>{{target.name}}</b> {{target.delta}}.<br>
   {{/each}}
 </div>
 {{/if}}
-{{#if Undetected}}
+{{#if undetected}}
 <div data-visibility="gm">
   is <strong>Undetected</strong> by<hr>
-  {{#each Undetected.targets as |target|}}
+  {{#each undetected.targets as |target|}}
   <b>{{target.name}}</b> {{target.delta}}.<br>
   {{/each}}
 </div>
 {{/if}}
-{{#if Observed}}
+{{#if observed}}
 <div data-visibility="gm">
   <i>(Check for +2/+4 cover)</i><br>
   is <strong>Observed</strong> by<hr>
-  {{#each Observed.targets as |target|}}
+  {{#each observed.targets as |target|}}
   <b>{{target.name}}</b> {{target.delta}}.<br>
   {{/each}}
 </div>

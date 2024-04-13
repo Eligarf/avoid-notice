@@ -1,3 +1,8 @@
+# v0.8.0
+* Add settings to control logging and use of Unnoticed
+* Add english localization file
+* Clean up code
+
 # v0.7.0
 * Update PF2e-Perspective's flags (if it's active) for those combatants rolling initiative with Stealth
 

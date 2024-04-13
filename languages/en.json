@@ -1,0 +1,19 @@
+{
+  "pf2e-avoid-notice": {
+    "detectionStatus": {
+      "observed": "Observed",
+      "undetected": "Undetected",
+      "unnoticed": "Unnoticed"
+    },
+    "logLevel": {
+      "name": "Logging Level",
+      "none": "No logging",
+      "debug": "Debug level",
+      "log": "Log level"
+    },
+    "useUnnoticed": {
+      "name": "Unnoticed",
+      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
+    }
+  }
+}
