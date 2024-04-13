@@ -1,30 +1,7 @@
-<div class="dice-roll">
-  <div class="dice-result">
-    <h4 class="dice-total">{{stealth}}</h4>
-  </div>
-</div>
-<br>
-{{#if unnoticed}}
 <div data-visibility="gm">
-  {{unnoticed.title}}<hr>
-  {{#each unnoticed.targets as |target|}}
+  {{title}}
+  <hr>
+  {{#each targets as |target|}}
   <b>{{target.name}}</b> {{target.delta}}.<br>
   {{/each}}
 </div>
-{{/if}}
-{{#if undetected}}
-<div data-visibility="gm">
-  {{undetected.title}}<hr>
-  {{#each undetected.targets as |target|}}
-  <b>{{target.name}}</b> {{target.delta}}.<br>
-  {{/each}}
-</div>
-{{/if}}
-{{#if observed}}
-<div data-visibility="gm">
-  {{observed.title}}<hr>
-  {{#each observed.targets as |target|}}
-  <b>{{target.name}}</b> {{target.delta}}.<br>
-  {{/each}}
-</div>
-{{/if}}

@@ -47,6 +47,8 @@ Hooks.once('init', () => {
 
   Hooks.on('combatStart', async (encounter, ...args) => {
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
+    const override = game.settings.get(MODULE_ID, 'override');
+
     const stealthies = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
     let perceptionChanges = {};
     for (const combatant of stealthies) {
@@ -61,7 +63,7 @@ Hooks.once('init', () => {
       const combatantDoc = combatant.token instanceof Token ? combatant.token.document : combatant.token;
       perceptionChanges[combatantDoc.id] = {};
       let tokenUpdate = perceptionChanges[combatantDoc.id];
-      let messageData = { stealth: combatant.initiative };
+      let messageData = {};
       for (const other of nonAllies) {
         const otherDoc = other.token instanceof Token ? other.token.document : other.token;
 
@@ -78,7 +80,7 @@ Hooks.once('init', () => {
           target.delta = `by ${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (perceptionData && other.token.id in perceptionData)
+          if (override && perceptionData && other.token.id in perceptionData)
             tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
         }
 
@@ -92,7 +94,9 @@ Hooks.once('init', () => {
           target.result = visibility;
 
           // Update the perception flags if there is a difference
-          if (perceptionData?.[other.token.id]?.visibility !== visibility)
+          if (perceptionData?.[other.token.id]?.visibility !== visibility &&
+            (override || (perceptionData && !(other.token.id in perceptionData)))
+          )
             tokenUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
 
@@ -122,7 +126,23 @@ Hooks.once('init', () => {
       const lastMessage = messages.pop();
       let chatMessage = await game.messages.get(lastMessage._id);
       AvoidNotice.log(`messageData updates for ${combatantDoc.name}`, messageData);
-      const content = await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData);
+
+      let content = `
+        <div class="dice-roll">
+          <div class="dice-result">
+            <h4 class="dice-total">${combatant.initiative}</h4>
+          </div>
+        </div><br>`;
+      if ('unnoticed' in messageData) {
+        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.unnoticed);
+      }
+      if ('undetected' in messageData) {
+        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.undetected);
+      }
+      if ('observed' in messageData) {
+        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.observed);
+      }
+
       await chatMessage.update({ content });
     }
 
@@ -151,7 +171,17 @@ Hooks.once('setup', () => {
     scope: 'world',
     config: true,
     type: Boolean,
-    default: false,
+    default: true,
+  });
+
+  const perception = game.modules.get(PERCEPTION_ID)?.active;
+  game.settings.register(MODULE_ID, 'override', {
+    name: game.i18n.localize(`${MODULE_ID}.override.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.override.hint`),
+    scope: 'world',
+    config: perception,
+    type: Boolean,
+    default: true,
   });
 
   game.settings.register(MODULE_ID, 'logLevel', {

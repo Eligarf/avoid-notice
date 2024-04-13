@@ -16,6 +16,10 @@
     "useUnnoticed": {
       "name": "Unnoticed",
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
+    },
+    "override": {
+      "name": "Override",
+      "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception flags on a token"
     }
   }
 }

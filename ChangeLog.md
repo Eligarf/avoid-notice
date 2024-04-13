@@ -1,3 +1,6 @@
+# v0.9.0
+* Add setting allowing the module to override existing PF2e-perception flags
+
 # v0.8.0
 * Add settings to control logging and use of Unnoticed
 * Add english localization file
