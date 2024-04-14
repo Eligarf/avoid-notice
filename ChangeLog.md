@@ -1,5 +1,8 @@
+# v1.0.0
+* Use any PF2e-perception cover bonuses on perception DC
+
 # v0.9.0
-* Add setting allowing the module to override existing PF2e-perception flags
+* Add setting allowing the module to override existing PF2e-perception visibility flags
 
 # v0.8.0
 * Add settings to control logging and use of Unnoticed

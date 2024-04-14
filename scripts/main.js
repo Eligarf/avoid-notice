@@ -46,6 +46,7 @@ Hooks.once('init', () => {
   // });
 
   Hooks.on('combatStart', async (encounter, ...args) => {
+    const perceptionActive = game.modules.get(PERCEPTION_ID)?.active;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const override = game.settings.get(MODULE_ID, 'override');
 
@@ -71,7 +72,17 @@ Hooks.once('init', () => {
           dc: other.actor.system.perception.dc,
           name: otherDoc.name,
         };
-        const perceptionData = combatantDoc?.flags?.[PERCEPTION_ID]?.data;
+        const perceptionData = perceptionActive && combatantDoc?.flags?.[PERCEPTION_ID]?.data;
+        if (perceptionData && other.token.id in perceptionData) {
+          switch (perceptionData[other.token.id]?.cover) {
+            case 'standard':
+              target.dc -= 2;
+              break;
+            case 'greater':
+              target.dc -= 4;
+              break;
+          }
+        }
 
         // Handle failing to win at stealth
         const delta = combatant.initiative - target.dc;
@@ -148,7 +159,7 @@ Hooks.once('init', () => {
 
     // If PF2e-perception is around, move its changes into an update array and batch update
     // all the tokens at once
-    if (game.modules.get(PERCEPTION_ID)?.active) {
+    if (perceptionActive) {
       let updates = [];
       for (const id in perceptionChanges) {
         const update = perceptionChanges[id];

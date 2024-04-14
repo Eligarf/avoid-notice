@@ -19,7 +19,7 @@
     },
     "override": {
       "name": "Override",
-      "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception flags on a token"
+      "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception visibility flags on a token"
     }
   }
 }
