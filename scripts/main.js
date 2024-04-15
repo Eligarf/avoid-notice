@@ -126,7 +126,7 @@ Hooks.once('init', () => {
 
       // Find the last initiative chat for the combatant
       const messages = game.messages.contents.filter((m) =>
-        m.data.speaker.token === combatant.tokenId && m.data.flags?.core?.initiativeRoll
+        m.speaker.token === combatant.tokenId && m.flags?.core?.initiativeRoll
       );
       if (!messages.length) {
         AvoidNotice.log(`Couldn't find initiative card for ${combatant.token.name}`);
@@ -134,16 +134,15 @@ Hooks.once('init', () => {
       }
 
       // Push the new detection statuses into that message
-      const lastMessage = messages.pop();
-      let chatMessage = await game.messages.get(lastMessage._id);
-      AvoidNotice.log(`messageData updates for ${combatantDoc.name}`, messageData);
-      const rolls = chatMessage.rolls[0];
-      const die = rolls.dice[0];
+      const lastMessage = await game.messages.get(messages.pop()._id);
+      AvoidNotice.log(`messageData updates for ${combatantDoc.name}`, messageData );
+      const roll = lastMessage.rolls[0];
+      const die = roll.dice[0];
 
       let content = `
         <div class="dice-roll initiative" data-tooltip-class="pf2e">
           <div class="dice-result">
-            <div class="dice-formula">${rolls.formula}</div>
+            <div class="dice-formula">${roll.formula}</div>
             <div class="dice-tooltip">
               <section class="tooltip-part">
                 <div class="dice">
@@ -160,6 +159,7 @@ Hooks.once('init', () => {
             <h4 class="dice-total">${combatant.initiative}</h4>
           </div>
         </div><br>`;
+      
       if ('unnoticed' in messageData) {
         content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.unnoticed);
       }
@@ -170,7 +170,7 @@ Hooks.once('init', () => {
         content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.observed);
       }
 
-      await chatMessage.update({ content });
+      await lastMessage.update({ content });
     }
 
     // If PF2e-perception is around, move its changes into an update array and batch update
