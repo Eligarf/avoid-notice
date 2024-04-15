@@ -26,9 +26,40 @@ class AvoidNotice {
   }
 }
 
+function renderDice(roll, rollClass) {
+  let content = `
+        <div class="dice-roll ${rollClass}" data-tooltip-class="pf2e">
+          <div class="dice-result">
+            <div class="dice-formula">${roll.formula}</div>
+            <div class="dice-tooltip">
+              <section class="tooltip-part">`;
+  for (const die of roll.dice) {
+    content += `
+                <div class="dice">
+                  <header class="part-header flexrow">
+                    <span class="part-formula">${die.formula}</span>
+                    <span class="part-total">${die.total}</span>
+                  </header>
+                  <ol class="dice-rolls">`;
+    for (const r of die.results) {
+      content += `<li class="roll die d${die.faces}">${r.result}</li>`;
+    }
+
+    content += `</ol></div>`;
+  }
+
+  content += `
+              </section>
+            </div>
+            <h4 class="dice-total">${roll.total}</h4>
+          </div>
+        </div><br>`;
+  return content;
+}
+
 Hooks.once('init', () => {
   // Hooks.on('createChatMessage', async (message, options, id) => {
-  //   // AvoidNotice.log('createChatMessage', message);
+  //   AvoidNotice.log('createChatMessage', message);
   //   const pf2eContext = message.flags.pf2e.context;
   //   switch (pf2eContext?.type) {
   //     case 'perception-check':
@@ -139,35 +170,13 @@ Hooks.once('init', () => {
       const roll = lastMessage.rolls[0];
       const die = roll.dice[0];
 
-      let content = `
-        <div class="dice-roll initiative" data-tooltip-class="pf2e">
-          <div class="dice-result">
-            <div class="dice-formula">${roll.formula}</div>
-            <div class="dice-tooltip">
-              <section class="tooltip-part">
-                <div class="dice">
-                  <header class="part-header flexrow">
-                    <span class="part-formula">${die.formula}</span>
-                    <span class="part-total">${die.total}</span>
-                  </header>
-                  <ol class="dice-rolls">
-                    <li class="roll die d${die.faces}">${die.total}</li>
-                  </ol>
-                </div>
-              </section>
-            </div>
-            <h4 class="dice-total">${combatant.initiative}</h4>
-          </div>
-        </div><br>`;
-      
-      if ('unnoticed' in messageData) {
-        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.unnoticed);
-      }
-      if ('undetected' in messageData) {
-        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.undetected);
-      }
-      if ('observed' in messageData) {
-        content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, messageData.observed);
+      let content = renderDice(roll, 'initiatve');
+
+      for (const t of ['unnoticed', 'undetected', 'observed']) {
+        const status = messageData[t];
+        if (status) {
+          content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, status);
+        }
       }
 
       await lastMessage.update({ content });
