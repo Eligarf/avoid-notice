@@ -137,10 +137,26 @@ Hooks.once('init', () => {
       const lastMessage = messages.pop();
       let chatMessage = await game.messages.get(lastMessage._id);
       AvoidNotice.log(`messageData updates for ${combatantDoc.name}`, messageData);
+      const rolls = chatMessage.rolls[0];
+      const die = rolls.dice[0];
 
       let content = `
-        <div class="dice-roll">
+        <div class="dice-roll initiative" data-tooltip-class="pf2e">
           <div class="dice-result">
+            <div class="dice-formula">${rolls.formula}</div>
+            <div class="dice-tooltip">
+              <section class="tooltip-part">
+                <div class="dice">
+                  <header class="part-header flexrow">
+                    <span class="part-formula">${die.formula}</span>
+                    <span class="part-total">${die.total}</span>
+                  </header>
+                  <ol class="dice-rolls">
+                    <li class="roll die d${die.faces}">${die.total}</li>
+                  </ol>
+                </div>
+              </section>
+            </div>
             <h4 class="dice-total">${combatant.initiative}</h4>
           </div>
         </div><br>`;
@@ -166,8 +182,10 @@ Hooks.once('init', () => {
         if (!Object.keys(update).length) continue;
         updates.push({ _id: id, ...update });
       }
-      AvoidNotice.log('updates', updates);
-      canvas.scene.updateEmbeddedDocuments("Token", updates);
+      if (updates.length > 0) {
+        AvoidNotice.log('token updates', updates);
+        canvas.scene.updateEmbeddedDocuments("Token", updates);
+      }
     }
   });
 });

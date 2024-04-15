@@ -1,3 +1,6 @@
+# v1.0.1
+* Restore the tooltips on adjusted stealth initiative chat messages
+
 # v1.0.0
 * Use any PF2e-perception cover bonuses on perception DC
 
