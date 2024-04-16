@@ -6,14 +6,14 @@
 ![Total Downloads](https://img.shields.io/github/downloads/eligarf/avoid-notice/total?color=blue&label=total%20downloads)
 # PF2e Avoid Notice
 
-A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages when *Begin Encounter* is pressed.
+A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages when *Begin Encounter* is clicked.
 
 ## Initiative messages
-When *Begin Encounter* is pressed on the combat tracker, this module appends results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
+When *Begin Encounter* is clicked on the combat tracker, this module appends GM-visible results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
 
 ![image](https://github.com/Eligarf/avoid-notice/assets/16523503/194d98aa-5a60-4564-9971-e368fa5b83f9)
 
-In the above, Amiri's stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20.
+In the above, Amiri's stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. The deltas are there to inform the GMs should they want to take addtional factors such as cover into consideration.
 
 An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `Undetected` for stealth checks that beat both the target's perception DC and initiative. `Undetected` is always used if the stealth initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
