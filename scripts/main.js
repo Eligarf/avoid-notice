@@ -3,74 +3,73 @@ const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
 const PERCEPTION_ID = 'pf2e-perception';
 
-class AvoidNotice {
+function colorizeOutput(format, ...args) {
+  return [
+    `%c${MODULE_ID} %c|`,
+    ...CONSOLE_COLORS,
+    format,
+    ...args,
+  ];
+}
 
-  static colorizeOutput(format, ...args) {
-    return [
-      `%c${MODULE_ID} %c|`,
-      ...CONSOLE_COLORS,
-      format,
-      ...args,
-    ];
-  }
+function log(format, ...args) {
+  const level = game.settings.get(MODULE_ID, 'logLevel');
+  if (level !== 'none') {
 
-  static log(format, ...args) {
-    const level = game.settings.get(MODULE_ID, 'logLevel');
-    if (level !== 'none') {
-
-      if (level === 'debug')
-        console.debug(...AvoidNotice.colorizeOutput(format, ...args));
-      else if (level === 'log')
-        console.log(...AvoidNotice.colorizeOutput(format, ...args));
-    }
+    if (level === 'debug')
+      console.debug(...colorizeOutput(format, ...args));
+    else if (level === 'log')
+      console.log(...colorizeOutput(format, ...args));
   }
 }
 
-function renderDice(roll, rollClass) {
+function renderInitiativeDice(roll) {
   let content = `
-        <div class="dice-roll ${rollClass}" data-tooltip-class="pf2e">
-          <div class="dice-result">
-            <div class="dice-formula">${roll.formula}</div>
-            <div class="dice-tooltip">
-              <section class="tooltip-part">`;
+    <div class="dice-roll initiative" data-tooltip-class="pf2e">
+      <div class="dice-result">
+        <div class="dice-formula">${roll.formula}</div>
+        <div class="dice-tooltip">
+          <section class="tooltip-part">`;
   for (const die of roll.dice) {
     content += `
-                <div class="dice">
-                  <header class="part-header flexrow">
-                    <span class="part-formula">${die.formula}</span>
-                    <span class="part-total">${die.total}</span>
-                  </header>
-                  <ol class="dice-rolls">`;
+            <div class="dice">
+              <header class="part-header flexrow">
+                <span class="part-formula">${die.formula}</span>
+                <span class="part-total">${die.total}</span>
+              </header>
+              <ol class="dice-rolls">`;
     for (const r of die.results) {
-      content += `<li class="roll die d${die.faces}">${r.result}</li>`;
+      content += `
+                <li class="roll die d${die.faces}">${r.result}</li>`;
     }
-
-    content += `</ol></div>`;
+    content += `
+              </ol>
+            </div>`;
   }
 
   content += `
-              </section>
-            </div>
-            <h4 class="dice-total">${roll.total}</h4>
-          </div>
-        </div><br>`;
+          </section>
+        </div>
+        <h4 class="dice-total">${roll.total}</h4>
+      </div>
+    </div><br>`;
   return content;
 }
 
 Hooks.once('init', () => {
   // Hooks.on('createChatMessage', async (message, options, id) => {
-  //   AvoidNotice.log('createChatMessage', message);
+  //   log('createChatMessage', message);
   //   const pf2eContext = message.flags.pf2e.context;
   //   switch (pf2eContext?.type) {
   //     case 'perception-check':
   //       if (pf2eContext?.options.includes('action:seek')) {
-  //         AvoidNotice.log('perception-check', message);
+  //         log('perception-check', message);
   //       }
   //       break;
   //     case 'skill-check':
   //       const tags = pf2eContext?.options.filter((t) => HIDDEN.includes(t));
   //       if (tags.length > 0) {
-  //         AvoidNotice.log('skill-check', tags);
+  //         log('skill-check', tags);
   //       }
   //       break;
   //   }
@@ -84,7 +83,7 @@ Hooks.once('init', () => {
     const stealthies = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
     let perceptionChanges = {};
     for (const combatant of stealthies) {
-      // AvoidNotice.log('combatant', combatant);
+      // log('combatant', combatant);
 
       // Only check against non-allies
       const disposition = combatant.token.disposition;
@@ -119,7 +118,7 @@ Hooks.once('init', () => {
         const delta = combatant.initiative - target.dc;
         if (delta < 0) {
           target.result = 'observed';
-          target.delta = `by ${delta}`;
+          target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
           if (override && perceptionData && other.token.id in perceptionData)
@@ -129,7 +128,7 @@ Hooks.once('init', () => {
         // combatant beat the other token at the stealth battle
         else {
           let visibility = 'undetected';
-          target.delta = `by +${delta}`;
+          target.delta = `+${delta}`;
           if (useUnnoticed && combatant.initiative > other.initiative) {
             visibility = 'unnoticed';
           }
@@ -160,17 +159,14 @@ Hooks.once('init', () => {
         m.speaker.token === combatant.tokenId && m.flags?.core?.initiativeRoll
       );
       if (!messages.length) {
-        AvoidNotice.log(`Couldn't find initiative card for ${combatant.token.name}`);
+        log(`Couldn't find initiative card for ${combatant.token.name}`);
         continue;
       }
 
       // Push the new detection statuses into that message
       const lastMessage = await game.messages.get(messages.pop()._id);
-      AvoidNotice.log(`messageData updates for ${combatantDoc.name}`, messageData );
-      const roll = lastMessage.rolls[0];
-      const die = roll.dice[0];
-
-      let content = renderDice(roll, 'initiatve');
+      log(`messageData updates for ${combatantDoc.name}`, messageData);
+      let content = renderInitiativeDice(lastMessage.rolls[0]);
 
       for (const t of ['unnoticed', 'undetected', 'observed']) {
         const status = messageData[t];
@@ -182,17 +178,18 @@ Hooks.once('init', () => {
       await lastMessage.update({ content });
     }
 
-    // If PF2e-perception is around, move its changes into an update array and batch update
-    // all the tokens at once
+    // If PF2e-perception is around, move any non-empty changes into an update array
     if (perceptionActive) {
       let updates = [];
       for (const id in perceptionChanges) {
         const update = perceptionChanges[id];
-        if (!Object.keys(update).length) continue;
-        updates.push({ _id: id, ...update });
+        if (Object.keys(update).length)
+          updates.push({ _id: id, ...update });
       }
+
+      // Update all the tokens at once, skipping an empty update
+      log('token updates', updates);
       if (updates.length > 0) {
-        AvoidNotice.log('token updates', updates);
         canvas.scene.updateEmbeddedDocuments("Token", updates);
       }
     }
@@ -235,5 +232,5 @@ Hooks.once('setup', () => {
     default: 'none'
   });
 
-  AvoidNotice.log(`Setup ${moduleVersion}`);
+  log(`Setup ${moduleVersion}`);
 });
