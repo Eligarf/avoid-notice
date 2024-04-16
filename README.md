@@ -6,10 +6,10 @@
 ![Total Downloads](https://img.shields.io/github/downloads/eligarf/avoid-notice/total?color=blue&label=total%20downloads)
 # PF2e Avoid Notice
 
-A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages.
+A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages when *Begin Encounter* is pressed.
 
 ## Initiative messages
-The module appends results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
+When *Begin Encounter* is pressed on the combat tracker, this module appends results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
 
 ![image](https://github.com/Eligarf/avoid-notice/assets/16523503/194d98aa-5a60-4564-9971-e368fa5b83f9)
 
