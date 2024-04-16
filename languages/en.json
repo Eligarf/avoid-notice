@@ -1,9 +1,9 @@
 {
   "pf2e-avoid-notice": {
     "detectionTitle": {
-      "observed": "is Observed by",
-      "undetected": "is Undetected by",
-      "unnoticed": "is Unnoticed by"
+      "observed": "Observed",
+      "undetected": "Undetected",
+      "unnoticed": "Unnoticed"
     },
     "negativeDelta": "",
     "positiveDelta": "",

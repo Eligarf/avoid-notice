@@ -1,3 +1,6 @@
+# v1.1.0
+* Put detection results in a table for better viewing
+
 # v1.0.1
 * Restore the tooltips on adjusted stealth initiative chat messages
 * More robust tooltip generation

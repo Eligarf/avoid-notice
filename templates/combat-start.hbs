@@ -1,7 +1,13 @@
 <div data-visibility="gm">
-  {{title}}
-  <hr>
+  <span>{{title}}</span>
+  <table>
+    <tbody>
   {{#each targets as |target|}}
-  <b>{{target.name}}</b> {{target.delta}}.<br>
+      <tr>
+        <th>{{target.name}}</th>
+        <th>{{target.delta}}</th>
+      </tr>
   {{/each}}
+    </tbody>
+  </table>
 </div>
