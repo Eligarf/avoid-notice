@@ -101,6 +101,7 @@ Hooks.once('init', () => {
         let target = {
           dc: other.actor.system.perception.dc,
           name: otherDoc.name,
+          id: other.token.id,
         };
         const perceptionData = perceptionActive && combatantDoc?.flags?.[PERCEPTION_ID]?.data;
         if (perceptionData && other.token.id in perceptionData) {

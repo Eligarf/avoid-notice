@@ -1,19 +1,21 @@
 [![License](https://img.shields.io/github/license/eligarf/avoid-notice?label=License)](LICENSE)
 [![Latest Version](https://img.shields.io/github/v/release/eligarf/avoid-notice?display_name=tag&sort=semver&label=Latest%20Version)](https://github.com/eligarf/avoid-notice/releases/latest)
-![Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https%3A%2F%2Fraw.githubusercontent.com%2Feligarf%2Favoid%2Dnotice%2Fdev%2Fmodule.json)
+![Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https%3A%2F%2Fraw.github.com%2Feligarf%2Favoid-notice%2Frelease%2Fmodule.json)
 
 ![Latest Downloads](https://img.shields.io/github/downloads/eligarf/avoid-notice/latest/total?color=blue&label=latest%20downloads)
 ![Total Downloads](https://img.shields.io/github/downloads/eligarf/avoid-notice/total?color=blue&label=total%20downloads)
 # PF2e Avoid Notice
 
-A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages.
+A module for [FoundryVTT](https://foundryvtt.com) that shows results of initiative stealth check vs combatant perception DCs on the initiative messages when *Begin Encounter* is clicked.
 
 ## Initiative messages
-The module appends results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
+When *Begin Encounter* is clicked on the combat tracker, this module appends GM-visible results of checking the initiative stealth value against the non-allied combatants to the initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, and `Observed`. The numbers by each listed token in the groups shows the difference between the stealth initiative roll and the perception DC of that token. `Unnoticed` and `Undetected` status means that the token rolling initiative was not observed by the listed tokens, so the number listed will be zero or positive. Tokens listed in the `Observed` group are able to observe the stealth-using token.
 
 ![image](https://github.com/Eligarf/avoid-notice/assets/16523503/194d98aa-5a60-4564-9971-e368fa5b83f9)
 
-In the above, Amiri's stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20.
+In the above, *Amiri's* stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. If *Amiri* had been behind standard cover relative to *beast*, then *Amiri* would have a +2 to stealth and thus would be `Undetected` instead, but would require the +4 from greater cover against *grumpkin* in order to be `Undetected` by it.
+
+**NOTE: *PF2e Avoid Notice* does not trigger any cover calculations between tokens. It merely utilizes *PF2e Perception's* flags if they are already present**
 
 An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `Undetected` for stealth checks that beat both the target's perception DC and initiative. `Undetected` is always used if the stealth initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
