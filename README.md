@@ -13,7 +13,9 @@ When *Begin Encounter* is clicked on the combat tracker, this module appends GM-
 
 ![image](https://github.com/Eligarf/avoid-notice/assets/16523503/194d98aa-5a60-4564-9971-e368fa5b83f9)
 
-In the above, Amiri's stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. The deltas are there to inform the GMs should they want to take addtional factors such as cover into consideration.
+In the above, *Amiri's* stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. If *Amiri* had been behind standard cover relative to *beast*, then *Amiri* would have a +2 to stealth and thus would be `Undetected` instead, but would require the +4 from greater cover against *grumpkin* in order to be `Undetected` by it.
+
+**NOTE: *PF2e Avoid Notice* does not trigger any cover calculations between tokens. It merely utilizes *PF2e Perception's* flags if they are already present**
 
 An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `Undetected` for stealth checks that beat both the target's perception DC and initiative. `Undetected` is always used if the stealth initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
