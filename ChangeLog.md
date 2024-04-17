@@ -1,5 +1,5 @@
 # v1.1.1
-* Improvments to README.md and table format
+* Improvements to README.md and table format
 
 # v1.1.0
 * Put detection results in a table for better viewing
