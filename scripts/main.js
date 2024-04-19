@@ -135,6 +135,10 @@ Hooks.once('init', () => {
               break;
           }
         }
+        if (coverBonus) {
+          const oldDelta = stealther.initiative - target.dc;
+          target.oldDelta = (oldDelta < 0) ? `${oldDelta}` : `+${oldDelta}`
+        }
 
         // Handle failing to win at stealth
         const delta = stealther.initiative + coverBonus - target.dc;

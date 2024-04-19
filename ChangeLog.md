@@ -1,6 +1,7 @@
-# pending
+# v1.2.0
 * Look for built-in cover effect if not using PF2e Perception
-* Let PF2e Perception autocalculate cover at combat start
+* If enabled, let PF2e Perception autocalculate cover at combat start
+* Show cover adjustments on initiative message
 
 # v1.1.1
 * Improvements to README.md and table format

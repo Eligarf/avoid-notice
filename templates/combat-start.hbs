@@ -2,12 +2,16 @@
   <span><strong>{{title}}</strong></span>
   <table>
     <tbody>
-  {{#each targets as |target|}}
+      {{#each targets as |target|}}
       <tr>
         <td style="min-width:60px">{{target.name}}</td>
+        {{#if target.oldDelta}}
+        <td style="min-width:25px"><s>{{target.oldDelta}}</s><b>{{target.delta}}</b></td>
+        {{else}}
         <td style="min-width:25px">{{target.delta}}</td>
+        {{/if}}
       </tr>
-  {{/each}}
+      {{/each}}
     </tbody>
   </table>
 </div>
