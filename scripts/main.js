@@ -79,71 +79,79 @@ Hooks.once('init', () => {
     const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const overridePerception = game.settings.get(MODULE_ID, 'override');
+    const computeCover = game.settings.get(MODULE_ID, 'computeCover');
 
-    const stealthies = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
+    const stealthers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
     let perceptionChanges = {};
-    for (const combatant of stealthies) {
-      // log('combatant', combatant);
+    for (const stealther of stealthers) {
+      // log('stealther', stealther);
 
       // Only check against non-allies
-      const disposition = combatant.token.disposition;
+      const disposition = stealther.token.disposition;
       const nonAllies = encounter.combatants.contents.filter((c) => c.token.disposition != disposition);
       if (!nonAllies.length) continue;
 
-      // Now extract the details for the template
-      const combatantDoc = combatant.token instanceof Token ? combatant.token.document : combatant.token;
-      const coverEffect = combatantDoc.actor.items.find((i) => i.system.slug === 'effect-cover');
-      log(`coverEffect :${coverEffect?.level}`, coverEffect);
-      
-      perceptionChanges[combatantDoc.id] = {};
-      let tokenUpdate = perceptionChanges[combatantDoc.id];
+      // Now extract some details about the stealther
+      const stealtherTokenDoc = stealther.token instanceof Token ? stealther.token.document : stealther.token;
+      const coverEffect = stealtherTokenDoc.actor.items.find((i) => i.system.slug === 'effect-cover');
+      const bonusElement = coverEffect?.flags.pf2e.rulesSelections.cover.bonus;
+      let baseCoverBonus = 0;
+      switch (bonusElement) {
+        case 2:
+        case 4:
+          baseCoverBonus = bonusElement;
+          break;
+      }
+
+      perceptionChanges[stealtherTokenDoc.id] = {};
+      let otherUpdate = perceptionChanges[stealtherTokenDoc.id];
       let messageData = {};
       for (const other of nonAllies) {
-        const otherDoc = other.token instanceof Token ? other.token.document : other.token;
+        const otherTokenDoc = other.token instanceof Token ? other.token.document : other.token;
 
         let target = {
           dc: other.actor.system.perception.dc,
-          name: otherDoc.name,
+          name: otherTokenDoc.name,
           id: other.token.id,
         };
 
-        // We give first priority to the per-token states in PF2e Perception
-        const perceptionData = perceptionApi ? combatantDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
-        let coverBonus = 0;
+        // We give priority to the per-token states in PF2e Perception
+        const perceptionData = perceptionApi ? stealtherTokenDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
+        let coverBonus = baseCoverBonus;
         if (perceptionApi) {
-          if (perceptionData && other.token.id in perceptionData) {
-            switch (perceptionData[other.token.id]?.cover) {
-              case 'standard':
-                coverBonus = 2;
-                break;
-              case 'greater':
-                coverBonus = 4;
-                break;
-            }
+          const cover = (computeCover)
+            ? perceptionApi.token.getCover(stealther.token._object, other.token._object)
+            : perceptionData?.[other.token.id]?.cover;
+          
+          switch (cover) {
+            case 'standard':
+              coverBonus = 2;
+              break;
+            case 'greater':
+              coverBonus = 4;
+              break;
+            default:
+              coverBonus = 0;
+              break;
           }
         }
 
-        // Otherwise, look for the cover effect
-        else {
-          coverBonus = coverEffect?.flags.pf2e.rulesSelections.cover.bonus ?? 0;
-        }
-
         // Handle failing to win at stealth
-        const delta = combatant.initiative + coverBonus - target.dc;
+        const delta = stealther.initiative + coverBonus - target.dc;
         if (delta < 0) {
           target.result = 'observed';
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
           if (overridePerception && perceptionData && other.token.id in perceptionData)
-            tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
+            otherUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
         }
 
-        // combatant beat the other token at the stealth battle
+        // stealther beat the other token at the stealth battle
         else {
           let visibility = 'undetected';
           target.delta = `+${delta}`;
-          if (useUnnoticed && combatant.initiative > other.initiative) {
+          if (useUnnoticed && stealther.initiative > other.initiative) {
             visibility = 'unnoticed';
           }
           target.result = visibility;
@@ -152,7 +160,7 @@ Hooks.once('init', () => {
           if (perceptionData?.[other.token.id]?.visibility !== visibility &&
             (overridePerception || (perceptionData && !(other.token.id in perceptionData)))
           )
-            tokenUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
+            otherUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
 
         // Add a new category if necessary, and put this other token's result in the message data
@@ -168,18 +176,18 @@ Hooks.once('init', () => {
         }
       }
 
-      // Find the last initiative chat for the combatant
+      // Find the last initiative chat for the stealther
       const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === combatant.tokenId && m.flags?.core?.initiativeRoll
+        m.speaker.token === stealther.tokenId && m.flags?.core?.initiativeRoll
       );
       if (!messages.length) {
-        log(`Couldn't find initiative card for ${combatant.token.name}`);
+        log(`Couldn't find initiative card for ${stealther.token.name}`);
         continue;
       }
 
       // Push the new detection statuses into that message
       const lastMessage = await game.messages.get(messages.pop()._id);
-      log(`messageData updates for ${combatantDoc.name}`, messageData);
+      log(`messageData updates for ${stealtherTokenDoc.name}`, messageData);
       let content = renderInitiativeDice(lastMessage.rolls[0]);
 
       for (const t of ['unnoticed', 'undetected', 'observed']) {
@@ -224,6 +232,7 @@ Hooks.once('setup', () => {
   });
 
   const perception = game.modules.get(PERCEPTION_ID)?.active;
+
   game.settings.register(MODULE_ID, 'override', {
     name: game.i18n.localize(`${MODULE_ID}.override.name`),
     hint: game.i18n.localize(`${MODULE_ID}.override.hint`),
@@ -231,6 +240,15 @@ Hooks.once('setup', () => {
     config: perception,
     type: Boolean,
     default: true,
+  });
+
+  game.settings.register(MODULE_ID, 'computeCover', {
+    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+    scope: 'world',
+    config: perception,
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register(MODULE_ID, 'logLevel', {
@@ -245,6 +263,13 @@ Hooks.once('setup', () => {
     },
     default: 'none'
   });
+
+  // if (!perception) {
+  //   Hooks.once('ready', () => {
+  //     game.settings.set(MODULE_ID, 'override', false);
+  //     game.settings.set(MODULE_ID, 'computeCover', false);
+  //   });
+  // }
 
   log(`Setup ${moduleVersion}`);
 });

@@ -20,6 +20,10 @@
     "override": {
       "name": "Override",
       "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception visibility flags on a token"
+    },
+    "computeCover": {
+      "name": "Compute Cover at Combat Start",
+      "hint": "Use 'PF2e Perception' to automatically compute cover between tokens using stealth for initiative and non-allied Tokens. It is only used for this check, and will not utilize greater cover"
     }
   }
 }

@@ -15,8 +15,6 @@ When *Begin Encounter* is clicked on the combat tracker, this module appends GM-
 
 In the above, *Amiri's* stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. If *Amiri* had been behind standard cover relative to *beast*, then *Amiri* would have a +2 to stealth and thus would be `Undetected` instead, but would require the +4 from greater cover against *grumpkin* in order to be `Undetected` by it. *PF2e Avoid Notice* will apply this bonus automatically if the token rolling stealth has an `Effect: Cover (Standard)` or `Effect: Cover (Greater)` effect on it unless *PF2e Perception* is active. 
 
-**NOTE: *PF2e Avoid Notice* does not trigger any cover calculations between tokens. It merely utilizes *PF2e Perception's* flags if they are already present**
-
 An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `Undetected` for stealth checks that beat both the target's perception DC and initiative. `Undetected` is always used if the stealth initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
 ## PF2e Perception
@@ -25,3 +23,4 @@ The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' disco
 * *PF2e Avoid Notice* will set the appropriate visibility flags on the combatant tokens to reflect the detection status determined by stealth initiative checks.
 * An *Override* setting allows *PF2e Avoid Notice* to override existing *PF2e Perception* visibility flags on tokens. Disabling this is useful if one wishes to setup any complicated situation beforehand and not get it stomped by the initiative rolls.
 * If *PF2e Perception* cover flags are found on a token using stealth for initiative, standard or greater cover bonuses will apply as appropriate against perception DCs.
+* If *Compute Cover at Combat Start* is selected, *`*PF2e Avoid Notice* will ignore existing cover flags and use *PF2e Perception* to calculate new ones for tokens using stealth as initiative for each token they are testing against

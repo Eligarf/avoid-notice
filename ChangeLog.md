@@ -1,5 +1,6 @@
 # pending
 * Look for built-in cover effect if not using PF2e Perception
+* Let PF2e Perception autocalculate cover at combat start
 
 # v1.1.1
 * Improvements to README.md and table format
