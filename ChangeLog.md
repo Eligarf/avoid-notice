@@ -1,3 +1,6 @@
+# pending
+* Look for built-in cover effect if not using PF2e Perception
+
 # v1.1.1
 * Improvements to README.md and table format
 

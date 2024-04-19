@@ -76,9 +76,9 @@ Hooks.once('init', () => {
   // });
 
   Hooks.on('combatStart', async (encounter, ...args) => {
-    const perceptionActive = game.modules.get(PERCEPTION_ID)?.active;
+    const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
-    const override = game.settings.get(MODULE_ID, 'override');
+    const overridePerception = game.settings.get(MODULE_ID, 'override');
 
     const stealthies = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
     let perceptionChanges = {};
@@ -92,6 +92,9 @@ Hooks.once('init', () => {
 
       // Now extract the details for the template
       const combatantDoc = combatant.token instanceof Token ? combatant.token.document : combatant.token;
+      const coverEffect = combatantDoc.actor.items.find((i) => i.system.slug === 'effect-cover');
+      log(`coverEffect :${coverEffect?.level}`, coverEffect);
+      
       perceptionChanges[combatantDoc.id] = {};
       let tokenUpdate = perceptionChanges[combatantDoc.id];
       let messageData = {};
@@ -103,26 +106,36 @@ Hooks.once('init', () => {
           name: otherDoc.name,
           id: other.token.id,
         };
-        const perceptionData = perceptionActive && combatantDoc?.flags?.[PERCEPTION_ID]?.data;
-        if (perceptionData && other.token.id in perceptionData) {
-          switch (perceptionData[other.token.id]?.cover) {
-            case 'standard':
-              target.dc -= 2;
-              break;
-            case 'greater':
-              target.dc -= 4;
-              break;
+
+        // We give first priority to the per-token states in PF2e Perception
+        const perceptionData = perceptionApi ? combatantDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
+        let coverBonus = 0;
+        if (perceptionApi) {
+          if (perceptionData && other.token.id in perceptionData) {
+            switch (perceptionData[other.token.id]?.cover) {
+              case 'standard':
+                coverBonus = 2;
+                break;
+              case 'greater':
+                coverBonus = 4;
+                break;
+            }
           }
         }
 
+        // Otherwise, look for the cover effect
+        else {
+          coverBonus = coverEffect?.flags.pf2e.rulesSelections.cover.bonus ?? 0;
+        }
+
         // Handle failing to win at stealth
-        const delta = combatant.initiative - target.dc;
+        const delta = combatant.initiative + coverBonus - target.dc;
         if (delta < 0) {
           target.result = 'observed';
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (override && perceptionData && other.token.id in perceptionData)
+          if (overridePerception && perceptionData && other.token.id in perceptionData)
             tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
         }
 
@@ -137,7 +150,7 @@ Hooks.once('init', () => {
 
           // Update the perception flags if there is a difference
           if (perceptionData?.[other.token.id]?.visibility !== visibility &&
-            (override || (perceptionData && !(other.token.id in perceptionData)))
+            (overridePerception || (perceptionData && !(other.token.id in perceptionData)))
           )
             tokenUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
@@ -180,7 +193,7 @@ Hooks.once('init', () => {
     }
 
     // If PF2e-perception is around, move any non-empty changes into an update array
-    if (perceptionActive) {
+    if (perceptionApi) {
       let updates = [];
       for (const id in perceptionChanges) {
         const update = perceptionChanges[id];

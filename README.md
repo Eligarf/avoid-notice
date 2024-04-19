@@ -13,7 +13,7 @@ When *Begin Encounter* is clicked on the combat tracker, this module appends GM-
 
 ![image](https://github.com/Eligarf/avoid-notice/assets/16523503/194d98aa-5a60-4564-9971-e368fa5b83f9)
 
-In the above, *Amiri's* stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. If *Amiri* had been behind standard cover relative to *beast*, then *Amiri* would have a +2 to stealth and thus would be `Undetected` instead, but would require the +4 from greater cover against *grumpkin* in order to be `Undetected` by it.
+In the above, *Amiri's* stealth roll of 16 was successful against *monster* and *creature*, who had perception DC's of 10 and 13. It was not successful against *beast* or *grumpkin*, who in turn had perception DC's of 17 and 20. If *Amiri* had been behind standard cover relative to *beast*, then *Amiri* would have a +2 to stealth and thus would be `Undetected` instead, but would require the +4 from greater cover against *grumpkin* in order to be `Undetected` by it. *PF2e Avoid Notice* will apply this bonus automatically if the token rolling stealth has an `Effect: Cover (Standard)` or `Effect: Cover (Greater)` effect on it unless *PF2e Perception* is active. 
 
 **NOTE: *PF2e Avoid Notice* does not trigger any cover calculations between tokens. It merely utilizes *PF2e Perception's* flags if they are already present**
 
