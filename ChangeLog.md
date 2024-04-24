@@ -1,3 +1,6 @@
+# v1.2.1
+* Added tooltip for cover adjustments
+
 # v1.2.0
 * Look for built-in cover effect if not using PF2e Perception
 * If enabled, let PF2e Perception autocalculate cover at combat start

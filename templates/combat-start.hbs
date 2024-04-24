@@ -6,7 +6,10 @@
       <tr>
         <td style="min-width:60px">{{target.name}}</td>
         {{#if target.oldDelta}}
-        <td style="min-width:25px"><s>{{target.oldDelta}}</s><b>{{target.delta}}</b></td>
+        <td style="min-width:25px">
+          <span><s>{{target.oldDelta}}</s></span>
+          <span data-tooltip="<div>{{target.tooltip}}</div>"> <b>{{target.delta}}</b></span>
+        </td>
         {{else}}
         <td style="min-width:25px">{{target.delta}}</td>
         {{/if}}

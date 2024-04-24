@@ -138,6 +138,7 @@ Hooks.once('init', () => {
         if (coverBonus) {
           const oldDelta = stealther.initiative - target.dc;
           target.oldDelta = (oldDelta < 0) ? `${oldDelta}` : `+${oldDelta}`
+          target.tooltip = (coverBonus == 2) ? 'Standard Cover: +2' : (coverBonus == 4) ? 'Greater Cover: +4' : `Cover: +${coverBonus}`;
         }
 
         // Handle failing to win at stealth
