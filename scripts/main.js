@@ -122,7 +122,7 @@ Hooks.once('init', () => {
           const cover = (computeCover)
             ? perceptionApi.token.getCover(stealther.token._object, other.token._object)
             : perceptionData?.[other.token.id]?.cover;
-          
+
           switch (cover) {
             case 'standard':
               coverBonus = 2;
@@ -137,8 +137,15 @@ Hooks.once('init', () => {
         }
         if (coverBonus) {
           const oldDelta = stealther.initiative - target.dc;
-          target.oldDelta = (oldDelta < 0) ? `${oldDelta}` : `+${oldDelta}`
-          target.tooltip = (coverBonus == 2) ? 'Standard Cover: +2' : (coverBonus == 4) ? 'Greater Cover: +4' : `Cover: +${coverBonus}`;
+          target.oldDelta = (oldDelta < 0) ? `${oldDelta}` : `+${oldDelta}`;
+          switch (coverBonus) {
+            case 2:
+              target.tooltip = `${game.i18n.localize(`${MODULE_ID}.standardCover`)}: +2`;
+              break;
+            case 4:
+              target.tooltip = `${game.i18n.localize(`${MODULE_ID}.greaterCover`)}: +4`;
+              break;
+          }
         }
 
         // Handle failing to win at stealth
@@ -223,6 +230,12 @@ Hooks.once('init', () => {
   });
 });
 
+function migrate(moduleVersion, oldVersion) {
+
+  ui.notifications.warn(`Updated PF2e Avoid Notice data from ${oldVersion} to ${moduleVersion}`);
+  return moduleVersion;
+}
+
 Hooks.once('setup', () => {
   const module = game.modules.get(MODULE_ID);
   const moduleVersion = module.version;
@@ -255,6 +268,28 @@ Hooks.once('setup', () => {
     type: Boolean,
     default: false,
   });
+
+  game.settings.register(MODULE_ID, 'schema', {
+    name: game.i18n.localize(`${MODULE_ID}.schema.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
+    scope: 'world',
+    config: true,
+    type: String,
+    default: `${moduleVersion}`,
+    onChange: value => {
+      const newValue = migrate(moduleVersion, value);
+      if (value != newValue) {
+        game.settings.set(MODULE_ID, 'schema', newValue);
+      }
+    }
+  });
+  const schemaVersion = game.settings.get(MODULE_ID, 'schema');
+  if (schemaVersion !== moduleVersion) {
+    Hooks.once('ready', () => {
+      game.settings.set(MODULE_ID, 'schema', migrate(moduleVersion, schemaVersion));
+    });
+  }
+
 
   game.settings.register(MODULE_ID, 'logLevel', {
     name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),

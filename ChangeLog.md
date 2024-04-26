@@ -1,3 +1,7 @@
+# v1.2.2
+* Localize the tooltips
+* Added a schema setting to help with any future data migrations
+
 # v1.2.1
 * Added tooltip for cover adjustments
 
