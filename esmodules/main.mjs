@@ -213,17 +213,17 @@ Hooks.once('init', () => {
           for (const target of status.targets) {
             content += `
                   <tr>
-                    <td id="name">${target.name}</td>`;
+                    <td id="${MODULE_ID}-name">${target.name}</td>`;
             if (target.oldDelta) {
               content += `
-                    <td id="delta">
+                    <td id="${MODULE_ID}-delta">
                       <span><s>${target.oldDelta}</s></span>
                       <span data-tooltip="<div>${target.tooltip}</div>"> <b>${target.delta}</b></span>
                     </td>`;
             }
             else {
               content += `
-                    <td id="delta">${target.delta}</td>`;
+                    <td id="${MODULE_ID}-delta">${target.delta}</td>`;
             }
             content += `
                   </tr>`;
