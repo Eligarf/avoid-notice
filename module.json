@@ -25,7 +25,7 @@
     ]
   },
   "esmodules": [
-    "scripts/main.js"
+    "esmodules/main.mjs"
   ],
   "languages": [
     {
