@@ -25,7 +25,7 @@
     ]
   },
   "esmodules": [
-    "esmodules/main.mjs"
+    "esmodules/main.js"
   ],
   "styles": [
     "styles/style.css"
