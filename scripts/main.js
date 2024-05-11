@@ -148,15 +148,28 @@ Hooks.once('init', () => {
           }
         }
 
-        // Handle failing to win at stealth
+        // Handle critical failing to win at stealth
         const delta = stealther.initiative + coverBonus - target.dc;
-        if (delta < 0) {
+        if (delta < -9) {
           target.result = 'observed';
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
           if (overridePerception && perceptionData && other.token.id in perceptionData)
             otherUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
+        }
+
+        // Normal fail is hidden
+        else if (delta < 0) {
+          const visibility = 'hidden';
+          target.result = visibility;
+          target.delta = `${delta}`;
+
+          // Remove any existing perception flag as we are observed
+          if (perceptionData?.[other.token.id]?.visibility !== visibility &&
+            (overridePerception || (perceptionData && !(other.token.id in perceptionData)))
+          )
+            otherUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
 
         // stealther beat the other token at the stealth battle
@@ -202,7 +215,7 @@ Hooks.once('init', () => {
       log(`messageData updates for ${stealtherTokenDoc.name}`, messageData);
       let content = renderInitiativeDice(lastMessage.rolls[0]);
 
-      for (const t of ['unnoticed', 'undetected', 'observed']) {
+      for (const t of ['unnoticed', 'undetected', 'hidden', 'observed']) {
         const status = messageData[t];
         if (status) {
           content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, status);

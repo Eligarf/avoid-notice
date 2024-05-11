@@ -1,3 +1,6 @@
+# v1.2.3
+* Fix failed stealth to follow Sneak rules
+
 # v1.2.2
 * Localize the tooltips
 * Added a schema setting to help with any future data migrations

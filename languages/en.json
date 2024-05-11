@@ -2,6 +2,7 @@
   "pf2e-avoid-notice": {
     "detectionTitle": {
       "observed": "Observed",
+      "hidden": "Hidden",
       "undetected": "Undetected",
       "unnoticed": "Unnoticed"
     },
