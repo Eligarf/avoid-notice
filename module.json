@@ -8,7 +8,7 @@
       "flags": {}
     }
   ],
-  "version": "autoreplaced",
+  "version": "1.2.2",
   "compatibility": {
     "minimum": "11.315",
     "verified": "11.315"
@@ -25,7 +25,10 @@
     ]
   },
   "esmodules": [
-    "scripts/main.js"
+    "esmodules/main.js"
+  ],
+  "styles": [
+    "styles/style.css"
   ],
   "languages": [
     {
@@ -36,11 +39,11 @@
     }
   ],
   "socket": true,
-  "url": "autoreplaced",
-  "manifest": "autoreplaced",
-  "download": "autoreplaced",
+  "url": "https://github.com/Eligarf/avoid-notice",
+  "manifest": "replaced",
+  "download": "replaced",
   "changelog": "ChangeLog.md",
-  "bugs": "autoreplaced",
+  "bugs": "https://github.com/Eligarf/avoid-notice/issues",
   "readme": "README.md",
   "license": "LICENSE"
 }

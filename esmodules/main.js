@@ -218,7 +218,33 @@ Hooks.once('init', () => {
       for (const t of ['unnoticed', 'undetected', 'hidden', 'observed']) {
         const status = messageData[t];
         if (status) {
-          content += await renderTemplate(`modules/${MODULE_ID}/templates/combat-start.hbs`, status);
+          content += `
+            <div data-visibility="gm">
+              <span><strong>${status.title}</strong></span>
+              <table>
+                <tbody>`;
+          for (const target of status.targets) {
+            content += `
+                  <tr>
+                    <td id="${MODULE_ID}-name">${target.name}</td>`;
+            if (target.oldDelta) {
+              content += `
+                    <td id="${MODULE_ID}-delta">
+                      <span><s>${target.oldDelta}</s></span>
+                      <span data-tooltip="<div>${target.tooltip}</div>"> <b>${target.delta}</b></span>
+                    </td>`;
+            }
+            else {
+              content += `
+                    <td id="${MODULE_ID}-delta">${target.delta}</td>`;
+            }
+            content += `
+                  </tr>`;
+          }
+          content += `
+                </tbody>
+              </table>
+            </div>`;
         }
       }
 
