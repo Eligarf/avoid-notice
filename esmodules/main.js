@@ -311,7 +311,7 @@ Hooks.once('setup', () => {
     scope: 'world',
     config: true,
     type: Boolean,
-    default: true,
+    default: false,
   });
 
   const perception = game.modules.get(PERCEPTION_ID)?.active;
