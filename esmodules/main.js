@@ -83,7 +83,17 @@ Hooks.once('init', () => {
     const computeCover = game.settings.get(MODULE_ID, 'computeCover');
 
     const stealthers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
+    const gmHiddenIds = encounter.combatants.contents
+      .map((c) => c.token instanceof Token ? c.token.document : c.token)
+      .filter((t) => t.hidden)
+      .map((t) => t.id);
     let perceptionChanges = {};
+    let revealedIds = encounter.combatants.contents
+      .filter((c) => c.flags.pf2e.initiativeStatistic !== 'stealth')
+      .map((c) => c.token instanceof Token ? c.token.document : c.token)
+      .filter((t) => t.hidden)
+      .map((t) => t.id);
+
     for (const stealther of stealthers) {
       // log('stealther', stealther);
 
@@ -189,6 +199,10 @@ Hooks.once('init', () => {
             otherUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
         }
 
+        if (target?.result !== 'unnoticed' && gmHiddenIds.includes(stealtherTokenDoc.id) && !revealedIds.includes(stealtherTokenDoc.id)) {
+          revealedIds.push(stealtherTokenDoc.id);
+        }
+
         // Add a new category if necessary, and put this other token's result in the message data
         if (!(target.result in messageData)) {
           messageData[target.result] = {
@@ -262,18 +276,15 @@ Hooks.once('init', () => {
       }
     }
 
-    // Un-GM-hide any combatants
+    // Un-GM-hide any noticed combatants
     if (removeGmHidden) {
-      const gmHidden = encounter.combatants.contents
-        .map((c) => c.token instanceof Token ? c.token.document : c.token)
-        .filter((t) => t.hidden);
-      for (const t of gmHidden) {
-        let update = updates.find((u) => u._id === t.id);
+      for (const t of revealedIds) {
+        let update = updates.find((u) => u._id === t);
         if (update) {
           update.hidden = false;
         }
         else {
-          updates.push({ _id: t.id, hidden: false });
+          updates.push({ _id: t, hidden: false });
         }
       }
     }
