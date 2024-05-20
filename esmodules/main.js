@@ -78,6 +78,7 @@ Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
+    const removeGmHidden = game.settings.get(MODULE_ID, 'removeGmHidden');
     const overridePerception = game.settings.get(MODULE_ID, 'override');
     const computeCover = game.settings.get(MODULE_ID, 'computeCover');
 
@@ -252,19 +253,35 @@ Hooks.once('init', () => {
     }
 
     // If PF2e-perception is around, move any non-empty changes into an update array
+    let updates = [];
     if (perceptionApi) {
-      let updates = [];
       for (const id in perceptionChanges) {
         const update = perceptionChanges[id];
         if (Object.keys(update).length)
           updates.push({ _id: id, ...update });
       }
+    }
 
-      // Update all the tokens at once, skipping an empty update
-      log('token updates', updates);
-      if (updates.length > 0) {
-        canvas.scene.updateEmbeddedDocuments("Token", updates);
+    // Un-GM-hide any combatants
+    if (removeGmHidden) {
+      const gmHidden = encounter.combatants.contents
+        .map((c) => c.token instanceof Token ? c.token.document : c.token)
+        .filter((t) => t.hidden);
+      for (const t of gmHidden) {
+        let update = updates.find((u) => u._id === t.id);
+        if (update) {
+          update.hidden = false;
+        }
+        else {
+          updates.push({ _id: t.id, hidden: false });
+        }
       }
+    }
+
+    // Update all the tokens at once, skipping an empty update
+    if (updates.length > 0) {
+      log('token updates', updates);
+      canvas.scene.updateEmbeddedDocuments("Token", updates);
     }
   });
 });
@@ -286,6 +303,15 @@ Hooks.once('setup', () => {
     config: true,
     type: Boolean,
     default: true,
+  });
+
+  game.settings.register(MODULE_ID, 'removeGmHidden', {
+    name: game.i18n.localize(`${MODULE_ID}.removeGmHidden.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.removeGmHidden.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
   });
 
   const perception = game.modules.get(PERCEPTION_ID)?.active;

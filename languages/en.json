@@ -18,6 +18,10 @@
       "name": "Unnoticed",
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
     },
+    "removeGmHidden": {
+      "name": "Remove GM Hidden Flags at Combat Start",
+      "hint": "Combatant tokens which have been manually hidden by toggling their visibility state to off will be changed to on at combat start, allowing perception/stealth results to affect visibility as normal"
+    },
     "override": {
       "name": "Override",
       "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception visibility flags on a token"

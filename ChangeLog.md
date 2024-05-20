@@ -1,3 +1,7 @@
+# v1.3.0
+* V12 compatibility
+* Add option to remove GM hidden state on combatants at combat start.
+
 # v1.2.3
 * Fix failed stealth to follow Sneak rules
 

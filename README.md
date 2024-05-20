@@ -17,6 +17,8 @@ In the above, *Amiri's* stealth roll of 13 was successful against *monster* and 
 
 An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `Undetected` for stealth checks that beat both the target's perception DC and initiative. `Undetected` is always used if the stealth initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
+*PF2e Avoid Notice* also can remove the GM hidden states of combatants if enabled in the game settings, since forgetting to toggle combatant visibility happens to me too often.
+
 ## PF2e Perception
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
 
