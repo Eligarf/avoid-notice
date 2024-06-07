@@ -4,14 +4,16 @@
   "description": "Shows results of initiative stealth check vs combatant perception DCs on chat card",
   "authors": [
     {
-      "name": "Eligarf",
-      "flags": {}
+      "name": "Rule",
+      "url": "https://github.com/Eligarf",
+      "discord": "rule6296",
+      "ko-fi": "rule671908"
     }
   ],
   "version": "1.2.2",
   "compatibility": {
     "minimum": "11.315",
-    "verified": "12.323"
+    "verified": "12"
   },
   "relationships": {
     "systems": [
@@ -19,7 +21,7 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "verified": "5.15.4"
+          "verified": "6.0"
         }
       }
     ]
