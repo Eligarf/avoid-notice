@@ -1,3 +1,6 @@
+# v1.3.1
+* 6.1 compatibility
+
 # v1.3.0
 * V12 compatibility
 * Add option to remove GM hidden state on noticed combatants at combat start.

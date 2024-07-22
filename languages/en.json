@@ -19,8 +19,8 @@
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
     },
     "removeGmHidden": {
-      "name": "Reveal noticed tokens with GM Hidden Flags at Combat Start",
-      "hint": "Combatant tokens which have been manually hidden by toggling their visibility state to off will be changed to on at combat start, allowing perception/stealth results to affect visibility as normal"
+      "name": "Reveal combatant tokens at Combat Start",
+      "hint": "Combatant tokens with disabled visibility will be revealed at combat start, allowing perception/stealth results to behave as expected"
     },
     "override": {
       "name": "Override",
