@@ -78,33 +78,37 @@ Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
-    const removeGmHidden = game.settings.get(MODULE_ID, 'removeGmHidden');
+    const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
     const overridePerception = game.settings.get(MODULE_ID, 'override');
     const computeCover = game.settings.get(MODULE_ID, 'computeCover');
 
-    const stealthers = encounter.combatants.contents.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth');
-    const gmHiddenIds = encounter.combatants.contents
+    const avoiders = encounter.combatants.contents.filter((c) =>
+      c.actor.system?.exploration && c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice")
+      || !c.actor.system?.exploration && c.flags.pf2e.initiativeStatistic === 'stealth');
+
+    const familiars = canvas.scene.tokens
+      .filter((t) => t?.actor?.system?.master)
+      .filter((t) => encounter.combatants.contents.some((c) => c.actor._id == t.actor.system.master.id));
+
+    const unrevealedIds = encounter.combatants.contents
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
       .filter((t) => t.hidden)
       .map((t) => t.id);
     let perceptionChanges = {};
-    let revealedIds = encounter.combatants.contents
-      .filter((c) => c.flags.pf2e.initiativeStatistic !== 'stealth')
-      .map((c) => c.token instanceof Token ? c.token.document : c.token)
-      .filter((t) => t.hidden)
-      .map((t) => t.id);
 
-    for (const stealther of stealthers) {
-      // log('stealther', stealther);
+    for (const avoider of avoiders) {
+      // log('avoider', avoider);
 
       // Only check against non-allies
-      const disposition = stealther.token.disposition;
-      const nonAllies = encounter.combatants.contents.filter((c) => c.token.disposition != disposition);
+      const disposition = avoider.token.disposition;
+      const nonAllies = encounter.combatants.contents
+        .filter((c) => c.token.disposition != disposition)
+        .concat(familiars.filter((t) => t.disposition != disposition));
       if (!nonAllies.length) continue;
 
-      // Now extract some details about the stealther
-      const stealtherTokenDoc = stealther.token instanceof Token ? stealther.token.document : stealther.token;
-      const coverEffect = stealtherTokenDoc.actor.items.find((i) => i.system.slug === 'effect-cover');
+      // Now extract some details about the avoider
+      const avoiderTokenDoc = avoider.token instanceof Token ? avoider.token.document : avoider.token;
+      const coverEffect = avoiderTokenDoc.actor.items.find((i) => i.system.slug === 'effect-cover');
       const bonusElement = coverEffect?.flags.pf2e.rulesSelections.cover.bonus;
       let baseCoverBonus = 0;
       switch (bonusElement) {
@@ -114,25 +118,27 @@ Hooks.once('init', () => {
           break;
       }
 
-      perceptionChanges[stealtherTokenDoc.id] = {};
-      let otherUpdate = perceptionChanges[stealtherTokenDoc.id];
+      perceptionChanges[avoiderTokenDoc.id] = {};
+      let otherUpdate = perceptionChanges[avoiderTokenDoc.id];
       let messageData = {};
       for (const other of nonAllies) {
-        const otherTokenDoc = other.token instanceof Token ? other.token.document : other.token;
+        const otherTokenDoc = other?.token instanceof Token ? other.token.document : other?.token ?? other;
+        const otherToken = other?.token ?? other;
+        const otherActor = otherToken.actor;
 
         let target = {
-          dc: other.actor.system.perception.dc,
+          dc: otherActor.system.perception.dc,
           name: otherTokenDoc.name,
-          id: other.token.id,
+          id: otherToken.id,
         };
 
         // We give priority to the per-token states in PF2e Perception
-        const perceptionData = perceptionApi ? stealtherTokenDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
+        const perceptionData = perceptionApi ? avoiderTokenDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
         let coverBonus = baseCoverBonus;
         if (perceptionApi) {
           const cover = (computeCover)
-            ? perceptionApi.token.getCover(stealther.token._object, other.token._object)
-            : perceptionData?.[other.token.id]?.cover;
+            ? perceptionApi.token.getCover(avoider.token._object, otherToken._object)
+            : perceptionData?.[otherToken.id]?.cover;
 
           switch (cover) {
             case 'standard':
@@ -147,7 +153,7 @@ Hooks.once('init', () => {
           }
         }
         if (coverBonus) {
-          const oldDelta = stealther.initiative - target.dc;
+          const oldDelta = avoider.initiative - target.dc;
           target.oldDelta = (oldDelta < 0) ? `${oldDelta}` : `+${oldDelta}`;
           switch (coverBonus) {
             case 2:
@@ -160,14 +166,14 @@ Hooks.once('init', () => {
         }
 
         // Handle critical failing to win at stealth
-        const delta = stealther.initiative + coverBonus - target.dc;
+        const delta = avoider.initiative + coverBonus - target.dc;
         if (delta < -9) {
           target.result = 'observed';
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (overridePerception && perceptionData && other.token.id in perceptionData)
-            otherUpdate[`flags.${PERCEPTION_ID}.data.-=${other.token.id}`] = true;
+          if (overridePerception && perceptionData && otherToken.id in perceptionData)
+            otherUpdate[`flags.${PERCEPTION_ID}.data.-=${otherToken.id}`] = true;
         }
 
         // Normal fail is hidden
@@ -177,30 +183,26 @@ Hooks.once('init', () => {
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (perceptionData?.[other.token.id]?.visibility !== visibility &&
-            (overridePerception || (perceptionData && !(other.token.id in perceptionData)))
+          if (perceptionData?.[otherToken.id]?.visibility !== visibility &&
+            (overridePerception || (perceptionData && !(otherToken.id in perceptionData)))
           )
-            otherUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
+            otherUpdate[`flags.${PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
         }
 
-        // stealther beat the other token at the stealth battle
+        // avoider beat the other token at the stealth battle
         else {
           let visibility = 'undetected';
           target.delta = `+${delta}`;
-          if (useUnnoticed && stealther.initiative > other.initiative) {
+          if (useUnnoticed && avoider.initiative > other?.initiative) {
             visibility = 'unnoticed';
           }
           target.result = visibility;
 
           // Update the perception flags if there is a difference
-          if (perceptionData?.[other.token.id]?.visibility !== visibility &&
-            (overridePerception || (perceptionData && !(other.token.id in perceptionData)))
+          if (perceptionData?.[otherToken.id]?.visibility !== visibility &&
+            (overridePerception || (perceptionData && !(otherToken.id in perceptionData)))
           )
-            otherUpdate[`flags.${PERCEPTION_ID}.data.${other.token.id}.visibility`] = visibility;
-        }
-
-        if (target?.result !== 'unnoticed' && gmHiddenIds.includes(stealtherTokenDoc.id) && !revealedIds.includes(stealtherTokenDoc.id)) {
-          revealedIds.push(stealtherTokenDoc.id);
+            otherUpdate[`flags.${PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
         }
 
         // Add a new category if necessary, and put this other token's result in the message data
@@ -216,18 +218,18 @@ Hooks.once('init', () => {
         }
       }
 
-      // Find the last initiative chat for the stealther
+      // Find the last initiative chat for the avoider
       const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === stealther.tokenId && m.flags?.core?.initiativeRoll
+        m.speaker.token === avoider.tokenId && m.flags?.core?.initiativeRoll
       );
       if (!messages.length) {
-        log(`Couldn't find initiative card for ${stealther.token.name}`);
+        log(`Couldn't find initiative card for ${avoider.token.name}`);
         continue;
       }
 
       // Push the new detection statuses into that message
       const lastMessage = await game.messages.get(messages.pop()._id);
-      log(`messageData updates for ${stealtherTokenDoc.name}`, messageData);
+      log(`messageData updates for ${avoiderTokenDoc.name}`, messageData);
       let content = renderInitiativeDice(lastMessage.rolls[0]);
 
       for (const t of ['unnoticed', 'undetected', 'hidden', 'observed']) {
@@ -276,9 +278,9 @@ Hooks.once('init', () => {
       }
     }
 
-    // Un-GM-hide any noticed combatants
-    if (removeGmHidden) {
-      for (const t of revealedIds) {
+    // Reveal combatant tokens
+    if (revealTokens) {
+      for (const t of unrevealedIds) {
         let update = updates.find((u) => u._id === t);
         if (update) {
           update.hidden = false;

@@ -1,3 +1,7 @@
+# v1.4.0
+* PCs need to have `Avoid Notice` set as an active exploration activity to hide at combat start. NPCs need to have initiative set to `stealth`.
+* Stealth is checked against Pet/Familiars of non-allied combatants 
+
 # v1.3.1
 * 6.1 compatibility
 
