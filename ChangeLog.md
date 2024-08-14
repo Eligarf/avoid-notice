@@ -1,4 +1,4 @@
-# v1.5.1
+# v1.4.1
 * Added Eidolons to the pets checked at combat start
 * Updated compatibility to 6.2
 
