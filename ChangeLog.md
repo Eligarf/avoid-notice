@@ -1,3 +1,7 @@
+# v1.5.1
+* Added Eidolons to the pets checked at combat start
+* Updated compatibility to 6.2
+
 # v1.4.0
 * PCs need to have `Avoid Notice` set as an active exploration activity to hide at combat start. NPCs need to have initiative set to `stealth`.
 * Stealth is checked against Pet/Familiars of non-allied combatants 

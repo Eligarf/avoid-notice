@@ -89,6 +89,8 @@ Hooks.once('init', () => {
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) => encounter.combatants.contents.some((c) => c.actor._id == t.actor.system.master.id));
+    const eidolons = canvas.scene.tokens
+      .filter((t) => t?.actor?.system?.details?.class?.trait == 'eidolon');
 
     const unrevealedIds = encounter.combatants.contents
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
@@ -103,7 +105,8 @@ Hooks.once('init', () => {
       const disposition = avoider.token.disposition;
       const nonAllies = encounter.combatants.contents
         .filter((c) => c.token.disposition != disposition)
-        .concat(familiars.filter((t) => t.disposition != disposition));
+        .concat(familiars.filter((t) => t.disposition != disposition))
+        .concat(eidolons.filter((t) => t.disposition != disposition));
       if (!nonAllies.length) continue;
 
       // Now extract some details about the avoider
