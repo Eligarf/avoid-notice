@@ -3,6 +3,12 @@ const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
 const PERCEPTION_ID = 'pf2e-perception';
 
+// vObject = await fromUuid("ObjectID");
+
+// vToken = await fromUuid("TokenID");
+
+// game.modules.get("perceptive").api.PerceptiveFlags.addSpottedby(vObject, vToken)
+
 function colorizeOutput(format, ...args) {
   return [
     `%c${MODULE_ID} %c|`,
