@@ -1,3 +1,6 @@
+# v1.5.0
+* Hazards are skipped as targets for avoiding notice and when unhiding combatants. Hazards with `stealth` for initiative still display a list of which combatants they avoid notice from.
+
 # v1.4.1
 * Added Eidolons to the pets checked at combat start
 * Updated compatibility to 6.2
