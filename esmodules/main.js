@@ -94,7 +94,7 @@ Hooks.once('init', () => {
 
     const unrevealedIds = encounter.combatants.contents
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
-      .filter((t) => t.hidden)
+      .filter((t) => t.hidden && t.actor.type !== 'hazard')
       .map((t) => t.id);
     let perceptionChanges = {};
 
@@ -128,6 +128,7 @@ Hooks.once('init', () => {
         const otherTokenDoc = other?.token instanceof Token ? other.token.document : other?.token ?? other;
         const otherToken = other?.token ?? other;
         const otherActor = otherToken.actor;
+        if (otherActor.type === 'hazard') continue;
 
         let target = {
           dc: otherActor.system.perception.dc,
