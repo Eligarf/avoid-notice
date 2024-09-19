@@ -1,3 +1,6 @@
+# v1.6.0
+* Add a setting to disable the requirement that PCs have an active `Avoid Notice` exploration activity to hide at combat start.
+
 # v1.5.0
 * Hazards are skipped as targets for avoiding notice and when unhiding combatants. Hazards with `stealth` for initiative still display a list of which combatants they avoid notice from.
 
