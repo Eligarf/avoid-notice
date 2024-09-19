@@ -22,6 +22,10 @@
       "name": "Reveal combatant tokens at Combat Start",
       "hint": "Combatant tokens with disabled visibility will be revealed at combat start, allowing perception/stealth results to behave as expected"
     },
+    "requireActivity": {
+      "name": "Require 'Avoid Notice' exploration activity",
+      "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative."
+    },
     "override": {
       "name": "Override",
       "hint": "Allow 'PF2e Avoid Notice' to override any existing PF2e-perception visibility flags on a token"
@@ -33,6 +37,7 @@
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"
-    }
+    },
+    "nonHider": "Needs to use Avoid Notice exploration activity if wanting to hide at combat start"
   }
 }

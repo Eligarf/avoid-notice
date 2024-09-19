@@ -81,10 +81,19 @@ Hooks.once('init', () => {
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
     const overridePerception = game.settings.get(MODULE_ID, 'override');
     const computeCover = game.settings.get(MODULE_ID, 'computeCover');
+    const requireActivity = game.modules.get(MODULE_ID, 'requireActivity');
+    let nonAvoidingPcs = [];
 
-    const avoiders = encounter.combatants.contents.filter((c) =>
-      c.actor.system?.exploration && c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice")
-      || !c.actor.system?.exploration && c.flags.pf2e.initiativeStatistic === 'stealth');
+    let avoiders = encounter.combatants.contents.filter((c) =>
+      !(c.actor?.parties?.size > 0 && c.actor.system?.exploration) && c.flags.pf2e.initiativeStatistic === 'stealth');
+    const pcs = encounter.combatants.contents.filter((c) => c.actor?.parties?.size > 0 && c.actor.system?.exploration);
+    if (!requireActivity) {
+      avoiders = avoiders.concat(pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth'));
+    }
+    else {
+      avoiders = avoiders.concat(pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice")));
+      nonAvoidingPcs = pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth' && !c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice"));
+    }
 
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
@@ -272,6 +281,20 @@ Hooks.once('init', () => {
       await lastMessage.update({ content });
     }
 
+    for (const nonAvoider of nonAvoidingPcs) {
+      const messages = game.messages.contents.filter((m) =>
+        m.speaker.token === nonAvoider.tokenId && m.flags?.core?.initiativeRoll
+      );
+      if (!messages.length) {
+        log(`Couldn't find initiative card for ${avoider.token.name}`);
+        continue;
+      }
+      const lastMessage = await game.messages.get(messages.pop()._id);
+      let content = renderInitiativeDice(lastMessage.rolls[0]);
+      content += `<div><span>${game.i18n.localize("pf2e-avoid-notice.nonHider")}</span></div>`
+      await lastMessage.update({ content });
+    }
+
     // If PF2e-perception is around, move any non-empty changes into an update array
     let updates = [];
     if (perceptionApi) {
@@ -329,6 +352,15 @@ Hooks.once('setup', () => {
     config: true,
     type: Boolean,
     default: false,
+  });
+
+  game.settings.register(MODULE_ID, 'requireActivity', {
+    name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
   });
 
   const perception = game.modules.get(PERCEPTION_ID)?.active;
