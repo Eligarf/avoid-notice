@@ -26,10 +26,13 @@
       "name": "Require 'Avoid Notice' exploration activity",
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative."
     },
-    "override": {
-      "name": "Override",
-      "perceptionHint": "Allow 'PF2e Avoid Notice' to override any existing 'PF2e-perception' visibility flags on a token",
-      "perceptiveHint": "Allow 'PF2e Avoid Notice' to override any existing 'perceptive' visibility flags on a token"
+    "conditionHandler": {
+      "name": "Condition Handler",
+      "hint": "Worst dc visually favors the sneakers, whereas best dc visually favors the seekers.",
+      "ignore": "Don't set the status conditions",
+      "best": "Use the best perception dc to determine the condition",
+      "worst": "Use the worst perception dc to determine the condition",
+      "perception": "Let the pf2e-perception module handle it"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",

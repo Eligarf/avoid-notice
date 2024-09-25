@@ -1,6 +1,6 @@
 # pending
-* Critical failure on initiative roll affects the sneak results
-* Add support for 'Perceptive' module
+* Critical rolls on initiative affect the degree of success of the sneak evaluation
+* Added a condition handler setting, allowing a choice of how to handle setting the `hidden`, `undetected`, and `unnoticed` settings at your table.
 
 # v1.7.0
 * Fixed a dumb typo preventing the 1.6 feature from working

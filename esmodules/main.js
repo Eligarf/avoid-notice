@@ -77,10 +77,11 @@ Hooks.once('init', () => {
   // });
 
   Hooks.on('combatStart', async (encounter, ...args) => {
+    const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
     const pf2ePerceptionApi = game.modules.get(PF2E_PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
-    const overridePf2ePerception = pf2ePerceptionApi && game.settings.get(MODULE_ID, 'override');
+    const overridePf2ePerception = pf2ePerceptionApi && conditionHandler === 'perception';
     const computeCover = pf2ePerceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
     const perceptiveApi = game.modules.get(PERCEPTIVE_ID)?.api;
@@ -108,7 +109,7 @@ Hooks.once('init', () => {
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
       .filter((t) => t.hidden && !(typeof pf2ePerceptionApi !== 'undefined' && t.actor.type === 'hazard'))
       .map((t) => t.id);
-    
+
     let pf2ePerceptionChanges = {};
     for (const avoider of avoiders) {
       // log('avoider', avoider);
@@ -196,7 +197,7 @@ Hooks.once('init', () => {
 
         // Handle critical failing to win at stealth
         const delta = avoider.initiative + coverBonus - target.dc;
-        const dos = dosDelta + (delta < -9) ? 0 : (delta < 0) ? 1 : (delta < 9) ? 2 : 3;
+        const dos = dosDelta + ((delta < -9) ? 0 : (delta < 0) ? 1 : (delta < 9) ? 2 : 3);
         if (dos < 1) {
           target.result = 'observed';
           target.delta = `${delta}`;
@@ -254,16 +255,47 @@ Hooks.once('init', () => {
         }
       }
 
-      if (typeof pf2ePerceptionApi === 'undefined') {
-        if (results.unnoticed?.length > 0) {
-          if (results.undetected) results.undetected.concat(results.unnoticed);
-          else results.undetected = results.unnoticed;
-          delete results.unnoticed;
+      if (['best','worst'].includes(conditionHandler)) {
+        async function tweakStatuses(actor, off, on) {
+          const removals = actor.items
+            .filter((i) => i.type === 'condition' && off.includes(i.system.slug))
+            .map((i) => i.system.slug);
+          for (const c of removals) {
+            await actor.toggleCondition(c, { active: false });
+          }
+          if (on) {
+            await actor.toggleCondition(on, {active: true});
+          }
         }
-        log(`results for ${avoider.id}`, results);
-        if (perceptiveApi) {
-          // log(`${avoider.token.id} spotted by ${otherToken.id}`);
-          // await perceptiveApi.PerceptiveFlags.addSpottedby(avoider.token, otherToken);
+
+        // best refers to the dc, not the degree of success
+        if (conditionHandler === 'best') {
+          if (results?.observed) {
+            await tweakStatuses(avoider.actor, ['hidden', 'undetected', 'unnoticed']);
+          }
+          else if (results?.hidden) {
+            await tweakStatuses(avoider.actor, ['undetected', 'unnoticed'], 'hidden');
+          }
+          else if (results?.undetected) {
+            await tweakStatuses(avoider.actor, ['hidden', 'unnoticed'], 'undetected');
+          }
+          else if (results?.unnoticed) {
+            await tweakStatuses(avoider.actor, ['hidden', 'undetected'], 'unnoticed');
+          }
+        }
+        else {
+          if (results?.unnoticed) {
+            await tweakStatuses(avoider.actor, ['hidden', 'undetected'], 'unnoticed');
+          }
+          else if (results?.undetected) {
+            await tweakStatuses(avoider.actor, ['hidden', 'unnoticed'], 'undetected');
+          }
+          else if (results?.hidden) {
+            await tweakStatuses(avoider.actor, ['undetected', 'unnoticed'], 'hidden');
+          }
+          else if (results?.observed) {
+            await tweakStatuses(avoider.actor, ['hidden', 'undetected', 'unnoticed']);
+          }
         }
       }
 
@@ -364,7 +396,8 @@ Hooks.once('ready', () => {
     // Only do stuff if we are changing hidden, undetected, or unnoticed conditions and using pf2e-perception
     const pf2ePerceptionApi = game.modules.get(PF2E_PERCEPTION_ID)?.api;
     if (!pf2ePerceptionApi) return;
-    const overridePf2ePerception = game.settings.get(MODULE_ID, 'override');
+    const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
+    const overridePf2ePerception = conditionHandler === 'perception';
     if (!overridePf2ePerception) return;
     if (item?.type !== 'condition' || !['hidden', 'undetected', 'unnoticed'].includes(item?.system?.slug)) return;
 
@@ -429,23 +462,33 @@ Hooks.once('setup', () => {
   const perception = game.modules.get(PF2E_PERCEPTION_ID)?.active;
   const perceptive = game.modules.get(PERCEPTIVE_ID)?.active;
 
-  game.settings.register(MODULE_ID, 'override', {
-    name: game.i18n.localize(`${MODULE_ID}.override.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.override.${perception ? 'perceptionHint' : 'perceptiveHint'}`),
-    scope: 'world',
-    config: perception || perceptive,
-    type: Boolean,
-    default: true,
-  });
+  let choices = {
+    'ignore': `${MODULE_ID}.conditionHandler.ignore`,
+    'best': `${MODULE_ID}.conditionHandler.best`,
+    'worst': `${MODULE_ID}.conditionHandler.worst`,
+  };
+  if (perception) choices.perception = `${MODULE_ID}.conditionHandler.perception`;
 
-  game.settings.register(MODULE_ID, 'computeCover', {
-    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+  game.settings.register(MODULE_ID, 'conditionHandler', {
+    name: game.i18n.localize(`${MODULE_ID}.conditionHandler.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.conditionHandler.hint`),
     scope: 'world',
-    config: perception,
-    type: Boolean,
-    default: false,
-  });
+    config: true,
+    type: String,
+    choices,
+    default: (perception) ? 'perception' : 'ignore'
+  })
+
+  if (perception) {
+    game.settings.register(MODULE_ID, 'computeCover', {
+      name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
+      hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+      scope: 'world',
+      config: perception,
+      type: Boolean,
+      default: false,
+    });
+  }
 
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
