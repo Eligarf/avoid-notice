@@ -79,8 +79,8 @@ Hooks.once('init', () => {
     const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
-    const overridePerception = game.settings.get(MODULE_ID, 'override');
-    const computeCover = game.settings.get(MODULE_ID, 'computeCover');
+    const overridePerception = perceptionApi && game.settings.get(MODULE_ID, 'override');
+    const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.modules.get(MODULE_ID, 'requireActivity');
     let nonAvoidingPcs = [];
 
@@ -291,7 +291,7 @@ Hooks.once('init', () => {
       }
       const lastMessage = await game.messages.get(messages.pop()._id);
       let content = renderInitiativeDice(lastMessage.rolls[0]);
-      content += `<div><span>${game.i18n.localize("pf2e-avoid-notice.nonHider")}</span></div>`
+      content += `<div><span>${game.i18n.localize("pf2e-avoid-notice.nonHider")}</span></div>`;
       await lastMessage.update({ content });
     }
 
@@ -332,6 +332,41 @@ function migrate(moduleVersion, oldVersion) {
   return moduleVersion;
 }
 
+Hooks.once('ready', () => {
+
+  async function clearPf2ePerceptionFlags(item, options, userId) {
+    // Only do stuff if we are changing hidden, undetected, or unnoticed in perception
+    const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
+    if (!perceptionApi) return;
+    const overridePerception = game.settings.get(MODULE_ID, 'override');
+    if (!overridePerception) return;
+    if (item?.type !== 'condition' || !['hidden', 'undetected', 'unnoticed'].includes(item?.system?.slug)) return;
+
+    // Get the token on the current scene
+    const token = options.parent?.parent ?? canvas.scene.tokens.find((t) => t.actorId === options.parent.id);
+    if (!token) return;
+
+    // Remove any ids that perception is tracking if there are any
+    const perceptionData = token.flags?.[PERCEPTION_ID]?.data;
+    if (!Object.keys(perceptionData).length) return;
+    let tokenUpdate = {};
+    for (let id in perceptionData) {
+      tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${id}`] = true;
+    }
+    const updates = [{ _id: token.id, ...tokenUpdate }];
+    await canvas.scene.updateEmbeddedDocuments("Token", updates);
+  }
+
+  Hooks.on("deleteItem", async (item, options, userId) => {
+    await clearPf2ePerceptionFlags(item, options, userId);
+  });
+
+  Hooks.on("createItem", async (item, options, userId) => {
+    await clearPf2ePerceptionFlags(item, options, userId);
+  });
+
+});
+
 Hooks.once('setup', () => {
   const module = game.modules.get(MODULE_ID);
   const moduleVersion = module.version;
@@ -364,24 +399,25 @@ Hooks.once('setup', () => {
   });
 
   const perception = game.modules.get(PERCEPTION_ID)?.active;
+  if (perception) {
+    game.settings.register(MODULE_ID, 'override', {
+      name: game.i18n.localize(`${MODULE_ID}.override.name`),
+      hint: game.i18n.localize(`${MODULE_ID}.override.perceptionHint`),
+      scope: 'world',
+      config: true,
+      type: Boolean,
+      default: true,
+    });
 
-  game.settings.register(MODULE_ID, 'override', {
-    name: game.i18n.localize(`${MODULE_ID}.override.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.override.hint`),
-    scope: 'world',
-    config: perception,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(MODULE_ID, 'computeCover', {
-    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
-    scope: 'world',
-    config: perception,
-    type: Boolean,
-    default: false,
-  });
+    game.settings.register(MODULE_ID, 'computeCover', {
+      name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
+      hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+      scope: 'world',
+      config: true,
+      type: Boolean,
+      default: false,
+    });
+  }
 
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),

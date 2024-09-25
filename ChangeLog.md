@@ -1,3 +1,6 @@
+# v1.7.0
+* If override is allowed, remove any pf2e-perception flags on a token if actor gets a condition item change to `hidden`, `undetected`, or `unnoticed`. This typically comes from using 'Assign Status Effects' on the token HUD; I use it to quickly clear out pf2e-perception's mix of hidden/undetected states after a token attacks by setting then clearing `hidden` in the token HUD.
+
 # v1.6.0
 * Add a setting to disable the requirement that PCs have an active `Avoid Notice` exploration activity to hide at combat start.
 
