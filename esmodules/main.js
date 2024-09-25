@@ -4,12 +4,6 @@ const MODULE_ID = 'pf2e-avoid-notice';
 const PF2E_PERCEPTION_ID = 'pf2e-perception';
 const PERCEPTIVE_ID = 'perceptive';
 
-// vObject = await fromUuid("ObjectID");
-
-// vToken = await fromUuid("TokenID");
-
-// game.modules.get(PERCEPTIVE_ID).api.PerceptiveFlags.addSpottedby(vObject, vToken)
-
 function colorizeOutput(format, ...args) {
   return [
     `%c${MODULE_ID} %c|`,
@@ -106,18 +100,30 @@ Hooks.once('init', () => {
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) => encounter.combatants.contents.some((c) => c.actor._id == t.actor.system.master.id));
-    
+
     const eidolons = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.details?.class?.trait == 'eidolon');
 
     const unrevealedIds = encounter.combatants.contents
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
-      .filter((t) => t.hidden && t.actor.type !== 'hazard')
+      .filter((t) => t.hidden && !(typeof pf2ePerceptionApi !== 'undefined' && t.actor.type === 'hazard'))
       .map((t) => t.id);
     
     let pf2ePerceptionChanges = {};
     for (const avoider of avoiders) {
       // log('avoider', avoider);
+
+      // Find the last initiative chat for the avoider
+      const messages = game.messages.contents.filter((m) =>
+        m.speaker.token === avoider.tokenId && m.flags?.core?.initiativeRoll
+      );
+      if (!messages.length) {
+        log(`Couldn't find initiative card for ${avoider.token.name}`);
+        continue;
+      }
+      const initiativeMessage = await game.messages.get(messages.pop()._id);
+      const initRoll = initiativeMessage.rolls[0].dice[0].total;
+      const dosDelta = (initRoll == 1) ? -1 : (initRoll == 20) ? 1 : 0;
 
       // Only check against non-allies
       const disposition = avoider.token.disposition;
@@ -142,6 +148,7 @@ Hooks.once('init', () => {
       pf2ePerceptionChanges[avoiderTokenDoc.id] = {};
       let pf2ePerceptionUpdate = pf2ePerceptionChanges[avoiderTokenDoc.id];
       let messageData = {};
+      let results = {};
       for (const other of nonAllies) {
         const otherTokenDoc = other?.token instanceof Token ? other.token.document : other?.token ?? other;
         const otherToken = other?.token ?? other;
@@ -189,20 +196,18 @@ Hooks.once('init', () => {
 
         // Handle critical failing to win at stealth
         const delta = avoider.initiative + coverBonus - target.dc;
-        if (delta < -9) {
+        const dos = dosDelta + (delta < -9) ? 0 : (delta < 0) ? 1 : (delta < 9) ? 2 : 3;
+        if (dos < 1) {
           target.result = 'observed';
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
           if (overridePf2ePerception && pf2ePerceptionData && otherToken.id in pf2ePerceptionData)
             pf2ePerceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${otherToken.id}`] = true;
-          if (perceptiveApi) {
-
-          }
         }
 
         // Normal fail is hidden
-        else if (delta < 0) {
+        else if (dos < 2) {
           const visibility = 'hidden';
           target.result = visibility;
           target.delta = `${delta}`;
@@ -230,6 +235,12 @@ Hooks.once('init', () => {
             pf2ePerceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
         }
 
+        if (!(target.result in results)) {
+          results[target.result] = [target];
+        } else {
+          results[target.result].push(target);
+        }
+
         // Add a new category if necessary, and put this other token's result in the message data
         if (!(target.result in messageData)) {
           messageData[target.result] = {
@@ -243,19 +254,21 @@ Hooks.once('init', () => {
         }
       }
 
-      // Find the last initiative chat for the avoider
-      const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === avoider.tokenId && m.flags?.core?.initiativeRoll
-      );
-      if (!messages.length) {
-        log(`Couldn't find initiative card for ${avoider.token.name}`);
-        continue;
+      if (typeof pf2ePerceptionApi === 'undefined') {
+        if (results.unnoticed?.length > 0) {
+          if (results.undetected) results.undetected.concat(results.unnoticed);
+          else results.undetected = results.unnoticed;
+          delete results.unnoticed;
+        }
+        log(`results for ${avoider.id}`, results);
+        if (perceptiveApi) {
+          // log(`${avoider.token.id} spotted by ${otherToken.id}`);
+          // await perceptiveApi.PerceptiveFlags.addSpottedby(avoider.token, otherToken);
+        }
       }
 
-      // Push the new detection statuses into that message
-      const lastMessage = await game.messages.get(messages.pop()._id);
       log(`messageData updates for ${avoiderTokenDoc.name}`, messageData);
-      let content = renderInitiativeDice(lastMessage.rolls[0]);
+      let content = renderInitiativeDice(initiativeMessage.rolls[0]);
 
       for (const t of ['unnoticed', 'undetected', 'hidden', 'observed']) {
         const status = messageData[t];
@@ -290,7 +303,7 @@ Hooks.once('init', () => {
         }
       }
 
-      await lastMessage.update({ content });
+      await initiativeMessage.update({ content });
     }
 
     // Print out the warnings for PCs that aren't using Avoid Notice
@@ -433,7 +446,7 @@ Hooks.once('setup', () => {
     type: Boolean,
     default: false,
   });
-  
+
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
     hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
