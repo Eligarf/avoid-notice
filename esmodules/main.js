@@ -81,7 +81,7 @@ Hooks.once('init', () => {
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
     const overridePerception = perceptionApi && game.settings.get(MODULE_ID, 'override');
     const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
-    const requireActivity = game.modules.get(MODULE_ID, 'requireActivity');
+    const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
     let nonAvoidingPcs = [];
 
     let avoiders = encounter.combatants.contents.filter((c) =>

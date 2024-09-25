@@ -1,4 +1,5 @@
 # v1.7.0
+* Fixed a dumb typo preventing the 1.6 feature from working
 * If override is allowed, remove any pf2e-perception flags on a token if actor gets a condition item change to `hidden`, `undetected`, or `unnoticed`. This typically comes from using 'Assign Status Effects' on the token HUD; I use it to quickly clear out pf2e-perception's mix of hidden/undetected states after a token attacks by setting then clearing `hidden` in the token HUD.
 
 # v1.6.0
