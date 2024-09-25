@@ -28,7 +28,8 @@
     },
     "override": {
       "name": "Override",
-      "perceptionHint": "Allow 'PF2e Avoid Notice' to override any existing 'PF2e-perception' visibility flags on a token"
+      "perceptionHint": "Allow 'PF2e Avoid Notice' to override any existing 'PF2e-perception' visibility flags on a token",
+      "perceptiveHint": "Allow 'PF2e Avoid Notice' to override any existing 'perceptive' visibility flags on a token"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",

@@ -2,12 +2,13 @@ const CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
 const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
 const PERCEPTION_ID = 'pf2e-perception';
+const PERCEPTIVE_ID = 'perceptive';
 
 // vObject = await fromUuid("ObjectID");
 
 // vToken = await fromUuid("TokenID");
 
-// game.modules.get("perceptive").api.PerceptiveFlags.addSpottedby(vObject, vToken)
+// game.modules.get(PERCEPTIVE_ID).api.PerceptiveFlags.addSpottedby(vObject, vToken)
 
 function colorizeOutput(format, ...args) {
   return [
@@ -88,6 +89,7 @@ Hooks.once('init', () => {
     const overridePerception = perceptionApi && game.settings.get(MODULE_ID, 'override');
     const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
+    const perceptiveApi = game.modules.get("perceptive")?.api;
     let nonAvoidingPcs = [];
 
     let avoiders = encounter.combatants.contents.filter((c) =>
@@ -193,6 +195,9 @@ Hooks.once('init', () => {
           // Remove any existing perception flag as we are observed
           if (overridePerception && perceptionData && otherToken.id in perceptionData)
             otherUpdate[`flags.${PERCEPTION_ID}.data.-=${otherToken.id}`] = true;
+          if (perceptiveApi) {
+
+          }
         }
 
         // Normal fail is hidden
@@ -424,6 +429,8 @@ Hooks.once('setup', () => {
       default: false,
     });
   }
+  
+  const perceptive = game.modules.get(PERCEPTIVE_ID)?.active;
 
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
