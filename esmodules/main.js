@@ -1,7 +1,7 @@
 const CONSOLE_COLORS = ['background: #222; color: #80ffff', 'color: #fff'];
 const HIDDEN = ['action:hide', 'action:create-a-diversion', 'action:sneak'];
 const MODULE_ID = 'pf2e-avoid-notice';
-const PERCEPTION_ID = 'pf2e-perception';
+const PF2E_PERCEPTION_ID = 'pf2e-perception';
 const PERCEPTIVE_ID = 'perceptive';
 
 // vObject = await fromUuid("ObjectID");
@@ -83,13 +83,13 @@ Hooks.once('init', () => {
   // });
 
   Hooks.on('combatStart', async (encounter, ...args) => {
-    const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
+    const pf2ePerceptionApi = game.modules.get(PF2E_PERCEPTION_ID)?.api;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
-    const overridePerception = perceptionApi && game.settings.get(MODULE_ID, 'override');
-    const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
+    const overridePf2ePerception = pf2ePerceptionApi && game.settings.get(MODULE_ID, 'override');
+    const computeCover = pf2ePerceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
-    const perceptiveApi = game.modules.get("perceptive")?.api;
+    const perceptiveApi = game.modules.get(PERCEPTIVE_ID)?.api;
     let nonAvoidingPcs = [];
 
     let avoiders = encounter.combatants.contents.filter((c) =>
@@ -106,6 +106,7 @@ Hooks.once('init', () => {
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) => encounter.combatants.contents.some((c) => c.actor._id == t.actor.system.master.id));
+    
     const eidolons = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.details?.class?.trait == 'eidolon');
 
@@ -113,8 +114,8 @@ Hooks.once('init', () => {
       .map((c) => c.token instanceof Token ? c.token.document : c.token)
       .filter((t) => t.hidden && t.actor.type !== 'hazard')
       .map((t) => t.id);
-    let perceptionChanges = {};
-
+    
+    let pf2ePerceptionChanges = {};
     for (const avoider of avoiders) {
       // log('avoider', avoider);
 
@@ -138,8 +139,8 @@ Hooks.once('init', () => {
           break;
       }
 
-      perceptionChanges[avoiderTokenDoc.id] = {};
-      let otherUpdate = perceptionChanges[avoiderTokenDoc.id];
+      pf2ePerceptionChanges[avoiderTokenDoc.id] = {};
+      let pf2ePerceptionUpdate = pf2ePerceptionChanges[avoiderTokenDoc.id];
       let messageData = {};
       for (const other of nonAllies) {
         const otherTokenDoc = other?.token instanceof Token ? other.token.document : other?.token ?? other;
@@ -154,12 +155,12 @@ Hooks.once('init', () => {
         };
 
         // We give priority to the per-token states in PF2e Perception
-        const perceptionData = perceptionApi ? avoiderTokenDoc?.flags?.[PERCEPTION_ID]?.data : undefined;
+        const pf2ePerceptionData = pf2ePerceptionApi ? avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data : undefined;
         let coverBonus = baseCoverBonus;
-        if (perceptionApi) {
+        if (pf2ePerceptionApi) {
           const cover = (computeCover)
-            ? perceptionApi.token.getCover(avoider.token._object, otherToken._object)
-            : perceptionData?.[otherToken.id]?.cover;
+            ? pf2ePerceptionApi.token.getCover(avoider.token._object, otherToken._object)
+            : pf2ePerceptionData?.[otherToken.id]?.cover;
 
           switch (cover) {
             case 'standard':
@@ -193,8 +194,8 @@ Hooks.once('init', () => {
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (overridePerception && perceptionData && otherToken.id in perceptionData)
-            otherUpdate[`flags.${PERCEPTION_ID}.data.-=${otherToken.id}`] = true;
+          if (overridePf2ePerception && pf2ePerceptionData && otherToken.id in pf2ePerceptionData)
+            pf2ePerceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${otherToken.id}`] = true;
           if (perceptiveApi) {
 
           }
@@ -207,10 +208,10 @@ Hooks.once('init', () => {
           target.delta = `${delta}`;
 
           // Remove any existing perception flag as we are observed
-          if (perceptionData?.[otherToken.id]?.visibility !== visibility &&
-            (overridePerception || (perceptionData && !(otherToken.id in perceptionData)))
+          if (pf2ePerceptionData?.[otherToken.id]?.visibility !== visibility &&
+            (overridePf2ePerception || (pf2ePerceptionData && !(otherToken.id in pf2ePerceptionData)))
           )
-            otherUpdate[`flags.${PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
+            pf2ePerceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
         }
 
         // avoider beat the other token at the stealth battle
@@ -223,10 +224,10 @@ Hooks.once('init', () => {
           target.result = visibility;
 
           // Update the perception flags if there is a difference
-          if (perceptionData?.[otherToken.id]?.visibility !== visibility &&
-            (overridePerception || (perceptionData && !(otherToken.id in perceptionData)))
+          if (pf2ePerceptionData?.[otherToken.id]?.visibility !== visibility &&
+            (overridePf2ePerception || (pf2ePerceptionData && !(otherToken.id in pf2ePerceptionData)))
           )
-            otherUpdate[`flags.${PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
+            pf2ePerceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.${otherToken.id}.visibility`] = visibility;
         }
 
         // Add a new category if necessary, and put this other token's result in the message data
@@ -292,6 +293,7 @@ Hooks.once('init', () => {
       await lastMessage.update({ content });
     }
 
+    // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {
       const messages = game.messages.contents.filter((m) =>
         m.speaker.token === nonAvoider.tokenId && m.flags?.core?.initiativeRoll
@@ -307,32 +309,32 @@ Hooks.once('init', () => {
     }
 
     // If PF2e-perception is around, move any non-empty changes into an update array
-    let updates = [];
-    if (perceptionApi) {
-      for (const id in perceptionChanges) {
-        const update = perceptionChanges[id];
+    let tokenUpdates = [];
+    if (pf2ePerceptionApi) {
+      for (const id in pf2ePerceptionChanges) {
+        const update = pf2ePerceptionChanges[id];
         if (Object.keys(update).length)
-          updates.push({ _id: id, ...update });
+          tokenUpdates.push({ _id: id, ...update });
       }
     }
 
     // Reveal combatant tokens
     if (revealTokens) {
       for (const t of unrevealedIds) {
-        let update = updates.find((u) => u._id === t);
+        let update = tokenUpdates.find((u) => u._id === t);
         if (update) {
           update.hidden = false;
         }
         else {
-          updates.push({ _id: t, hidden: false });
+          tokenUpdates.push({ _id: t, hidden: false });
         }
       }
     }
 
     // Update all the tokens at once, skipping an empty update
-    if (updates.length > 0) {
-      log('token updates', updates);
-      canvas.scene.updateEmbeddedDocuments("Token", updates);
+    if (tokenUpdates.length > 0) {
+      log('token updates', tokenUpdates);
+      canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
   });
 });
@@ -346,35 +348,37 @@ function migrate(moduleVersion, oldVersion) {
 Hooks.once('ready', () => {
 
   async function clearPf2ePerceptionFlags(item, options, userId) {
-    // Only do stuff if we are changing hidden, undetected, or unnoticed in perception
-    const perceptionApi = game.modules.get(PERCEPTION_ID)?.api;
-    if (!perceptionApi) return;
-    const overridePerception = game.settings.get(MODULE_ID, 'override');
-    if (!overridePerception) return;
+    // Only do stuff if we are changing hidden, undetected, or unnoticed conditions and using pf2e-perception
+    const pf2ePerceptionApi = game.modules.get(PF2E_PERCEPTION_ID)?.api;
+    if (!pf2ePerceptionApi) return;
+    const overridePf2ePerception = game.settings.get(MODULE_ID, 'override');
+    if (!overridePf2ePerception) return;
     if (item?.type !== 'condition' || !['hidden', 'undetected', 'unnoticed'].includes(item?.system?.slug)) return;
 
     // Get the token on the current scene
     const token = options.parent?.parent ?? canvas.scene.tokens.find((t) => t.actorId === options.parent.id);
     if (!token) return;
 
-    // Remove any ids that perception is tracking if there are any
-    const perceptionData = token.flags?.[PERCEPTION_ID]?.data;
+    // Remove any ids that perception is tracking if any
+    const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
     if (!Object.keys(perceptionData).length) return;
     let tokenUpdate = {};
     for (let id in perceptionData) {
-      tokenUpdate[`flags.${PERCEPTION_ID}.data.-=${id}`] = true;
+      tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = true;
     }
     const updates = [{ _id: token.id, ...tokenUpdate }];
     await canvas.scene.updateEmbeddedDocuments("Token", updates);
   }
 
-  Hooks.on("deleteItem", async (item, options, userId) => {
-    await clearPf2ePerceptionFlags(item, options, userId);
-  });
+  if (game.modules.get(PF2E_PERCEPTION_ID)?.active) {
+    Hooks.on("deleteItem", async (item, options, userId) => {
+      await clearPf2ePerceptionFlags(item, options, userId);
+    });
 
-  Hooks.on("createItem", async (item, options, userId) => {
-    await clearPf2ePerceptionFlags(item, options, userId);
-  });
+    Hooks.on("createItem", async (item, options, userId) => {
+      await clearPf2ePerceptionFlags(item, options, userId);
+    });
+  }
 
 });
 
@@ -409,29 +413,27 @@ Hooks.once('setup', () => {
     default: true,
   });
 
-  const perception = game.modules.get(PERCEPTION_ID)?.active;
-  if (perception) {
-    game.settings.register(MODULE_ID, 'override', {
-      name: game.i18n.localize(`${MODULE_ID}.override.name`),
-      hint: game.i18n.localize(`${MODULE_ID}.override.perceptionHint`),
-      scope: 'world',
-      config: true,
-      type: Boolean,
-      default: true,
-    });
-
-    game.settings.register(MODULE_ID, 'computeCover', {
-      name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
-      hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
-      scope: 'world',
-      config: true,
-      type: Boolean,
-      default: false,
-    });
-  }
-  
+  const perception = game.modules.get(PF2E_PERCEPTION_ID)?.active;
   const perceptive = game.modules.get(PERCEPTIVE_ID)?.active;
 
+  game.settings.register(MODULE_ID, 'override', {
+    name: game.i18n.localize(`${MODULE_ID}.override.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.override.${perception ? 'perceptionHint' : 'perceptiveHint'}`),
+    scope: 'world',
+    config: perception || perceptive,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(MODULE_ID, 'computeCover', {
+    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+    scope: 'world',
+    config: perception,
+    type: Boolean,
+    default: false,
+  });
+  
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
     hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
