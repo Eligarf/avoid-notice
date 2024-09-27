@@ -123,6 +123,7 @@ Hooks.once('init', () => {
         continue;
       }
       const initiativeMessage = await game.messages.get(messages.pop()._id);
+      // log('initiativeMessage', initiativeMessage);
       const initRoll = initiativeMessage.rolls[0].dice[0].total;
       const dosDelta = (initRoll == 1) ? -1 : (initRoll == 20) ? 1 : 0;
 
@@ -160,6 +161,7 @@ Hooks.once('init', () => {
           dc: otherActor.system.perception.dc,
           name: otherTokenDoc.name,
           id: otherToken.id,
+          doc: otherTokenDoc,
         };
 
         // We give priority to the per-token states in PF2e Perception
@@ -255,47 +257,47 @@ Hooks.once('init', () => {
         }
       }
 
-      if (['best','worst'].includes(conditionHandler)) {
-        async function tweakStatuses(actor, off, on) {
-          const removals = actor.items
-            .filter((i) => i.type === 'condition' && off.includes(i.system.slug))
-            .map((i) => i.system.slug);
-          for (const c of removals) {
-            await actor.toggleCondition(c, { active: false });
-          }
-          if (on) {
-            await actor.toggleCondition(on, {active: true});
-          }
+      async function tweakStatuses({ actor, remove = [], add = '' }) {
+        const removals = actor.items
+          .filter((i) => i.type === 'condition' && remove.includes(i.system.slug))
+          .map((i) => i.system.slug);
+        for (const c of removals) {
+          await actor.toggleCondition(c, { active: false });
         }
+        if (!add) return;
+        await actor.toggleCondition(add, { active: true });
+      }
 
-        // best refers to the dc, not the degree of success
-        if (conditionHandler === 'best') {
-          if (results?.observed) {
-            await tweakStatuses(avoider.actor, ['hidden', 'undetected', 'unnoticed']);
+      switch (conditionHandler) {
+        case 'best': {
+          if ('observed' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'undetected', 'unnoticed'] });
           }
-          else if (results?.hidden) {
-            await tweakStatuses(avoider.actor, ['undetected', 'unnoticed'], 'hidden');
+          else if ('hidden' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['undetected', 'unnoticed'], add: 'hidden' });
           }
-          else if (results?.undetected) {
-            await tweakStatuses(avoider.actor, ['hidden', 'unnoticed'], 'undetected');
+          else if ('undetected' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'unnoticed'], add: 'undetected' });
           }
-          else if (results?.unnoticed) {
-            await tweakStatuses(avoider.actor, ['hidden', 'undetected'], 'unnoticed');
+          else if ('unnoticed' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'undetected'], add: 'unnoticed' });
           }
+          break;
         }
-        else {
-          if (results?.unnoticed) {
-            await tweakStatuses(avoider.actor, ['hidden', 'undetected'], 'unnoticed');
+        case 'worst': {
+          if ('unnoticed' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'undetected'], add: 'unnoticed' });
           }
-          else if (results?.undetected) {
-            await tweakStatuses(avoider.actor, ['hidden', 'unnoticed'], 'undetected');
+          else if ('undetected' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'unnoticed'], add: 'undetected' });
           }
-          else if (results?.hidden) {
-            await tweakStatuses(avoider.actor, ['undetected', 'unnoticed'], 'hidden');
+          else if ('hidden' in results) {
+            await tweakStatuses({ actor: avoider.actor, remove: ['undetected', 'unnoticed'], add: 'hidden' });
           }
-          else if (results?.observed) {
-            await tweakStatuses(avoider.actor, ['hidden', 'undetected', 'unnoticed']);
+          else {
+            await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'undetected', 'unnoticed'] });
           }
+          break;
         }
       }
 
@@ -477,7 +479,7 @@ Hooks.once('setup', () => {
     type: String,
     choices,
     default: (perception) ? 'perception' : 'ignore'
-  })
+  });
 
   if (perception) {
     game.settings.register(MODULE_ID, 'computeCover', {
