@@ -1,3 +1,6 @@
+# v1.9.0
+* Added support for Perceptive as the condition handler
+
 # v1.8.0
 * Critical rolls on initiative affect the degree of success of the sneak evaluation
 * Added a condition handler setting, allowing a choice of how to handle setting the `hidden`, `undetected`, and `unnoticed` settings at your table.

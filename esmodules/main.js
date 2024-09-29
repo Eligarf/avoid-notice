@@ -258,6 +258,7 @@ Hooks.once('init', () => {
       }
 
       async function tweakStatuses({ actor, remove = [], add = '' }) {
+        // log('tweakStatus', { actor, remove, add });
         const removals = actor.items
           .filter((i) => i.type === 'condition' && remove.includes(i.system.slug))
           .map((i) => i.system.slug);
@@ -296,6 +297,49 @@ Hooks.once('init', () => {
           }
           else {
             await tweakStatuses({ actor: avoider.actor, remove: ['hidden', 'undetected', 'unnoticed'] });
+          }
+          break;
+        }
+        case 'perceptive': {
+          let slug;
+          await perceptiveApi.PerceptiveFlags.clearSpottedby(avoiderTokenDoc);
+          const dc = (avoider.actor.type === 'hazard') ? avoider.actor.system.initiative.dc : avoider.actor.system.skills.stealth.dc;
+
+          async function tellPerceptive(perceptiveApi, token, type, dc, formula, results) {
+            // log('tellPerceptive', { token, type, dc, formula, results });
+            await perceptiveApi.EffectManager.applyStealthEffects(token, { Type: type, EffectInfos: { RollFormula: formula } });
+            if ('prepareSpottableToken' in perceptiveApi.PerceptiveFlags) {
+              await perceptiveApi.PerceptiveFlags.prepareSpottableToken(
+                token,
+                { PPDC: -1, APDC: dc, PPDice: dc },
+                ('observed' in results) ? results.observed.map((t) => t.doc) : []
+              );
+            }
+            else {
+              if ('observed' in results) {
+                for (const t of results.observed) {
+                  await perceptiveApi.PerceptiveFlags.addSpottedby(token, t.doc);
+                }
+              }
+              await perceptiveApi.PerceptiveFlags.setSpottingDCs(token, { PPDC: -1, APDC: dc, PPDice: dc });
+            }
+          }
+
+          if ('hidden' in results) {
+            slug = 'hidden';
+            await tellPerceptive(perceptiveApi, avoiderTokenDoc, 'hide', dc, initiativeMessage.rolls[0].formula, results);
+          }
+          else if ('unnoticed' in results) {
+            slug = 'unnoticed';
+            await tellPerceptive(perceptiveApi, avoiderTokenDoc, 'sneak', dc, initiativeMessage.rolls[0].formula, results);
+          }
+          else if ('undetected' in results) {
+            slug = 'undetected';
+            await tellPerceptive(perceptiveApi, avoiderTokenDoc, 'sneak', dc, initiativeMessage.rolls[0].formula, results);
+          }
+          else {
+            slug = 'observed';
+            await perceptiveApi.EffectManager.removeStealthEffects(avoiderTokenDoc);
           }
           break;
         }
@@ -470,6 +514,7 @@ Hooks.once('setup', () => {
     'worst': `${MODULE_ID}.conditionHandler.worst`,
   };
   if (perception) choices.perception = `${MODULE_ID}.conditionHandler.perception`;
+  if (perceptive) choices.perceptive = `${MODULE_ID}.conditionHandler.perceptive`;
 
   game.settings.register(MODULE_ID, 'conditionHandler', {
     name: game.i18n.localize(`${MODULE_ID}.conditionHandler.name`),

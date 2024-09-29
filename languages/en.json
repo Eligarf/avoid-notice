@@ -32,7 +32,8 @@
       "ignore": "Don't set the status conditions",
       "best": "Use the best perception dc to determine the condition",
       "worst": "Use the worst perception dc to determine the condition",
-      "perception": "Let the pf2e-perception module handle it"
+      "perception": "Let the pf2e-perception module handle it",
+      "perceptive": "Let the Perceptive module handle it"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",
