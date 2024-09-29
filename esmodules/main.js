@@ -94,8 +94,8 @@ Hooks.once('init', () => {
       avoiders = avoiders.concat(pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth'));
     }
     else {
-      avoiders = avoiders.concat(pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice")));
-      nonAvoidingPcs = pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth' && !c.actor.system.exploration.some(a => c.actor.items.get(a).system.slug === "avoid-notice"));
+      avoiders = avoiders.concat(pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "avoid-notice")));
+      nonAvoidingPcs = pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth' && !c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "avoid-notice"));
     }
 
     const familiars = canvas.scene.tokens
