@@ -1,5 +1,5 @@
 # v1.9.0
-* Added support for Perceptive as the condition handler
+* Added support for Perceptive as a condition handler
 
 # v1.8.0
 * Critical rolls on initiative affect the degree of success of the sneak evaluation
