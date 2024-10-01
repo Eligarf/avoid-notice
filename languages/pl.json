@@ -1,0 +1,48 @@
+{
+  "pf2e-avoid-notice": {
+    "detectionTitle": {
+      "observed": "Obserwowany",
+      "hidden": "Ukryty",
+      "undetected": "Niewykryty",
+      "unnoticed": "Niezauważony"
+    },
+    "standardCover": "Standardowa osłona",
+    "greaterCover": "Większa osłona",
+    "logLevel": {
+      "name": "Poziom logów",
+      "none": "Bez logów",
+      "debug": "Poziom debugowania",
+      "log": "Poziom logów"
+    },
+    "useUnnoticed": {
+      "name": "Niezauważony",
+      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy Ukrycia przewyższa ST Percepcji i inicjatywę celu"
+    },
+    "removeGmHidden": {
+      "name": "Ujawnienie tokenów walczących na początku walki",
+      "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
+    },
+    "requireActivity": {
+      "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
+      "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę."
+    },
+    "conditionHandler": {
+      "name": "Obsługa stanów",
+      "hint": "Najgorsze ST wizualnie faworyzuje ukrytych, podczas gdy najlepsze ST wizualnie faworyzuje szukających.",
+      "ignore": "Nie ustawiaj statusu stanu",
+      "best": "Użyj najgorszego stopnia sukcesu, aby określić stan",
+      "worst": "Użyj najlepszego stopnia sukcesu, aby określić stan",
+      "perception": "Niech zajmie się tym moduł pf2e-perception",
+      "perceptive": "Niech zajmie się tym moduł Perceptive"
+    },
+    "computeCover": {
+      "name": "Oblicz osłony na początku walki",
+      "hint": "Użyj „PF2e Perception”, aby automatycznie obliczyć osłonę między tokenami używającymi Ukrycia dla inicjatywy i niesprzymierzonych tokenów. Jest on używany tylko do tego sprawdzenia i nie będzie wykorzystywał większej osłony"
+    },
+    "schema": {
+      "name": "Wersja schematu",
+      "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."
+    },
+    "nonHider": "Musi użyć akcji Unikaj Wykrycia, jeśli chce się ukryć na początku walki."
+  }
+}
