@@ -22,10 +22,19 @@ An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `U
 
 *PF2e Avoid Notice* also can remove the GM hidden states of combatants if enabled in the game settings, since forgetting to toggle combatant visibility happens to me too often.
 
+## Condition Handling
+This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that a token might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system (only *PF2e perception* can do this)
+* It can do nothing and let the GM handle everything.
+* It can use the worst degree-of-success to determine which condition to apply to a sneaking combatant, or;
+* It can use the best degree-of-success.
+* The [*Perceptive*](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage `undetected` and `hidden` on a sneaking token at the same time, but it does handle mixing `observed` states with those others.
+* The *PF2e Perception* module can be selected. It fully handles the multiple visibility states issue, but its implementation prevents the automation of flat checks when attacking the affected token.
+
 ## PF2e Perception
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
 
 * *PF2e Avoid Notice* will set the appropriate visibility flags on the combatant tokens to reflect the detection status determined by stealth initiative checks.
 * An *Override* setting allows *PF2e Avoid Notice* to override existing *PF2e Perception* visibility flags on tokens. Disabling this is useful if one wishes to setup any complicated situation beforehand and not get it stomped by the initiative rolls.
 * If *PF2e Perception* cover flags are found on a token using stealth for initiative, standard or greater cover bonuses will apply as appropriate against perception DCs.
-* If *Compute Cover at Combat Start* is selected, *`*PF2e Avoid Notice* will ignore existing cover flags and use *PF2e Perception* to calculate new ones for tokens using stealth as initiative for each token they are testing against
+* If *Compute Cover at Combat Start* is selected, *PF2e Avoid Notice* will ignore existing cover flags and use *PF2e Perception* to calculate new ones for tokens using stealth as initiative for each token they are testing against
+* Manually adding or removing the `hidden` or `unnoticed` status condition on the token HUD will cause *PF2e Avoid Notice* to clear out any existing *PF2e Perception* flags on that token

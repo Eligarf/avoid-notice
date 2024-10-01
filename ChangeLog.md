@@ -1,3 +1,6 @@
+# v1.10.0
+* Refactored code for better seperation of concerns
+
 # v1.9.0
 * Added support for Perceptive as a condition handler
 

@@ -27,7 +27,8 @@
     ]
   },
   "esmodules": [
-    "esmodules/main.js"
+    "esmodules/main.js",
+    "esmodules/combat.js"
   ],
   "styles": [
     "styles/style.css"

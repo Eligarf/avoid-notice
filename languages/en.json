@@ -30,8 +30,8 @@
       "name": "Condition Handler",
       "hint": "Worst dc visually favors the sneakers, whereas best dc visually favors the seekers.",
       "ignore": "Don't set the status conditions",
-      "best": "Use the best perception dc to determine the condition",
-      "worst": "Use the worst perception dc to determine the condition",
+      "best": "Use the worst degree-of-success determine the condition",
+      "worst": "Use the best degree-of-success to determine the condition",
       "perception": "Let the pf2e-perception module handle it",
       "perceptive": "Let the Perceptive module handle it"
     },
