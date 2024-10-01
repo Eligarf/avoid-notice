@@ -24,8 +24,15 @@ function log(format, ...args) {
   }
 }
 
+function getPerceptionApi() {
+  return game.modules.get(PF2E_PERCEPTION_ID)?.api;
+}
 
-export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log }
+function getPerceptiveApi() {
+  return game.modules.get(PERCEPTIVE_ID)?.api;
+}
+
+export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, getPerceptiveApi };
 
 // Hooks.once('init', () => {
 //   Hooks.on('createChatMessage', async (message, options, id) => {
@@ -57,20 +64,25 @@ function migrate(moduleVersion, oldVersion) {
 
 Hooks.once('ready', () => {
 
+  // Handle perceptive or perception module getting yoinked
+  const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
+  if (conditionHandler === 'perception' && !getPerceptionApi() || conditionHandler === 'perceptive' && !getPerceptionApi()) {
+    game.settings.set(MODULE_ID, 'conditionHandler', 'ignore');
+  }
+
   async function clearPf2ePerceptionFlags(item, options, userId) {
     // Only do stuff if we are changing hidden, undetected, or unnoticed conditions and using pf2e-perception
-    const perceptionApi = game.modules.get(PF2E_PERCEPTION_ID)?.api;
-    if (!perceptionApi) return;
     const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
-    const overridePerception = conditionHandler === 'perception';
-    if (!overridePerception) return;
+    if (conditionHandler !== 'perception') return;
+    const perceptionApi = getPerceptionApi();
+    if (!perceptionApi) return;
     if (item?.type !== 'condition' || !['hidden', 'undetected', 'unnoticed'].includes(item?.system?.slug)) return;
 
     // Get the token on the current scene
     const token = options.parent?.parent ?? canvas.scene.tokens.find((t) => t.actorId === options.parent.id);
     if (!token) return;
 
-    // Remove any ids that perception is tracking if any
+    // Remove any ids that perception is tracking
     const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
     if (!Object.keys(perceptionData).length) return;
     let tokenUpdate = {};
@@ -190,13 +202,6 @@ Hooks.once('setup', () => {
     },
     default: 'none'
   });
-
-  // if (!perception) {
-  //   Hooks.once('ready', () => {
-  //     game.settings.set(MODULE_ID, 'override', false);
-  //     game.settings.set(MODULE_ID, 'computeCover', false);
-  //   });
-  // }
 
   log(`Setup ${moduleVersion}`);
 });

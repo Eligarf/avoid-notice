@@ -1,4 +1,4 @@
-import { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log } from './main.js';
+import { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, getPerceptiveApi } from './main.js';
 
 function renderInitiativeDice(roll) {
   let content = `
@@ -124,7 +124,7 @@ async function updatePerception({ perceptionData, results, perceptionUpdate }) {
   for (const visibility of ['hidden', 'undetected', 'unnoticed']) {
     if (visibility in results) {
       for (const result of results[visibility]) {
-        if (perceptionData?.[otherToken.id]?.visibility !== visibility)
+        if (perceptionData?.[result.id]?.visibility !== visibility)
           perceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.${result.id}.visibility`] = visibility;
       }
     }
@@ -134,13 +134,12 @@ async function updatePerception({ perceptionData, results, perceptionUpdate }) {
 Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
-    const perceptionApi = (conditionHandler === 'perception') ? game.modules.get(PF2E_PERCEPTION_ID)?.api : null;
+    const perceptionApi = (conditionHandler === 'perception') ? getPerceptionApi() : null;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
-    const overridePerception = !!perceptionApi;
     const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
-    const perceptiveApi = (conditionHandler === 'perceptive') ? game.modules.get(PERCEPTIVE_ID)?.api : null;
+    const perceptiveApi = (conditionHandler === 'perceptive') ? getPerceptiveApi() : null;
     let nonAvoidingPcs = [];
 
     let avoiders = encounter.combatants.contents.filter((c) =>
@@ -310,8 +309,7 @@ Hooks.once('init', () => {
           await updatePerceptive({ perceptiveApi, avoider, avoiderTokenDoc, initiativeMessage, results });
           break;
         case 'perception':
-          if (overridePerception)
-            await updatePerception({ perceptionData, results, perceptionUpdate });
+          await updatePerception({ perceptionData, results, perceptionUpdate });
           break;
       }
 
@@ -379,7 +377,7 @@ Hooks.once('init', () => {
       }
     }
 
-    // Reveal combatant tokens
+    // Reveal GM-hidden combatants so that their sneak results can control visibility
     if (revealTokens) {
       for (const t of unrevealedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
