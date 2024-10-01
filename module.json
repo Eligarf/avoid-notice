@@ -39,6 +39,12 @@
       "name": "English",
       "path": "languages/en.json",
       "flags": {}
+    },
+    {
+      "lang": "pl",
+      "name": "Polski",
+      "path": "languages/pl.json",
+      "flags": {}
     }
   ],
   "socket": true,
