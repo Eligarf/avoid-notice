@@ -66,7 +66,10 @@ Hooks.once('ready', () => {
 
   // Handle perceptive or perception module getting yoinked
   const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
-  if (conditionHandler === 'perception' && !getPerceptionApi() || conditionHandler === 'perceptive' && !getPerceptionApi()) {
+  if (conditionHandler === 'perception' && !game.modules.get(PF2E_PERCEPTION_ID)?.active
+    || conditionHandler === 'perceptive' && !game.modules.get(PERCEPTIVE_ID)?.active
+  ) {
+    log(`resetting condition Handler from '${conditionHandler}' to 'ignore'`);
     game.settings.set(MODULE_ID, 'conditionHandler', 'ignore');
   }
 
