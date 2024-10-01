@@ -28,7 +28,7 @@ This module provides the GM a number of options in the game settings for automat
 * It can use the worst degree-of-success to determine which condition to apply to a sneaking combatant, or;
 * It can use the best degree-of-success.
 * The [*Perceptive*](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage `undetected` and `hidden` on a sneaking token at the same time, but it does handle mixing `observed` states with those others.
-* The *PF2e Perception* module can be selected. It fully handles the multiple visibility states issue, but its implementation prevents the automation of flat checks when attacking the affected token.
+* The *PF2e Perception* module can be selected. It fully handles the multiple visibility states issue.
 
 ## PF2e Perception
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
