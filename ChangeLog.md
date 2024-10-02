@@ -1,3 +1,6 @@
+# v1.10.1
+* messed up the release process, bumping version to clear it.
+
 # v1.10.0
 * Refactored code for better separation of concerns
 * Added Polish translation (thanks Lioheart)
