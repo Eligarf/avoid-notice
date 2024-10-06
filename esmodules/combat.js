@@ -169,9 +169,9 @@ Hooks.once('init', () => {
     for (const avoider of avoiders) {
       // log('avoider', avoider);
 
-      // Find the last initiative chat for the avoider
+      // Find the last card with a check roll matching initiative for the avoider
       const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === avoider.tokenId && m.flags?.core?.initiativeRoll
+        m.speaker.token === avoider.tokenId && m.rolls[0].total === avoider.initiative
       );
       if (!messages.length) {
         log(`Couldn't find initiative card for ${avoider.token.name}`);

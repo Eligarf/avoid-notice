@@ -87,7 +87,7 @@ Hooks.once('ready', () => {
 
     // Remove any ids that perception is tracking
     const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
-    if (!Object.keys(perceptionData).length) return;
+    if (!perceptionData || !Object.keys(perceptionData).length) return;
     let tokenUpdate = {};
     for (let id in perceptionData) {
       tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = true;
