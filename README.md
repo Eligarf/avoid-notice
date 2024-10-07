@@ -29,6 +29,8 @@ An *Unnoticed* setting controls whether or not to use `Unnoticed` rather than `U
 
 *PF2e Avoid Notice* also can remove the GM hidden states of combatants if enabled in the game settings, since forgetting to toggle combatant visibility happens to me far too often.
 
+Initiative sometimes comes from a previous roll like a sneak check or the use of the avoid notice exploration activity in the Basic Action Macros. In these cases, if the GM has chosen to use the "Set as *Combatant's*initiative" button on the skill check card, there won't be an initiative card and the visibility results will be written to the check card instead. It finds it by looking for the latest message from that combatant with a check result that matches the combatant's initiative roll, so it possible that the visibility result could end up on the wrong card if the combatant has rolled some other kind of check that had the same check value after the designated initiative roll but prior to combat being started.
+
 ## Condition Handling
 This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that an avoider might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system (only *PF2e perception* can do this)
 * It can do nothing and let the GM handle everything.

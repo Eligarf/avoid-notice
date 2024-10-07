@@ -1,3 +1,6 @@
+# v1.11.1
+* Fix error at combat start if an avoiding combatant has sent a non-roll chat card after the initiative roll.
+
 # v1.11.0
 * If an avoiding combatant has its initiative set manually by the GM using the 'Set as *Combatant's* initiative' button on a check result card, update that card with visibility results when combat is started.
 * Fix a benign error that happened when setting/clearing hidden/undetected conditions via token HUD on a token that didn't have any pf2e-perception status flags on it.
