@@ -130,6 +130,15 @@ Hooks.once('setup', () => {
     default: false,
   });
 
+  game.settings.register(MODULE_ID, 'raiseShields', {
+    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
   game.settings.register(MODULE_ID, 'requireActivity', {
     name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
     hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),

@@ -137,6 +137,7 @@ Hooks.once('init', () => {
     const perceptionApi = (conditionHandler === 'perception') ? getPerceptionApi() : null;
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
+    const raiseShields = game.settings.get(MODULE_ID, 'raiseShields');
     const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
     const perceptiveApi = (conditionHandler === 'perceptive') ? getPerceptiveApi() : null;
@@ -151,6 +152,23 @@ Hooks.once('init', () => {
     else {
       avoiders = avoiders.concat(pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "avoid-notice")));
       nonAvoidingPcs = pcs.filter((c) => c.flags.pf2e.initiativeStatistic === 'stealth' && !c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "avoid-notice"));
+    }
+
+    if (raiseShields) {
+      const defenders = pcs.filter((c) =>
+        c.actor?.heldShield &&
+        c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
+      for (const defender of defenders) {
+        const action = defender.actor.items.find((i) => i.system?.slug === 'raise-a-shield');
+        if (action) {
+          const object = defender?.token?._object;
+          if (object?.control) {
+            object.control();
+            log(`${defender.token.name} uses ${action.name}`);
+            game.pf2e.rollItemMacro(action._id);
+          }
+        }
+      }
     }
 
     const familiars = canvas.scene.tokens

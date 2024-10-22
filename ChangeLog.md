@@ -1,3 +1,6 @@
+# v1.12.0
+* Add a defaulted-true game setting to use the `raise-a-shield` action at combat start for combatants using the `defend` exploration activity.
+
 # v1.11.1
 * Fix error at combat start if an avoiding combatant has sent a non-roll chat card after the initiative roll.
 

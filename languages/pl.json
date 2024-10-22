@@ -22,6 +22,10 @@
       "name": "Ujawnienie tokenów walczących na początku walki",
       "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
     },
+    "raiseShields": {
+      "name": "Raise shields when Defending",
+      "hint": "At combat start, will raise shields for combatants with held shields and active Defend exploration activity"
+    },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę."
