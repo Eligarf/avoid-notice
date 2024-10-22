@@ -1,5 +1,5 @@
 # v1.12.0
-* Add a defaulted-true game setting to use the `raise-a-shield` action at combat start for combatants using the `defend` exploration activity.
+* Add a defaulted-true game setting to use the `raise-a-shield` action at combat start for PCs using the `defend` exploration activity and have a Raise a Shield action listed in their encounter actions. Effects don't automatically expire at the beginning of turn 1, so this has to be manually managed.
 
 # v1.11.1
 * Fix error at combat start if an avoiding combatant has sent a non-roll chat card after the initiative roll.

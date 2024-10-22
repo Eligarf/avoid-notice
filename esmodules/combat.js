@@ -160,13 +160,26 @@ Hooks.once('init', () => {
         c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
       for (const defender of defenders) {
         const action = defender.actor.items.find((i) => i.system?.slug === 'raise-a-shield');
-        if (action) {
-          const object = defender?.token?._object;
-          if (object?.control) {
-            object.control();
-            log(`${defender.token.name} uses ${action.name}`);
-            game.pf2e.rollItemMacro(action._id);
+        if (!action) {
+          const messages = game.messages.contents.filter((m) =>
+            m.speaker.token === defender.tokenId && m.flags?.core?.initiativeRoll
+          );
+          if (!messages.length) {
+            log(`Couldn't find initiative card for ${defender.token.name}`);
+            continue;
           }
+          const lastMessage = await game.messages.get(messages.pop()._id);
+          const raiseAShield = game.i18n.localize('PF2E.Actions.RaiseAShield.SingleActionTitle');
+          const needs = game.i18n.localize('pf2e-avoid-notice.raiseShields.needs');
+          let content = renderInitiativeDice(lastMessage.rolls[0]);
+          content += `<div>${defender.token.name} ${needs} ${raiseAShield}<span class='action-glyph'>1</span></div>`;
+          await lastMessage.update({ content });
+          continue;
+        }
+        const object = defender?.token?._object;
+        if (object?.control) {
+          object.control();
+          await game.pf2e.rollItemMacro(action._id);
         }
       }
     }

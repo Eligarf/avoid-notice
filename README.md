@@ -43,6 +43,10 @@ This module provides the GM a number of options in the game settings for automat
 * The [*Perceptive*](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
 * The *PF2e Perception* module can be selected. It handles multiple visibility states for a token.
 
+## Raise a Shield
+
+I've added support to automatically apply `Raise a shield` to PCs using `defend` at combat start. It doesn't really belong with a stealth module, but since I was mucking about with combat start I went ahead and added it because manually doing this every time bugged me. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
+
 ## PF2e Perception
 
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:

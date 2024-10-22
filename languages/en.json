@@ -23,8 +23,9 @@
       "hint": "Combatant tokens with disabled visibility will be revealed at combat start, allowing perception/stealth results to behave as expected"
     },
     "raiseShields": {
-      "name": "Raise shields when Defending",
-      "hint": "Requires Combatants to have held shields and have the Defend exploration activity active"
+      "name": "Raise PC shields when Defending",
+      "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
+      "needs": "needs"
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",

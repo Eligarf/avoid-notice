@@ -23,8 +23,9 @@
       "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
     },
     "raiseShields": {
-      "name": "Raise shields when Defending",
-      "hint": "At combat start, will raise shields for combatants with held shields and active Defend exploration activity"
+      "name": "Raise PC shields when Defending",
+      "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
+      "needs": "needs"
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
