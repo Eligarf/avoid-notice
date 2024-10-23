@@ -1,3 +1,6 @@
+# v1.12.2
+* Update pl.json (thanks Lioheart)
+
 # v1.12.1
 * Better error messages, don't require `Raise a Shield` action to be present on the actor sheet.
 
