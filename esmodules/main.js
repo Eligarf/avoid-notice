@@ -34,27 +34,34 @@ function getPerceptiveApi() {
 
 export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, getPerceptiveApi };
 
-// Hooks.once('init', () => {
-//   Hooks.on('createChatMessage', async (message, options, id) => {
-//     if (game.userId != id) return;
-//     log('createChatMessage', message);
-//     const context = message.flags.pf2e.context;
-//     const actorId = message?.actor?.id ?? message.speaker?.actor ?? '';
-//     switch (context?.type) {
-//       case 'perception-check':
-//         if (context?.options.includes('action:seek')) {
-//           log('perception-check', message);
-//         }
-//         break;
-//       case 'skill-check':
-//         const tags = context?.options.filter((t) => SKILL_ACTIONS.includes(t));
-//         if (tags.length > 0) {
-//           log('skill-check', tags);
-//         }
-//         break;
-//     }
-//   });
-// });
+Hooks.once('init', () => {
+  Hooks.on('createChatMessage', async (message, options, id) => {
+    if (game.userId != id) return;
+    const pf2eFlags = message?.flags?.pf2e;
+    if (!pf2eFlags?.casting) return;
+    const originUuid = pf2eFlags?.origin?.uuid;
+    const origin = originUuid ? await fromUuid(originUuid) : null;
+    if (origin?.traits?.has("attack")) return;
+    const damage = origin?.system?.damage;
+    if (!damage) return;
+    log('createChatMessage', { message, origin });
+    // const context = message.flags.pf2e.context;
+    // const actorId = message?.actor?.id ?? message.speaker?.actor ?? '';
+    // switch (context?.type) {
+    //   case 'perception-check':
+    //     if (context?.options.includes('action:seek')) {
+    //       log('perception-check', message);
+    //     }
+    //     break;
+    //   case 'skill-check':
+    //     const tags = context?.options.filter((t) => SKILL_ACTIONS.includes(t));
+    //     if (tags.length > 0) {
+    //       log('skill-check', tags);
+    //     }
+    //     break;
+    // }
+  });
+});
 
 function migrate(moduleVersion, oldVersion) {
 
