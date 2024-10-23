@@ -25,11 +25,12 @@
     "raiseShields": {
       "name": "Raise PC shields when Defending",
       "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
-      "needs": "needs"
+      "heldShield": "{actor} must have a shield equipped to {activity}."
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
-      "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative."
+      "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
+      "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
     "conditionHandler": {
       "name": "Condition Handler",
@@ -47,7 +48,6 @@
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"
-    },
-    "nonHider": "Needs to use Avoid Notice exploration activity if wanting to hide at combat start"
+    }
   }
 }

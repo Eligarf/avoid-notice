@@ -131,6 +131,33 @@ async function updatePerception({ perceptionData, results, perceptionUpdate }) {
   }
 }
 
+async function findInitiativeCard( combatant ) {
+  const messages = game.messages.contents.filter((m) =>
+    m.speaker.token === combatant.tokenId && m.flags?.core?.initiativeRoll
+  );
+  if (!messages.length) {
+    log(`Couldn't find initiative card for ${combatant.token.name}`);
+    return null;
+  }
+  return game.messages.get(messages.pop()._id);
+}
+
+function interpolateString(str, interpolations) {
+  return str.replace(
+    /\{([A-Za-z0-9_]+)\}/g,
+    (match, key) => interpolations.hasOwnProperty(key) ? interpolations[key] : match
+  );
+}
+
+async function modifyInitiativeCard({ combatant, message, interpolations = {} }) {
+  const lastMessage = await findInitiativeCard(combatant);
+  if (!lastMessage) return;
+  let content = renderInitiativeDice(lastMessage.rolls[0]);
+  const addedContent = interpolateString(message, interpolations);
+  content += `<div><h3>PF2e Avoid Notice</h3><p>${addedContent}</p></div>`;
+  await lastMessage.update({ content });
+}
+
 Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
@@ -155,31 +182,24 @@ Hooks.once('init', () => {
     }
 
     if (raiseShields) {
-      const defenders = pcs.filter((c) =>
-        c.actor?.heldShield &&
-        c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
+      const defenders = pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
       for (const defender of defenders) {
-        const action = defender.actor.items.find((i) => i.system?.slug === 'raise-a-shield');
-        if (!action) {
-          const messages = game.messages.contents.filter((m) =>
-            m.speaker.token === defender.tokenId && m.flags?.core?.initiativeRoll
-          );
-          if (!messages.length) {
-            log(`Couldn't find initiative card for ${defender.token.name}`);
-            continue;
-          }
-          const lastMessage = await game.messages.get(messages.pop()._id);
-          const raiseAShield = game.i18n.localize('PF2E.Actions.RaiseAShield.SingleActionTitle');
-          const needs = game.i18n.localize('pf2e-avoid-notice.raiseShields.needs');
-          let content = renderInitiativeDice(lastMessage.rolls[0]);
-          content += `<div>${defender.token.name} ${needs} ${raiseAShield}<span class='action-glyph'>1</span></div>`;
-          await lastMessage.update({ content });
+        const heldShield = defender.actor?.heldShield;
+        if (!heldShield) {
+          await modifyInitiativeCard({
+            combatant: defender,
+            message: game.i18n.localize('pf2e-avoid-notice.raiseShields.heldShield'),
+            interpolations: {
+              activity: game.i18n.localize('PF2E.TravelSpeed.ExplorationActivities.Defend'),
+              actor: defender.actor.name
+            }
+          });
           continue;
         }
         const object = defender?.token?._object;
         if (object?.control) {
           object.control();
-          await game.pf2e.rollItemMacro(action._id);
+          game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
         }
       }
     }
@@ -201,14 +221,9 @@ Hooks.once('init', () => {
       // log('avoider', avoider);
 
       // Find the last card with a check roll matching initiative for the avoider
-      const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === avoider.tokenId && m.rolls?.[0]?.total === avoider.initiative
-      );
-      if (!messages.length) {
-        log(`Couldn't find initiative card for ${avoider.token.name}`);
-        continue;
-      }
-      const initiativeMessage = await game.messages.get(messages.pop()._id);
+      const initiativeMessage = await findInitiativeCard(avoider);
+      if (!initiativeMessage) continue;
+
       // log('initiativeMessage', initiativeMessage);
       const initiativeRoll = initiativeMessage.rolls[0].dice[0].total;
       const dosDelta = (initiativeRoll == 1) ? -1 : (initiativeRoll == 20) ? 1 : 0;
@@ -385,17 +400,14 @@ Hooks.once('init', () => {
 
     // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {
-      const messages = game.messages.contents.filter((m) =>
-        m.speaker.token === nonAvoider.tokenId && m.flags?.core?.initiativeRoll
-      );
-      if (!messages.length) {
-        log(`Couldn't find initiative card for ${avoider.token.name}`);
-        continue;
-      }
-      const lastMessage = await game.messages.get(messages.pop()._id);
-      let content = renderInitiativeDice(lastMessage.rolls[0]);
-      content += `<div><span>${game.i18n.localize("pf2e-avoid-notice.nonHider")}</span></div>`;
-      await lastMessage.update({ content });
+      await modifyInitiativeCard({
+        combatant: nonAvoider,
+        message: game.i18n.localize('pf2e-avoid-notice.requireActivity.error'),
+        interpolations: {
+          actor: nonAvoider.actor.name,
+          action: game.i18n.localize('PF2E.TravelSpeed.ExplorationActivities.AvoidNotice')
+        }
+      });
     }
 
     // If PF2e-perception is around, move any non-empty changes into an update array
