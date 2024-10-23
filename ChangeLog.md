@@ -1,3 +1,6 @@
+# v1.12.1
+* Better error messages, don't require `Raise a Shield` action to be present on the actor sheet.
+
 # v1.12.0
 * Add a defaulted-true game setting to use the `raise-a-shield` action at combat start for PCs using the `defend` exploration activity and have a Raise a Shield action listed in their encounter actions. Effects don't automatically expire at the beginning of turn 1, so this has to be manually managed.
 
