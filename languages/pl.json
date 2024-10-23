@@ -23,14 +23,14 @@
       "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
     },
     "raiseShields": {
-      "name": "Raise PC shields when Defending",
-      "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
-      "heldShield": "{actor} must have a shield equipped to {activity}."
+      "name": "Podnosi tarcze Postaci podczas Obrony",
+      "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona. Muszą również posiadać akcję Podnieś tarczę w swoich akcjach spotkania.",
+      "heldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
-      "error": "{actor} needs to use {action} if wanting to hide at combat start"
+      "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
     "conditionHandler": {
       "name": "Obsługa stanów",
