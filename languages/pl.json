@@ -14,6 +14,11 @@
       "debug": "Poziom debugowania",
       "log": "Poziom logów"
     },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
+    },
     "useUnnoticed": {
       "name": "Niezauważony",
       "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy Ukrycia przewyższa ST Percepcji i inicjatywę celu"
@@ -26,6 +31,10 @@
       "name": "Podnosi tarcze Postaci podczas Obrony",
       "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona. Muszą również posiadać akcję Podnieś tarczę w swoich akcjach spotkania.",
       "heldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
+    },
+    "autorollSpellDamage": {
+      "name": "Autoroll spell damage",
+      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",

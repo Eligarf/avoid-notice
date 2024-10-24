@@ -1,3 +1,6 @@
+# v1.13.0
+* Added an opt-in setting to enable autorolling of non-attack spell damage before saves are rolled.
+
 # v1.12.2
 * Update pl.json (thanks Lioheart)
 

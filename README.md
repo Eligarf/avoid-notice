@@ -43,10 +43,6 @@ This module provides the GM a number of options in the game settings for automat
 * The [*Perceptive*](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
 * The *PF2e Perception* module can be selected. It handles multiple visibility states for a token.
 
-## Raise a Shield
-
-I've added support to automatically apply `Raise a shield` to PCs using `defend` at combat start. It doesn't really belong with a stealth module, but since I was mucking about with combat start I went ahead and added it because manually doing this every time bugged me. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
-
 ## PF2e Perception
 
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
@@ -55,3 +51,15 @@ The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' disco
 * If *PF2e Perception* cover flags are found on an avoider token, standard or greater cover bonuses will apply as appropriate against perception DCs. The are given higher priority than the system cover flag if both are on a token.
 * If *Compute Cover at Combat Start* is selected, *PF2e Avoid Notice* will ignore existing cover flags and use *PF2e Perception* to calculate new ones for avoider tokens for each token they are testing against
 * Manually adding or removing the `hidden`, `undetected`, or `unnoticed` status condition on the token HUD will cause *PF2e Avoid Notice* to clear out any existing *PF2e Perception* flags on that token
+
+# Misfit features
+
+These belong in some other module, but they are handy to me so I'm sharing.
+
+## Raise a Shield
+
+I've added support to automatically apply `Raise a shield` to PCs using `defend` at combat start. It doesn't really belong with a stealth module, but since I was mucking about with combat start I went ahead and added it because manually doing this every time bugged me. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
+
+## Autoroll Spell Damage
+
+I added a game setting to enable autorolling damage on non-attack spells, which only rolls the damage if the message card from the spell cast has a 'Roll Damage' button when it is created. This works differently from the autoroll feature of *PF2e Workbench* since it immediately rolls the damage and doesn't wait for a saving throw roll to trigger the automatic damage roll. It is off by default to avoid upsetting GMs who want to hide more rolls, but I heartily recommend it.

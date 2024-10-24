@@ -37,6 +37,7 @@ export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, ge
 Hooks.once('init', () => {
   Hooks.on('createChatMessage', async (message, options, id) => {
     if (game.userId != id) return;
+    if (!game.settings.get(MODULE_ID, 'autorollSpellDamage')) return;
     const pf2eFlags = message?.flags?.pf2e;
     if (!pf2eFlags?.casting) return;
     const originUuid = pf2eFlags?.origin?.uuid;
@@ -45,21 +46,8 @@ Hooks.once('init', () => {
     const damage = origin?.system?.damage;
     if (!damage) return;
     log('createChatMessage', { message, origin });
-    // const context = message.flags.pf2e.context;
-    // const actorId = message?.actor?.id ?? message.speaker?.actor ?? '';
-    // switch (context?.type) {
-    //   case 'perception-check':
-    //     if (context?.options.includes('action:seek')) {
-    //       log('perception-check', message);
-    //     }
-    //     break;
-    //   case 'skill-check':
-    //     const tags = context?.options.filter((t) => SKILL_ACTIONS.includes(t));
-    //     if (tags.length > 0) {
-    //       log('skill-check', tags);
-    //     }
-    //     break;
-    // }
+    if (!message.content.includes('<button type="button" data-action="spell-damage" data-visibility="owner">Roll Damage</button>')) return;
+    origin?.rollDamage({ target: message.token });
   });
 });
 
@@ -137,15 +125,6 @@ Hooks.once('setup', () => {
     default: false,
   });
 
-  game.settings.register(MODULE_ID, 'raiseShields', {
-    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register(MODULE_ID, 'requireActivity', {
     name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
     hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
@@ -187,6 +166,37 @@ Hooks.once('setup', () => {
     });
   }
 
+  game.settings.register(MODULE_ID, 'raiseShields', {
+    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(MODULE_ID, 'autorollSpellDamage', {
+    name: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, 'logLevel', {
+    name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
+    scope: 'client',
+    config: true,
+    type: String,
+    choices: {
+      'none': game.i18n.localize(`${MODULE_ID}.logLevel.none`),
+      'debug': game.i18n.localize(`${MODULE_ID}.logLevel.debug`),
+      'log': game.i18n.localize(`${MODULE_ID}.logLevel.log`)
+    },
+    default: 'none'
+  });
+
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
     hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
@@ -208,19 +218,20 @@ Hooks.once('setup', () => {
     });
   }
 
-
-  game.settings.register(MODULE_ID, 'logLevel', {
-    name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
-    scope: 'client',
-    config: true,
-    type: String,
-    choices: {
-      'none': game.i18n.localize(`${MODULE_ID}.logLevel.none`),
-      'debug': game.i18n.localize(`${MODULE_ID}.logLevel.debug`),
-      'log': game.i18n.localize(`${MODULE_ID}.logLevel.log`)
-    },
-    default: 'none'
-  });
-
   log(`Setup ${moduleVersion}`);
+});
+
+Hooks.on('renderSettingsConfig', (app, html, data) => {
+  const sections = [
+    { label: "general", before: "useUnnoticed" },
+    { label: "misfits", before: "raiseShields" },
+    { label: "debug", before: "logLevel" },
+  ];
+  for (const section of sections) {
+    $('<div>')
+      .addClass('form-group group-header')
+      .html(game.i18n.localize(`${MODULE_ID}.config.${section.label}`))
+      .insertBefore($(`[name="${MODULE_ID}.${section.before}"]`)
+        .parents('div.form-group:first'));
+  }
 });

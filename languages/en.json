@@ -14,6 +14,11 @@
       "debug": "Debug level",
       "log": "Log level"
     },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
+    },
     "useUnnoticed": {
       "name": "Unnoticed",
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
@@ -26,6 +31,10 @@
       "name": "Raise PC shields when Defending",
       "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
       "heldShield": "{actor} must have a shield equipped to {activity}."
+    },
+    "autorollSpellDamage": {
+      "name": "Autoroll spell damage",
+      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
