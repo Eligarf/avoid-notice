@@ -158,6 +158,42 @@ async function modifyInitiativeCard({ combatant, message, interpolations = {} })
   await lastMessage.update({ content });
 }
 
+async function raiseDefendingShields(pcs) {
+  const defenders = pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
+  for (const defender of defenders) {
+    const heldShield = defender.actor?.heldShield;
+    if (!heldShield) {
+      await modifyInitiativeCard({
+        combatant: defender,
+        message: game.i18n.localize('pf2e-avoid-notice.raiseShields.heldShield'),
+        interpolations: {
+          activity: game.i18n.localize('PF2E.TravelSpeed.ExplorationActivities.Defend'),
+          actor: defender.actor.name
+        }
+      });
+      continue;
+    }
+    const object = defender?.token?._object;
+    if (!object?.control) continue;
+    object.control();
+    log(`raising ${defender.actor.name}'s shield`);
+    game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
+  }
+}
+
+async function enrageBarbarians(pcs) {
+  const barbarians = pcs.filter((c) => c.actor.items.some((i) => i?.system?.slug === "quick-tempered") && c.actor.items.some((i) => i?.system?.slug === "rage"));
+  for (const barbarian of barbarians) {
+    const rage = barbarian.actor.items.find((i) => i?.system?.slug === "rage");
+    if (!rage) continue;
+    const object = barbarian.token?._object;
+    if (!object?.control) continue;
+    object.control();
+    log(`enraging ${barbarian.actor.name}`);
+    await game.pf2e.rollItemMacro(rage.id);
+  }
+}
+
 Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
@@ -165,6 +201,7 @@ Hooks.once('init', () => {
     const useUnnoticed = game.settings.get(MODULE_ID, 'useUnnoticed');
     const revealTokens = game.settings.get(MODULE_ID, 'removeGmHidden');
     const raiseShields = game.settings.get(MODULE_ID, 'raiseShields');
+    const rage = game.settings.get(MODULE_ID, 'rage');
     const computeCover = perceptionApi && game.settings.get(MODULE_ID, 'computeCover');
     const requireActivity = game.settings.get(MODULE_ID, 'requireActivity');
     const perceptiveApi = (conditionHandler === 'perceptive') ? getPerceptiveApi() : null;
@@ -182,26 +219,11 @@ Hooks.once('init', () => {
     }
 
     if (raiseShields) {
-      const defenders = pcs.filter((c) => c.actor.system.exploration.some(a => c.actor.items.get(a)?.system?.slug === "defend"));
-      for (const defender of defenders) {
-        const heldShield = defender.actor?.heldShield;
-        if (!heldShield) {
-          await modifyInitiativeCard({
-            combatant: defender,
-            message: game.i18n.localize('pf2e-avoid-notice.raiseShields.heldShield'),
-            interpolations: {
-              activity: game.i18n.localize('PF2E.TravelSpeed.ExplorationActivities.Defend'),
-              actor: defender.actor.name
-            }
-          });
-          continue;
-        }
-        const object = defender?.token?._object;
-        if (object?.control) {
-          object.control();
-          game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
-        }
-      }
+      await raiseDefendingShields(pcs);
+    }
+
+    if (rage) {
+      await enrageBarbarians(pcs);
     }
 
     const familiars = canvas.scene.tokens

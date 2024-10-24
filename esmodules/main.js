@@ -39,14 +39,15 @@ Hooks.once('init', () => {
     if (game.userId != id) return;
     if (!game.settings.get(MODULE_ID, 'autorollSpellDamage')) return;
     const pf2eFlags = message?.flags?.pf2e;
+
+    // Accept only spell casting of non-attack damaging spells
     if (!pf2eFlags?.casting) return;
     const originUuid = pf2eFlags?.origin?.uuid;
     const origin = originUuid ? await fromUuid(originUuid) : null;
     if (origin?.traits?.has("attack")) return;
-    const damage = origin?.system?.damage;
-    if (!damage) return;
-    log('createChatMessage', { message, origin });
     if (!message.content.includes('<button type="button" data-action="spell-damage" data-visibility="owner">')) return;
+
+    // Roll the damage!
     origin?.rollDamage({ target: message.token });
   });
 });

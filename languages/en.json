@@ -32,8 +32,8 @@
       "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
     },
     "rage": {
-      "name": "Quick-Tempered activates Rage at combat start",
-      "hint": ""
+      "name": "Enrage Barbarians at combat start",
+      "hint": "Requires the 'Quick-Tempered' and 'Rage' feats"
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
