@@ -46,7 +46,7 @@ Hooks.once('init', () => {
     const damage = origin?.system?.damage;
     if (!damage) return;
     log('createChatMessage', { message, origin });
-    if (!message.content.includes('<button type="button" data-action="spell-damage" data-visibility="owner">Roll Damage</button>')) return;
+    if (!message.content.includes('<button type="button" data-action="spell-damage" data-visibility="owner">')) return;
     origin?.rollDamage({ target: message.token });
   });
 });
