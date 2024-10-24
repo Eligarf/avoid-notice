@@ -14,11 +14,6 @@
       "debug": "Poziom debugowania",
       "log": "Poziom logów"
     },
-    "config": {
-      "general": "General Options",
-      "misfits": "Misfit Features",
-      "debug": "Debug Options"
-    },
     "useUnnoticed": {
       "name": "Niezauważony",
       "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy Ukrycia przewyższa ST Percepcji i inicjatywę celu"
@@ -35,6 +30,10 @@
     "autorollSpellDamage": {
       "name": "Autoroll spell damage",
       "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
+    },
+    "rage": {
+      "name": "Quick-Tempered activates Rage at combat start",
+      "hint": ""
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
@@ -57,6 +56,11 @@
     "schema": {
       "name": "Wersja schematu",
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."
+    },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
     }
   }
 }

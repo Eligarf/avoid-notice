@@ -14,11 +14,6 @@
       "debug": "Debug level",
       "log": "Log level"
     },
-    "config": {
-      "general": "General Options",
-      "misfits": "Misfit Features",
-      "debug": "Debug Options"
-    },
     "useUnnoticed": {
       "name": "Unnoticed",
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
@@ -35,6 +30,10 @@
     "autorollSpellDamage": {
       "name": "Autoroll spell damage",
       "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
+    },
+    "rage": {
+      "name": "Quick-Tempered activates Rage at combat start",
+      "hint": ""
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
@@ -57,6 +56,11 @@
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"
+    },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
     }
   }
 }

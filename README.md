@@ -58,8 +58,12 @@ These belong in some other module, but they are handy to me so I'm sharing.
 
 ## Raise a Shield
 
-I've added support to automatically apply `Raise a shield` to PCs using `defend` at combat start. It doesn't really belong with a stealth module, but since I was mucking about with combat start I went ahead and added it because manually doing this every time bugged me. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
+I've added support to automatically apply `Raise a shield` to PCs using `Defend` at combat start. It doesn't really belong with a stealth module, but since I was mucking about with combat start I went ahead and added it because manually doing this every time bugged me. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
 
 ## Autoroll Spell Damage
 
 I added a game setting to enable autorolling damage on non-attack spells, which only rolls the damage if the message card from the spell cast has a 'Roll Damage' button when it is created. This works differently from the autoroll feature of *PF2e Workbench* since it immediately rolls the damage and doesn't wait for a saving throw roll to trigger the automatic damage roll. It is off by default to avoid upsetting GMs who want to hide more rolls, but I heartily recommend it.
+
+## Rage
+
+Automation can be enabled to have Barbarians with `Quick-Tempered` automatically enter `Rage` at combat start.

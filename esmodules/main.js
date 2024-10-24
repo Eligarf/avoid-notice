@@ -184,6 +184,15 @@ Hooks.once('setup', () => {
     default: false,
   });
 
+  game.settings.register(MODULE_ID, 'rage', {
+    name: game.i18n.localize(`${MODULE_ID}.rage.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.rage.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register(MODULE_ID, 'logLevel', {
     name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
     scope: 'client',
