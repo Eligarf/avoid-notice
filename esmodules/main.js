@@ -34,27 +34,23 @@ function getPerceptiveApi() {
 
 export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, getPerceptiveApi };
 
-// Hooks.once('init', () => {
-//   Hooks.on('createChatMessage', async (message, options, id) => {
-//     if (game.userId != id) return;
-//     log('createChatMessage', message);
-//     const context = message.flags.pf2e.context;
-//     const actorId = message?.actor?.id ?? message.speaker?.actor ?? '';
-//     switch (context?.type) {
-//       case 'perception-check':
-//         if (context?.options.includes('action:seek')) {
-//           log('perception-check', message);
-//         }
-//         break;
-//       case 'skill-check':
-//         const tags = context?.options.filter((t) => SKILL_ACTIONS.includes(t));
-//         if (tags.length > 0) {
-//           log('skill-check', tags);
-//         }
-//         break;
-//     }
-//   });
-// });
+Hooks.once('init', () => {
+  Hooks.on('createChatMessage', async (message, options, id) => {
+    if (game.userId != id) return;
+    if (!game.settings.get(MODULE_ID, 'autorollSpellDamage')) return;
+    const pf2eFlags = message?.flags?.pf2e;
+
+    // Accept only spell casting of non-attack damaging spells
+    if (!pf2eFlags?.casting) return;
+    const originUuid = pf2eFlags?.origin?.uuid;
+    const origin = originUuid ? await fromUuid(originUuid) : null;
+    if (origin?.traits?.has("attack")) return;
+    if (!message.content.includes('<button type="button" data-action="spell-damage" data-visibility="owner">')) return;
+
+    // Roll the damage!
+    origin?.rollDamage({ target: message.token });
+  });
+});
 
 function migrate(moduleVersion, oldVersion) {
 
@@ -130,15 +126,6 @@ Hooks.once('setup', () => {
     default: false,
   });
 
-  game.settings.register(MODULE_ID, 'raiseShields', {
-    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
-    scope: 'world',
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register(MODULE_ID, 'requireActivity', {
     name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
     hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
@@ -180,6 +167,46 @@ Hooks.once('setup', () => {
     });
   }
 
+  game.settings.register(MODULE_ID, 'raiseShields', {
+    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: true,
+  });
+
+  game.settings.register(MODULE_ID, 'autorollSpellDamage', {
+    name: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, 'rage', {
+    name: game.i18n.localize(`${MODULE_ID}.rage.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.rage.hint`),
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, 'logLevel', {
+    name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
+    scope: 'client',
+    config: true,
+    type: String,
+    choices: {
+      'none': game.i18n.localize(`${MODULE_ID}.logLevel.none`),
+      'debug': game.i18n.localize(`${MODULE_ID}.logLevel.debug`),
+      'log': game.i18n.localize(`${MODULE_ID}.logLevel.log`)
+    },
+    default: 'none'
+  });
+
   game.settings.register(MODULE_ID, 'schema', {
     name: game.i18n.localize(`${MODULE_ID}.schema.name`),
     hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
@@ -201,19 +228,20 @@ Hooks.once('setup', () => {
     });
   }
 
-
-  game.settings.register(MODULE_ID, 'logLevel', {
-    name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
-    scope: 'client',
-    config: true,
-    type: String,
-    choices: {
-      'none': game.i18n.localize(`${MODULE_ID}.logLevel.none`),
-      'debug': game.i18n.localize(`${MODULE_ID}.logLevel.debug`),
-      'log': game.i18n.localize(`${MODULE_ID}.logLevel.log`)
-    },
-    default: 'none'
-  });
-
   log(`Setup ${moduleVersion}`);
+});
+
+Hooks.on('renderSettingsConfig', (app, html, data) => {
+  const sections = [
+    { label: "general", before: "useUnnoticed" },
+    { label: "misfits", before: "raiseShields" },
+    { label: "debug", before: "logLevel" },
+  ];
+  for (const section of sections) {
+    $('<div>')
+      .addClass('form-group group-header')
+      .html(game.i18n.localize(`${MODULE_ID}.config.${section.label}`))
+      .insertBefore($(`[name="${MODULE_ID}.${section.before}"]`)
+        .parents('div.form-group:first'));
+  }
 });

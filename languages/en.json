@@ -27,6 +27,14 @@
       "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
       "heldShield": "{actor} must have a shield equipped to {activity}."
     },
+    "autorollSpellDamage": {
+      "name": "Autoroll spell damage",
+      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
+    },
+    "rage": {
+      "name": "Enrage Barbarians at combat start",
+      "hint": "Requires the 'Quick-Tempered' and 'Rage' feats"
+    },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
@@ -48,6 +56,11 @@
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"
+    },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
     }
   }
 }

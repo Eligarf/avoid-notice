@@ -27,6 +27,14 @@
       "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona. Muszą również posiadać akcję Podnieś tarczę w swoich akcjach spotkania.",
       "heldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
     },
+    "autorollSpellDamage": {
+      "name": "Autoroll spell damage",
+      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
+    },
+    "rage": {
+      "name": "Enrage Barbarians at combat start",
+      "hint": "Requires the 'Quick-Tempered' and 'Rage' feats"
+    },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
@@ -48,6 +56,11 @@
     "schema": {
       "name": "Wersja schematu",
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."
+    },
+    "config": {
+      "general": "General Options",
+      "misfits": "Misfit Features",
+      "debug": "Debug Options"
     }
   }
 }
