@@ -28,12 +28,12 @@
       "heldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
     },
     "autorollSpellDamage": {
-      "name": "Autoroll spell damage",
-      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
+      "name": "Automatyczny rzut na obrażenia od zaklęć",
+      "hint": "Tylko dla zaklęć nieatakujących, które mają przycisk Rzuć obrażenia podczas początkowego tworzenia karty."
     },
     "rage": {
-      "name": "Enrage Barbarians at combat start",
-      "hint": "Requires the 'Quick-Tempered' and 'Rage' feats"
+      "name": "Wchodzenie w Szał barbarzyńców na początku walki",
+      "hint": "Wymaga atutów „Porywczy” i „Szał”."
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
@@ -58,9 +58,9 @@
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."
     },
     "config": {
-      "general": "General Options",
-      "misfits": "Misfit Features",
-      "debug": "Debug Options"
+      "general": "Opcje ogólne",
+      "misfits": "Cechy niedopasowane",
+      "debug": "Opcje debugowania"
     }
   }
 }
