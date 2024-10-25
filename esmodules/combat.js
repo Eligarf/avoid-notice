@@ -182,9 +182,9 @@ async function raiseDefendingShields(pcs) {
 }
 
 async function enrageBarbarians(pcs) {
-  const barbarians = pcs.filter((c) => c.actor.items.some((i) => i?.system?.slug === "quick-tempered") && c.actor.items.some((i) => i?.system?.slug === "rage"));
+  const barbarians = pcs.filter((c) => c.actor.items.some((i) => i?.system?.slug === "quick-tempered"));
   for (const barbarian of barbarians) {
-    const rage = barbarian.actor.items.find((i) => i?.system?.slug === "rage");
+    const rage = barbarian.actor.items.find((i) => i?.system?.slug === "rage" && i?.system?.selfEffect);
     if (!rage) continue;
     const object = barbarian.token?._object;
     if (!object?.control) continue;
