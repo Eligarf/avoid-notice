@@ -1,11 +1,5 @@
 {
   "pf2e-avoid-notice": {
-    "detectionTitle": {
-      "observed": "Obserwowany",
-      "hidden": "Ukryty",
-      "undetected": "Niewykryty",
-      "unnoticed": "Niezauważony"
-    },
     "standardCover": "Standardowa osłona",
     "greaterCover": "Większa osłona",
     "logLevel": {
@@ -24,7 +18,7 @@
     },
     "raiseShields": {
       "name": "Podnosi tarcze Postaci podczas Obrony",
-      "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona. Muszą również posiadać akcję Podnieś tarczę w swoich akcjach spotkania.",
+      "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona.",
       "heldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
     },
     "autorollSpellDamage": {

@@ -1,6 +1,11 @@
+# v1.13.1
+* Added a missing await
+
 # v1.13.0
 * Added an opt-in setting to enable autorolling of non-attack spell damage before saves are rolled.
-* Added a rage setting to automate barbarians entering rage at combat start
+* Added an opt-in rage setting to automate barbarians entering rage at combat start
+* Verify for 6.5
+* Update pl.json (thanks Lioheart)
 
 # v1.12.2
 * Update pl.json (thanks Lioheart)
@@ -9,7 +14,7 @@
 * Better error messages, don't require `Raise a Shield` action to be present on the actor sheet.
 
 # v1.12.0
-* Add a defaulted-true game setting to use the `raise-a-shield` action at combat start for PCs using the `defend` exploration activity and have a Raise a Shield action listed in their encounter actions. Effects don't automatically expire at the beginning of turn 1, so this has to be manually managed.
+* Add an opt-out setting to use the `raise-a-shield` action at combat start for PCs using the `defend` exploration activity and have a Raise a Shield action listed in their encounter actions. Effects don't automatically expire at the beginning of turn 1, so this has to be manually managed.
 
 # v1.11.1
 * Fix error at combat start if an avoiding combatant has sent a non-roll chat card after the initiative roll.

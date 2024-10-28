@@ -177,7 +177,7 @@ async function raiseDefendingShields(pcs) {
     if (!object?.control) continue;
     object.control();
     log(`raising ${defender.actor.name}'s shield`);
-    game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
+    await game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
   }
 }
 
@@ -355,7 +355,7 @@ Hooks.once('init', () => {
         // Add a new category if necessary, and put this other token's result in the message data
         if (!(target.result in messageData)) {
           messageData[target.result] = {
-            title: game.i18n.localize(`${MODULE_ID}.detectionTitle.${target.result}`),
+            title: game.i18n.localize(`PF2E.condition.${target.result}.name`),
             resultClass: (delta >= 0) ? 'success' : 'failure',
             targets: [target]
           };

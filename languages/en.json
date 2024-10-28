@@ -1,11 +1,5 @@
 {
   "pf2e-avoid-notice": {
-    "detectionTitle": {
-      "observed": "Observed",
-      "hidden": "Hidden",
-      "undetected": "Undetected",
-      "unnoticed": "Unnoticed"
-    },
     "standardCover": "Standard Cover",
     "greaterCover": "Greater Cover",
     "logLevel": {
@@ -24,7 +18,7 @@
     },
     "raiseShields": {
       "name": "Raise PC shields when Defending",
-      "hint": "Requires PCs to have held shields and have the Defend exploration activity active. They also need to have Raise A Shield in their encounter actions",
+      "hint": "Requires PCs to have held shields and have the Defend exploration activity active.",
       "heldShield": "{actor} must have a shield equipped to {activity}."
     },
     "autorollSpellDamage": {
@@ -33,7 +27,7 @@
     },
     "rage": {
       "name": "Enrage Barbarians at combat start",
-      "hint": "Requires the 'Quick-Tempered' and 'Rage' feats"
+      "hint": "Requires the 'Quick-Tempered' feat and 'Rage' action. 'Rage' action also needs a Self-Applied Effect in order to be automated"
     },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
