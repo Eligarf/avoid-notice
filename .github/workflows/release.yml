@@ -1,0 +1,16 @@
+name: Release to Foundry
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  publish:
+    name: Publish Release to Foundry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Module to FoundryVTT Website
+        uses: cs96and/FoundryVTT-release-package@v1
+        with:
+          package-token: ${{ secrets.FOUNDRY_PACKAGE_TOKEN }}
+          manifest-url: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.json

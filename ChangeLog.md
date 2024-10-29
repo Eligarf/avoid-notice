@@ -1,3 +1,7 @@
+# v1.13.2
+* Update rage hint in pl.json (thanks Lioheart)
+* Update github scripts to automate releases to foundry
+
 # v1.13.1
 * Added a missing await
 

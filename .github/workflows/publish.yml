@@ -1,4 +1,4 @@
-name: Module Builder
+name: Publish
 
 on: 
   release:
