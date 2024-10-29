@@ -27,7 +27,7 @@
     },
     "rage": {
       "name": "Wchodzenie w Szał barbarzyńców na początku walki",
-      "hint": "Wymaga atutów „Porywczy” i „Szał”."
+      "hint": "Wymaga atutów „Porywczy” i „Szał”.Akcja „Szał” również wymaga zastosowania samoaplikującego się efektu, aby mogła zostać zautomatyzowana."
     },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
