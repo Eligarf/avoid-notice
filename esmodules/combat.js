@@ -178,7 +178,8 @@ async function raiseDefendingShields(pcs) {
     object.control();
     log(`raising ${defender.actor.name}'s shield`);
     await game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
-  }
+    const fx = defender.actor.itemTypes.effect.find((item) => item.system.slug === "effect-raise-a-shield");
+    if (fx) await fx.update({ "system.duration.value": 0 })  }
 }
 
 async function enrageBarbarians(pcs) {

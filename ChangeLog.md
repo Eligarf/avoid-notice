@@ -1,3 +1,8 @@
+# v1.14.0
+* expire the raised-shield effect at the beginning of their first turn. (Thanks farling42)
+* 6.6 verified
+* Put version-specific url on all relevant fields in module.json
+
 # v1.13.2
 * Update rage hint in pl.json (thanks Lioheart)
 * Update github scripts to automate releases to foundry
