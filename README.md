@@ -58,7 +58,7 @@ These really don't belong here and should be in some other module(s), but they a
 
 ## Raise a Shield
 
-This is an opt-out setting to automatically apply `Raise a shield` to PCs using `Defend` at combat start. Do note that the shield effect won't automatically expire at the beginning of turn 1; the system doesn't seem to process turn-based expiration until round 2, so you will have to manually delete the effect if the `Raise a shield` action isn't taken on turn 1. It will automatically expire on turn 2 however.
+This is an opt-out setting to automatically apply `Raise a shield` to PCs using `Defend` at combat start.
 
 ## Autoroll Spell Damage
 
