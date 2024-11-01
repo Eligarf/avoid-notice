@@ -1,5 +1,9 @@
+# v1.15.0
+* Added draggable conditions to initiative cards
+* Fix annoying popup about location of module.json changing
+
 # v1.14.0
-* expire the raised-shield effect at the beginning of their first turn. (Thanks farling42)
+* expire the raised-shield effect at the beginning of their first turn. (Thanks Farling)
 * 6.6 verified
 * Put version-specific url on all relevant fields in module.json
 

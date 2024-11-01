@@ -195,6 +195,13 @@ async function enrageBarbarians(pcs) {
   }
 }
 
+const COMPENDIUM_IDS = {
+  observed: '1wQY3JYyhMYeeV2G',
+  hidden: 'iU0fEDdBp3rXpTMC',
+  undetected: 'VRSef5y1LmL2Hkjf',
+  unnoticed: '9evPzg9E6muFcoSk'
+}
+
 Hooks.once('init', () => {
   Hooks.on('combatStart', async (encounter, ...args) => {
     const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
@@ -355,8 +362,16 @@ Hooks.once('init', () => {
 
         // Add a new category if necessary, and put this other token's result in the message data
         if (!(target.result in messageData)) {
+          const id = COMPENDIUM_IDS[target.result];
+          const pack = 'pf2e.conditionitems';
+          const text = game.i18n.localize(`PF2E.condition.${target.result}.name`);
+          const title = `
+          <a class="content-link" draggable="true" data-link data-uuid="Compendium.${pack}.Item.${id}" data-id="${id}" data-type="Item" data-pack="${pack}">
+            <i class="fa-solid fa-face-zany"></i>
+            ${text}
+          </a>`
           messageData[target.result] = {
-            title: game.i18n.localize(`PF2E.condition.${target.result}.name`),
+            title,
             resultClass: (delta >= 0) ? 'success' : 'failure',
             targets: [target]
           };
