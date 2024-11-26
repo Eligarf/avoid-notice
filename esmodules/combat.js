@@ -316,6 +316,8 @@ Hooks.once("init", () => {
       conditionHandler === "perceptive" ? getPerceptiveApi() : null;
     let nonAvoidingPcs = [];
 
+    const beforeV13 = Math.floor(game.version) < 13;
+
     let avoiders = encounter.combatants.contents.filter(
       (c) =>
         !(c.actor?.parties?.size > 0 && c.actor.system?.exploration) &&
@@ -366,7 +368,12 @@ Hooks.once("init", () => {
     );
 
     const unrevealedIds = encounter.combatants.contents
-      .map((c) => (c.token instanceof Token ? c.token.document : c.token))
+      .map((c) =>
+        (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
+        (beforeV13 && c.token instanceof Token)
+          ? c.token.document
+          : c.token,
+      )
       .filter((t) => t.hidden && t.actor.type !== "hazard")
       .map((t) => t.id);
 
@@ -386,8 +393,12 @@ Hooks.once("init", () => {
       if (!nonAllies.length) continue;
 
       // Now extract some details about the avoider
-      const avoiderTokenDoc =
-        avoider.token instanceof Token ? avoider.token.document : avoider.token;
+      const isAvoiderToken = beforeV13
+        ? avoider.token instanceof Token
+        : avoider.token instanceof foundry.canvas.placeables.Token;
+      const avoiderTokenDoc = isAvoiderToken
+        ? avoider.token.document
+        : avoider.token;
       const coverEffect = avoiderTokenDoc.actor.items.find(
         (i) => i.system.slug === "effect-cover",
       );
@@ -408,10 +419,12 @@ Hooks.once("init", () => {
         ? avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data
         : undefined;
       for (const other of nonAllies) {
-        const otherTokenDoc =
-          other?.token instanceof Token
-            ? other.token.document
-            : (other?.token ?? other);
+        const isOtherToken = beforeV13
+          ? other?.token instanceof Token
+          : other?.token instanceof foundry.canvas.placeables.Token;
+        const otherTokenDoc = isOtherToken
+          ? other.token.document
+          : (other?.token ?? other);
         const otherToken = other?.token ?? other;
         const otherActor = otherToken.actor;
         if (otherActor.type === "hazard") continue;
