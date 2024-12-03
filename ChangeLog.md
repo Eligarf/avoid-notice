@@ -1,3 +1,6 @@
+# v1.15.1
+* Mark module as not yet compatible with v13
+
 # v1.15.0
 * Added draggable conditions to initiative cards
 * Fix annoying popup about location of module.json changing (after this update that is)

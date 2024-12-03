@@ -405,7 +405,7 @@ Hooks.once('init', () => {
         if (status) {
           content += `
             <div data-visibility="gm">
-              <span><strong>${status.title}</strong></span>
+              ${status.title}
               <table>
                 <tbody>`;
           for (const target of status.targets) {
