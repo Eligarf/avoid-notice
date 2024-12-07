@@ -47,6 +47,10 @@
       "name": "Oblicz osłony na początku walki",
       "hint": "Użyj „PF2e Perception”, aby automatycznie obliczyć osłonę między tokenami używającymi Ukrycia dla inicjatywy i niesprzymierzonych tokenów. Jest on używany tylko do tego sprawdzenia i nie będzie wykorzystywał większej osłony"
     },
+    "observable": {
+      "name": "Make selected tokens observable",
+      "hint": "Remove hidden, undetected, and unnoticed statuses from selected tokens."
+    },
     "schema": {
       "name": "Wersja schematu",
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."

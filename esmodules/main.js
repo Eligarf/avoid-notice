@@ -34,6 +34,18 @@ function getPerceptiveApi() {
 
 export { MODULE_ID, PF2E_PERCEPTION_ID, PERCEPTIVE_ID, log, getPerceptionApi, getPerceptiveApi };
 
+async function clearPerceptionData(token) {
+  // Remove any ids that perception is tracking
+  const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
+  if (!perceptionData || !Object.keys(perceptionData).length) return;
+  let tokenUpdate = {};
+  for (let id in perceptionData) {
+    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = true;
+  }
+  const updates = [{ _id: token.id, ...tokenUpdate }];
+  await canvas.scene.updateEmbeddedDocuments("Token", updates);
+}
+
 Hooks.once('init', () => {
   Hooks.on('createChatMessage', async (message, options, id) => {
     if (game.userId != id) return;
@@ -49,6 +61,28 @@ Hooks.once('init', () => {
 
     // Roll the damage!
     origin?.rollDamage({ target: message.token });
+  });
+
+  game.keybindings.register(MODULE_ID, "observable", {
+    name: `${MODULE_ID}.observable.name`,
+    hint: `${MODULE_ID}.observable.hint`,
+    editable: [
+      { key: "B" }
+    ],
+    onDown: async () => {
+      const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
+      const perceptionApi = (conditionHandler === 'perception') ? getPerceptionApi() : null;
+      const selectedTokens = canvas.tokens.controlled;
+      for (const token of selectedTokens) {
+        if (perceptionApi) await clearPerceptionData(token.document);
+        const conditions = token.actor.items
+          .filter((i) => ['hidden', 'undetected', 'unnoticed'].includes(i.system.slug))
+          .map((i) => i.id);
+        if (conditions.length > 0) {
+          await token.actor.deleteEmbeddedDocuments("Item", conditions);
+        }
+      }
+    }
   });
 });
 
@@ -80,16 +114,7 @@ Hooks.once('ready', () => {
     // Get the token on the current scene
     const token = options.parent?.parent ?? canvas.scene.tokens.find((t) => t.actorId === options.parent.id);
     if (!token) return;
-
-    // Remove any ids that perception is tracking
-    const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
-    if (!perceptionData || !Object.keys(perceptionData).length) return;
-    let tokenUpdate = {};
-    for (let id in perceptionData) {
-      tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = true;
-    }
-    const updates = [{ _id: token.id, ...tokenUpdate }];
-    await canvas.scene.updateEmbeddedDocuments("Token", updates);
+    await clearPerceptionData(token);
   }
 
   if (game.modules.get(PF2E_PERCEPTION_ID)?.active) {

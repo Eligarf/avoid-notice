@@ -47,6 +47,10 @@
       "name": "Compute Cover at Combat Start",
       "hint": "Use 'PF2e Perception' to automatically compute cover between tokens using stealth for initiative and non-allied Tokens. It is only used for this check, and will not utilize greater cover"
     },
+    "observable": {
+      "name": "Make selected tokens observable",
+      "hint": "Remove hidden, undetected, and unnoticed statuses from selected tokens."
+    },
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"

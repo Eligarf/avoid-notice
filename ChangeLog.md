@@ -1,3 +1,6 @@
+# v1.16.0
+* Add a keybinding to make selected tokens observerable by removing `hidden`, `undetected`, or `unnoticed` condition items. Will also clear out any `PF2E Perception` flags on those tokens.
+
 # v1.15.1
 * Mark module as not yet compatible with v13
 
