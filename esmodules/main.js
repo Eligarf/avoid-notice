@@ -67,7 +67,7 @@ Hooks.once('init', () => {
     name: `${MODULE_ID}.observable.name`,
     hint: `${MODULE_ID}.observable.hint`,
     editable: [
-      { key: "B" }
+      { key: "KeyB" }
     ],
     onDown: async () => {
       const conditionHandler = game.settings.get(MODULE_ID, 'conditionHandler');
