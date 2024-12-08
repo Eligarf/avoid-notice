@@ -48,8 +48,8 @@
       "hint": "Użyj „PF2e Perception”, aby automatycznie obliczyć osłonę między tokenami używającymi Ukrycia dla inicjatywy i niesprzymierzonych tokenów. Jest on używany tylko do tego sprawdzenia i nie będzie wykorzystywał większej osłony"
     },
     "observable": {
-      "name": "Make selected tokens observable",
-      "hint": "Remove hidden, undetected, and unnoticed statuses from selected tokens."
+      "name": "Spraw, by wybrane tokeny były obserwowalne",
+      "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów."
     },
     "schema": {
       "name": "Wersja schematu",
