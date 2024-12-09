@@ -1,3 +1,6 @@
+# v1.16.1
+* Update Polish Translation (thanks Lioheart)
+
 # v1.16.0
 * Add a keybinding to make selected tokens observerable by removing `hidden`, `undetected`, or `unnoticed` condition items. Will also clear out any `PF2E Perception` flags on those tokens.
 
