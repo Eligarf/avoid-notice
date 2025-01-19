@@ -1,3 +1,6 @@
+# v1.16.2
+* Fix a bug checking against token IDs.
+
 # v1.16.1
 * Update Polish Translation (thanks Lioheart)
 

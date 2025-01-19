@@ -117,7 +117,7 @@ async function updatePerceptive({ perceptiveApi, avoider, avoiderTokenDoc, initi
 async function updatePerception({ perceptionData, results, perceptionUpdate }) {
   if ('observed' in results) {
     for (const result of results.observed) {
-      if (result.id in perceptionData)
+      if (perceptionData && result.id in perceptionData)
         perceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${result.id}`] = true;
     }
   }
