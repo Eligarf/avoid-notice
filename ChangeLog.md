@@ -1,3 +1,8 @@
+# v1.17.0
+
+- If an initiative card is missing, search for an Avoiding Notice roll card that was the source of the initiative result and put the avoid notice results there.
+- Ran code through a prettifier
+
 # v1.16.2
 
 - Fix a bug checking against token IDs.
@@ -190,4 +195,3 @@
 # v0.0.0
 
 - Initial implementation
-
