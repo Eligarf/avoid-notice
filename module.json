@@ -22,18 +22,13 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "verified": "6.8.2"
+          "verified": "6.10"
         }
       }
     ]
   },
-  "esmodules": [
-    "esmodules/main.js",
-    "esmodules/combat.js"
-  ],
-  "styles": [
-    "styles/style.css"
-  ],
+  "esmodules": ["esmodules/main.js", "esmodules/combat.js"],
+  "styles": ["styles/style.css"],
   "languages": [
     {
       "lang": "en",
