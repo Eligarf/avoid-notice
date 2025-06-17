@@ -16,7 +16,7 @@
       "name": "Ujawnienie tokenów walczących na początku walki",
       "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
     },
-    "activity": "Exploration Activity: {activity}",
+    "activity": "Aktywność eksploracyjna: {activity}",
     "raiseShields": {
       "name": "Podnosi tarcze Postaci podczas Obrony",
       "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona.",
