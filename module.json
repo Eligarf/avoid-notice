@@ -10,11 +10,11 @@
       "ko-fi": "rule671908"
     }
   ],
-  "version": "1.2.2",
+  "version": "13.0.0",
   "compatibility": {
     "minimum": "11.315",
-    "maximum": "12",
-    "verified": "12"
+    "maximum": "13",
+    "verified": "13"
   },
   "relationships": {
     "systems": [
@@ -22,7 +22,7 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "verified": "6.10"
+          "verified": "7.1.1"
         }
       }
     ]

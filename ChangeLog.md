@@ -1,3 +1,8 @@
+# v13.0.0
+
+- Foundry version 13 compatibility
+- Small adjustment to text added to the initiative card
+
 # v1.17.0
 
 - If an initiative card is missing, search for an Avoiding Notice roll card that was the source of the initiative result and put the avoid notice results there.

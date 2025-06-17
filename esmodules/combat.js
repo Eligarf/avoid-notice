@@ -236,8 +236,7 @@ async function modifyInitiativeCard({
   const lastMessage = await findInitiativeCard(combatant);
   if (!lastMessage) return;
   let content = renderInitiativeDice(lastMessage.rolls[0]);
-  const addedContent = interpolateString(message, interpolations);
-  content += `<div><h3>PF2e Avoid Notice</h3><p>${addedContent}</p></div>`;
+  content += interpolateString(message, interpolations);
   await lastMessage.update({ content });
 }
 
@@ -253,7 +252,7 @@ async function raiseDefendingShields(pcs) {
       await modifyInitiativeCard({
         combatant: defender,
         message: game.i18n.localize(
-          "pf2e-avoid-notice.raiseShields.heldShield",
+          "pf2e-avoid-notice.raiseShields.needsHeldShield",
         ),
         interpolations: {
           activity: game.i18n.localize(
@@ -269,6 +268,16 @@ async function raiseDefendingShields(pcs) {
     object.control();
     log(`raising ${defender.actor.name}'s shield`);
     await game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
+    await modifyInitiativeCard({
+      combatant: defender,
+      message: game.i18n.localize("pf2e-avoid-notice.activity"),
+      interpolations: {
+        activity: game.i18n.localize(
+          "PF2E.TravelSpeed.ExplorationActivities.Defend",
+        ),
+        actor: defender.actor.name,
+      },
+    });
     const fx = defender.actor.itemTypes.effect.find(
       (item) => item.system.slug === "effect-raise-a-shield",
     );
@@ -315,6 +324,8 @@ Hooks.once("init", () => {
     const perceptiveApi =
       conditionHandler === "perceptive" ? getPerceptiveApi() : null;
     let nonAvoidingPcs = [];
+
+    const beforeV13 = Math.floor(game.version) < 13;
 
     let avoiders = encounter.combatants.contents.filter(
       (c) =>
@@ -366,13 +377,18 @@ Hooks.once("init", () => {
     );
 
     const unrevealedIds = encounter.combatants.contents
-      .map((c) => (c.token instanceof Token ? c.token.document : c.token))
+      .map((c) =>
+        (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
+        (beforeV13 && c.token instanceof Token)
+          ? c.token.document
+          : c.token,
+      )
       .filter((t) => t.hidden && t.actor.type !== "hazard")
       .map((t) => t.id);
 
     let perceptionChanges = {};
     for (const avoider of avoiders) {
-      // log('avoider', avoider);
+      // log("avoider", avoider);
 
       const initiativeRoll = avoider.initiative;
       const dosDelta = initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
@@ -386,8 +402,12 @@ Hooks.once("init", () => {
       if (!nonAllies.length) continue;
 
       // Now extract some details about the avoider
-      const avoiderTokenDoc =
-        avoider.token instanceof Token ? avoider.token.document : avoider.token;
+      const isAvoiderToken = beforeV13
+        ? avoider.token instanceof Token
+        : avoider.token instanceof foundry.canvas.placeables.Token;
+      const avoiderTokenDoc = isAvoiderToken
+        ? avoider.token.document
+        : avoider.token;
       const coverEffect = avoiderTokenDoc.actor.items.find(
         (i) => i.system.slug === "effect-cover",
       );
@@ -408,10 +428,12 @@ Hooks.once("init", () => {
         ? avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data
         : undefined;
       for (const other of nonAllies) {
-        const otherTokenDoc =
-          other?.token instanceof Token
-            ? other.token.document
-            : (other?.token ?? other);
+        const isOtherToken = beforeV13
+          ? other?.token instanceof Token
+          : other?.token instanceof foundry.canvas.placeables.Token;
+        const otherTokenDoc = isOtherToken
+          ? other.token.document
+          : (other?.token ?? other);
         const otherToken = other?.token ?? other;
         const otherActor = otherToken.actor;
         if (otherActor.type === "hazard") continue;
@@ -516,12 +538,19 @@ Hooks.once("init", () => {
       // Find the last card with a check roll matching initiative for the avoider
       // continue;
       let initiativeMessage = await findInitiativeCard(avoider);
-      let content;
+      let content = interpolateString(
+        game.i18n.localize("pf2e-avoid-notice.activity"),
+        {
+          activity: game.i18n.localize(
+            "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
+          ),
+          actor: avoider.actor.name,
+        },
+      );
       if (initiativeMessage) {
-        content = renderInitiativeDice(initiativeMessage.rolls[0]);
+        content = renderInitiativeDice(initiativeMessage.rolls[0]) + content;
       } else {
         log("card for", avoider);
-        content = "Avoiding Notice Results";
         initiativeMessage = await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({
             actor: avoider.actor,

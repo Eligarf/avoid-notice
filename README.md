@@ -58,7 +58,7 @@ These really don't belong here and should be in some other module(s), but they a
 
 ## Raise a Shield
 
-This is an opt-out setting to automatically apply `Raise a shield` to PCs using `Defend` at combat start.
+This is an opt-out setting to automatically apply `Raise a shield` to PCs using `Defend` at combat start. Full automation requires use of _PF2e Toolbelt_, wherein you must enable the 'Auto Self-Applied' checkbox in the 'Actionable' section of its game settings.
 
 ## Autoroll Spell Damage
 
