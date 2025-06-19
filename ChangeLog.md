@@ -1,3 +1,7 @@
+# v13.0.1
+
+- Update pl.json (thanks Lioheart)
+
 # v13.0.0
 
 - Foundry version 13 compatibility
