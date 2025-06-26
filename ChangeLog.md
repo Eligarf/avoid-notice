@@ -1,3 +1,7 @@
+# v13.0.2
+
+- Get rid of the double notify when schema version changes
+
 # v13.0.1
 
 - Update pl.json (thanks Lioheart)

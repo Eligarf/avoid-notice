@@ -96,9 +96,11 @@ Hooks.once("init", () => {
 });
 
 function migrate(moduleVersion, oldVersion) {
-  ui.notifications.warn(
-    `Updated PF2e Avoid Notice data from ${oldVersion} to ${moduleVersion}`,
-  );
+  if (oldVersion !== moduleVersion) {
+    // ui.notifications.info(
+    //   `Updated PF2e Avoid Notice data from ${oldVersion} to ${moduleVersion}`,
+    // );
+  }
   return moduleVersion;
 }
 
