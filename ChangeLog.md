@@ -2,6 +2,7 @@
 
 - Add an opt-in setting to clear the movement history of a token when its combat turn ends
 - Change the autoroll spell damage game setting to be a client setting rather than a world setting
+- Update Polish Translation (thanks Lioheart)
 
 # v13.0.2
 
