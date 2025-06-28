@@ -52,6 +52,10 @@
       "name": "Spraw, by wybrane tokeny były obserwowalne",
       "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów."
     },
+    "clearMovement": {
+      "name": "Clear movement history at turn end",
+      "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
+    },
     "schema": {
       "name": "Wersja schematu",
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."

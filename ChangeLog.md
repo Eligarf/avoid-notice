@@ -1,3 +1,8 @@
+# v13.1.0
+
+- Add an opt-in setting to clear the movement history of a token when its combat turn ends
+- Change the autoroll spell damage game setting to be a client setting rather than a world setting
+
 # v13.0.2
 
 - Get rid of the double notify when schema version changes

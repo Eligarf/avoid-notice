@@ -146,6 +146,28 @@ Hooks.once("ready", () => {
       await clearPf2ePerceptionFlags(item, options, userId);
     });
   }
+
+  async function endOfTurn(encounter, change, action) {
+    if (!game.settings.get(MODULE_ID, "clearMovement")) return;
+    const token = canvas.tokens.get(encounter.current.tokenId)?.document;
+    if (!token) return;
+    const movement = token?._movementHistory;
+    if (!movement) return;
+    const movementLength = movement?.length;
+    if (!movementLength) return;
+    await token.clearMovementHistory();
+  }
+
+  const beforeV13 = Math.floor(game.version) < 13;
+  if (!beforeV13 && game.users.activeGM.isSelf) {
+    Hooks.on("combatTurn", async (encounter, change, action) => {
+      await endOfTurn(encounter, change, action);
+    });
+
+    Hooks.on("combatRound", async (encounter, change, action) => {
+      await endOfTurn(encounter, change, action);
+    });
+  }
 });
 
 Hooks.once("setup", () => {
@@ -225,7 +247,7 @@ Hooks.once("setup", () => {
   game.settings.register(MODULE_ID, "autorollSpellDamage", {
     name: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.name`),
     hint: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.hint`),
-    scope: "world",
+    scope: "client",
     config: true,
     type: Boolean,
     default: false,
@@ -239,6 +261,18 @@ Hooks.once("setup", () => {
     type: Boolean,
     default: false,
   });
+
+  const beforeV13 = Math.floor(game.version) < 13;
+  if (!beforeV13) {
+    game.settings.register(MODULE_ID, "clearMovement", {
+      name: game.i18n.localize(`${MODULE_ID}.clearMovement.name`),
+      hint: game.i18n.localize(`${MODULE_ID}.clearMovement.hint`),
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: false,
+    });
+  }
 
   game.settings.register(MODULE_ID, "logLevel", {
     name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),

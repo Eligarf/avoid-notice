@@ -52,6 +52,10 @@
       "name": "Make selected tokens observable",
       "hint": "Remove hidden, undetected, and unnoticed statuses from selected tokens."
     },
+    "clearMovement": {
+      "name": "Clear movement history at turn end",
+      "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
+    },
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"
