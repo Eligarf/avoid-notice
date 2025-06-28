@@ -53,8 +53,8 @@
       "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów."
     },
     "clearMovement": {
-      "name": "Clear movement history at turn end",
-      "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
+      "name": "Wyczyść historię ruchu po zakończeniu tury",
+      "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."
     },
     "schema": {
       "name": "Wersja schematu",
