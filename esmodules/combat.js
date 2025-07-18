@@ -325,7 +325,7 @@ Hooks.once("init", () => {
       conditionHandler === "perceptive" ? getPerceptiveApi() : null;
     let nonAvoidingPcs = [];
 
-    const beforeV13 = Math.floor(game.version) < 13;
+    const beforeV13 = Number(game.version.split()[0]) < 13;
 
     let avoiders = encounter.combatants.contents.filter(
       (c) =>

@@ -158,7 +158,7 @@ Hooks.once("ready", () => {
     await token.clearMovementHistory();
   }
 
-  const beforeV13 = Math.floor(game.version) < 13;
+  const beforeV13 = Number(game.version.split()[0]) < 13;
   if (!beforeV13 && game.users.activeGM.isSelf) {
     Hooks.on("combatTurn", async (encounter, change, action) => {
       await endOfTurn(encounter, change, action);
@@ -262,7 +262,7 @@ Hooks.once("setup", () => {
     default: false,
   });
 
-  const beforeV13 = Math.floor(game.version) < 13;
+  const beforeV13 = Number(game.version.split()[0]) < 13;
   if (!beforeV13) {
     game.settings.register(MODULE_ID, "clearMovement", {
       name: game.i18n.localize(`${MODULE_ID}.clearMovement.name`),

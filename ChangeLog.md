@@ -1,3 +1,7 @@
+# v13.1.1
+
+- Fix a bad pattern used to detect Foundry's major version number
+
 # v13.1.0
 
 - Add an opt-in setting to clear the movement history of a token when its combat turn ends
