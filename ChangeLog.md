@@ -1,3 +1,7 @@
+# v13.1.2
+
+- Make sure player movements get cleared as spell
+
 # v13.1.1
 
 - Fix a bad pattern used to detect Foundry's major version number

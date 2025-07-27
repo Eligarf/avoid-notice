@@ -159,7 +159,7 @@ Hooks.once("ready", () => {
   }
 
   const beforeV13 = Number(game.version.split()[0]) < 13;
-  if (!beforeV13 && game.users.activeGM.isSelf) {
+  if (!beforeV13) {
     Hooks.on("combatTurn", async (encounter, change, action) => {
       await endOfTurn(encounter, change, action);
     });
