@@ -1,6 +1,6 @@
 # v13.1.2
 
-- Make sure player movements get cleared as spell
+- Make sure player movements get cleared
 
 # v13.1.1
 
