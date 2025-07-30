@@ -42,8 +42,11 @@ async function clearPerceptionData(token) {
   const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
   if (!perceptionData || !Object.keys(perceptionData).length) return;
   let tokenUpdate = {};
+  const beforeV13 = Number(game.version.split()[0]) < 13;
   for (let id in perceptionData) {
-    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = true;
+    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = beforeV13
+      ? true
+      : null;
   }
   const updates = [{ _id: token.id, ...tokenUpdate }];
   await canvas.scene.updateEmbeddedDocuments("Token", updates);

@@ -1,3 +1,7 @@
+# v13.1.3
+
+- Update a dormant v13 flag removal path for pf2e-perception
+
 # v13.1.2
 
 - Make sure player movements get cleared
