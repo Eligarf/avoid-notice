@@ -35,19 +35,19 @@ Initiative sometimes comes from a previous roll like a sneak check or the use of
 
 ## Condition Handling
 
-This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that an avoider might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system (only _PF2e perception_ can do this)
+This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that an avoider might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system - you'll need to use an additional module for that.
 
 - It can do nothing and let the GM handle everything.
 - It can use the worst degree-of-success to determine which condition to apply to the avoider, or;
 - It can use the best degree-of-success.
-- The [_Perceptive_](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
-- The _PF2e Perception_ module can be selected. It handles multiple visibility states for a token.
+- The [_Perceptive_](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage concurrent `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
+- The _PF2e Perception_ module can be selected. It handles multiple concurrent visibility states for a token, but is V12 only.
+- The [_PF2e Visioner_](https://github.com/roi007leaf/pf2e-visioner) module is the recommended condition handler for V13, and handles multiple concurrent visibility states for a token.
 
-## PF2e Perception
+## PF2e Perception - v12 only
 
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
 
-- _PF2e Avoid Notice_ will set the appropriate visibility flags on the avoiding tokens to reflect the detection status determined by initiative checks.
 - If *PF2e Perception* cover flags are found on an avoider token, standard or greater cover bonuses will apply as appropriate against perception DCs. The are given higher priority than the system cover flag if both are on a token.
 - If _Compute Cover at Combat Start_ is selected, _PF2e Avoid Notice_ will ignore existing cover flags and use _PF2e Perception_ to calculate new ones for avoider tokens for each token they are testing against
 - Manually adding or removing the `hidden`, `undetected`, or `unnoticed` status condition on the token HUD will cause _PF2e Avoid Notice_ to clear out any existing _PF2e Perception_ flags on that token

@@ -41,6 +41,7 @@
       "ignore": "Nie ustawiaj statusu stanu",
       "best": "Użyj najgorszego stopnia sukcesu, aby określić stan",
       "worst": "Użyj najlepszego stopnia sukcesu, aby określić stan",
+      "visioner": "Let PF2e Visioner handle it",
       "perception": "Niech zajmie się tym moduł pf2e-perception",
       "perceptive": "Niech zajmie się tym moduł Perceptive"
     },
@@ -52,6 +53,7 @@
       "name": "Spraw, by wybrane tokeny były obserwowalne",
       "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów."
     },
+    "clearVisibility": "Clearing visibility data for {name}",
     "clearMovement": {
       "name": "Wyczyść historię ruchu po zakończeniu tury",
       "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."

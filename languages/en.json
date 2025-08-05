@@ -41,8 +41,9 @@
       "ignore": "Don't set the status conditions",
       "best": "Use the worst degree-of-success determine the condition",
       "worst": "Use the best degree-of-success to determine the condition",
-      "perception": "Let the pf2e-perception module handle it",
-      "perceptive": "Let the Perceptive module handle it"
+      "visioner": "Let PF2e Visioner handle it",
+      "perception": "Let pf2e-perception handle it",
+      "perceptive": "Let Perceptive handle it"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",
@@ -52,6 +53,7 @@
       "name": "Make selected tokens observable",
       "hint": "Remove hidden, undetected, and unnoticed statuses from selected tokens."
     },
+    "clearVisibility": "Clearing visibility data for {name}",
     "clearMovement": {
       "name": "Clear movement history at turn end",
       "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"

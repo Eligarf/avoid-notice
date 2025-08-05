@@ -1,10 +1,11 @@
 import {
   MODULE_ID,
   PF2E_PERCEPTION_ID,
-  PERCEPTIVE_ID,
   log,
+  interpolateString,
   getPerceptionApi,
   getPerceptiveApi,
+  getVisionerApi,
 } from "./main.js";
 
 function renderInitiativeDice(roll) {
@@ -205,6 +206,17 @@ async function updatePerception({ perceptionData, results, perceptionUpdate }) {
   }
 }
 
+async function updateVisioner({ visionerApi, avoider, results }) {
+  const targetId = avoider.tokenId;
+  for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
+    if (condition in results) {
+      for (const result of results[condition]) {
+        visionerApi.setVisibility(result.id, targetId, condition);
+      }
+    }
+  }
+}
+
 async function findInitiativeCard(combatant) {
   let messages = game.messages.contents.filter(
     (m) =>
@@ -220,12 +232,6 @@ async function findInitiativeCard(combatant) {
     );
   }
   return messages.length ? game.messages.get(messages.pop()._id) : null;
-}
-
-function interpolateString(str, interpolations) {
-  return str.replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) =>
-    interpolations.hasOwnProperty(key) ? interpolations[key] : match,
-  );
 }
 
 async function modifyInitiativeCard({
@@ -323,6 +329,8 @@ Hooks.once("init", () => {
     const requireActivity = game.settings.get(MODULE_ID, "requireActivity");
     const perceptiveApi =
       conditionHandler === "perceptive" ? getPerceptiveApi() : null;
+    const visionerApi =
+      conditionHandler === "visioner" ? getVisionerApi() : null;
     let nonAvoidingPcs = [];
 
     const beforeV13 = Number(game.version.split()[0]) < 13;
@@ -578,6 +586,9 @@ Hooks.once("init", () => {
           break;
         case "perception":
           await updatePerception({ perceptionData, results, perceptionUpdate });
+          break;
+        case "visioner":
+          await updateVisioner({ visionerApi, avoider, results });
           break;
       }
 

@@ -1,3 +1,7 @@
+# v13.2.0
+
+- Add PF2e Visioner as a condition handler (refer to https://github.com/roi007leaf/pf2e-visioner)
+
 # v13.1.3
 
 - Update a dormant v13 flag removal path for pf2e-perception

@@ -7,6 +7,7 @@ const SKILL_ACTIONS = [
 const MODULE_ID = "pf2e-avoid-notice";
 const PF2E_PERCEPTION_ID = "pf2e-perception";
 const PERCEPTIVE_ID = "perceptive";
+const VISIONER_ID = "pf2e-visioner";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
@@ -20,6 +21,12 @@ function log(format, ...args) {
   }
 }
 
+function interpolateString(str, interpolations) {
+  return str.replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) =>
+    interpolations.hasOwnProperty(key) ? interpolations[key] : match,
+  );
+}
+
 function getPerceptionApi() {
   return game.modules.get(PF2E_PERCEPTION_ID)?.api;
 }
@@ -28,13 +35,20 @@ function getPerceptiveApi() {
   return game.modules.get(PERCEPTIVE_ID)?.api;
 }
 
+function getVisionerApi() {
+  return game.modules.get(VISIONER_ID)?.api;
+}
+
 export {
   MODULE_ID,
   PF2E_PERCEPTION_ID,
   PERCEPTIVE_ID,
+  VISIONER_ID,
   log,
+  interpolateString,
   getPerceptionApi,
   getPerceptiveApi,
+  getVisionerApi,
 };
 
 async function clearPerceptionData(token) {
@@ -50,6 +64,19 @@ async function clearPerceptionData(token) {
   }
   const updates = [{ _id: token.id, ...tokenUpdate }];
   await canvas.scene.updateEmbeddedDocuments("Token", updates);
+}
+
+async function clearVisionerData(token, visionerApi) {
+  const tokens = canvas.scene.tokens.filter((t) => {
+    const visibility = t.flags?.[VISIONER_ID]?.visibility;
+    if (!visibility) return false;
+    if (!(token.id in visibility)) return false;
+    return visibility[token.id] !== "observed";
+  });
+  if (!tokens.length) return;
+  for (const t of tokens) {
+    await visionerApi.setVisibility(t.id, token.id, "observed");
+  }
 }
 
 Hooks.once("init", () => {
@@ -82,9 +109,20 @@ Hooks.once("init", () => {
       const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
       const perceptionApi =
         conditionHandler === "perception" ? getPerceptionApi() : null;
+      const visionerApi =
+        conditionHandler === "visioner" ? getVisionerApi() : null;
       const selectedTokens = canvas.tokens.controlled;
       for (const token of selectedTokens) {
+        ui.notifications.info(
+          interpolateString(
+            game.i18n.localize("pf2e-avoid-notice.clearVisibility"),
+            {
+              name: token.name,
+            },
+          ),
+        );
         if (perceptionApi) await clearPerceptionData(token.document);
+        if (visionerApi) await clearVisionerData(token, visionerApi);
         const conditions = token.actor.items
           .filter((i) =>
             ["hidden", "undetected", "unnoticed"].includes(i.system.slug),
@@ -114,7 +152,8 @@ Hooks.once("ready", () => {
     (conditionHandler === "perception" &&
       !game.modules.get(PF2E_PERCEPTION_ID)?.active) ||
     (conditionHandler === "perceptive" &&
-      !game.modules.get(PERCEPTIVE_ID)?.active)
+      !game.modules.get(PERCEPTIVE_ID)?.active) ||
+    (conditionHandler === "visioner" && !game.modules.get(VISIONER_ID)?.active)
   ) {
     log(`resetting condition Handler from '${conditionHandler}' to 'ignore'`);
     game.settings.set(MODULE_ID, "conditionHandler", "ignore");
@@ -206,12 +245,14 @@ Hooks.once("setup", () => {
 
   const perception = game.modules.get(PF2E_PERCEPTION_ID)?.active;
   const perceptive = game.modules.get(PERCEPTIVE_ID)?.active;
+  const visioner = game.modules.get(VISIONER_ID)?.active;
 
   let choices = {
     ignore: `${MODULE_ID}.conditionHandler.ignore`,
     best: `${MODULE_ID}.conditionHandler.best`,
     worst: `${MODULE_ID}.conditionHandler.worst`,
   };
+  if (visioner) choices.visioner = `${MODULE_ID}.conditionHandler.visioner`;
   if (perception)
     choices.perception = `${MODULE_ID}.conditionHandler.perception`;
   if (perceptive)
@@ -224,7 +265,7 @@ Hooks.once("setup", () => {
     config: true,
     type: String,
     choices,
-    default: perception ? "perception" : "ignore",
+    default: visioner ? "visioner" : "ignore",
   });
 
   if (perception) {
