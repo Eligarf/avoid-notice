@@ -670,8 +670,7 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
-    if ("refreshEveryonesPerception" in visionerApi) {
+    if (visionerApi && "refreshEveryonesPerception" in visionerApi)
       visionerApi.refreshEveryonesPerception();
-    }
   });
 });
