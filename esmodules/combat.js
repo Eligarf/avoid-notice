@@ -669,5 +669,9 @@ Hooks.once("init", () => {
       // log('token updates', tokenUpdates);
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
+
+    if ("refreshEveryonesPerception" in visionerApi) {
+      visionerApi.refreshEveryonesPerception();
+    }
   });
 });

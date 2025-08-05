@@ -77,6 +77,8 @@ async function clearVisionerData(token, visionerApi) {
   for (const t of tokens) {
     await visionerApi.setVisibility(t.id, token.id, "observed");
   }
+  if ("refreshEveryonesPerception" in visionerApi)
+    visionerApi.refreshEveryonesPerception();
 }
 
 Hooks.once("init", () => {
