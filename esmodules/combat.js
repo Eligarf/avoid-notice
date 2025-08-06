@@ -211,7 +211,14 @@ async function updateVisioner({ visionerApi, avoider, results }) {
   for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
     if (condition in results) {
       for (const result of results[condition]) {
-        visionerApi.setVisibility(result.id, targetId, condition);
+        await visionerApi.setVisibility(result.id, targetId, condition, {
+          skipEphemeralUpdate: true,
+        });
+        await visionerApi.updateEphemeralEffects(
+          targetId,
+          result.id,
+          condition,
+        );
       }
     }
   }

@@ -75,7 +75,10 @@ async function clearVisionerData(token, visionerApi) {
   });
   if (!tokens.length) return;
   for (const t of tokens) {
-    await visionerApi.setVisibility(t.id, token.id, "observed");
+    await visionerApi.setVisibility(t.id, token.id, "observed", {
+      skipEphemeralUpdate: true,
+    });
+    await visionerApi.updateEphemeralEffects(token.id, t.id, "observed");
   }
   if ("refreshEveryonesPerception" in visionerApi)
     visionerApi.refreshEveryonesPerception();
