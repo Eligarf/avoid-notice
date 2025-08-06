@@ -1,3 +1,7 @@
+# v13.2.1
+
+- Fix PF2e Visioner ephemeral effects issue by adding separate updateEphemeralEffects call
+
 # v13.2.0
 
 - Add PF2e Visioner as a condition handler (refer to https://github.com/roi007leaf/pf2e-visioner)
