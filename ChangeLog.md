@@ -1,10 +1,14 @@
+# v13.2.2
+
+- Don't use _Unnoticed_ if using _PF2e Visioner_ as the condition handler
+
 # v13.2.1
 
-- Fix PF2e Visioner ephemeral effects issue by adding separate updateEphemeralEffects call
+- Fix _PF2e Visioner_ ephemeral effects issue by adding separate updateEphemeralEffects call
 
 # v13.2.0
 
-- Add PF2e Visioner as a condition handler (refer to https://github.com/roi007leaf/pf2e-visioner)
+- Add _PF2e Visioner_ as a condition handler (refer to https://github.com/roi007leaf/pf2e-visioner)
 
 # v13.1.3
 

@@ -327,17 +327,18 @@ Hooks.once("init", () => {
     const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
     const perceptionApi =
       conditionHandler === "perception" ? getPerceptionApi() : null;
-    const useUnnoticed = game.settings.get(MODULE_ID, "useUnnoticed");
+    const perceptiveApi =
+      conditionHandler === "perceptive" ? getPerceptiveApi() : null;
+    const visionerApi =
+      conditionHandler === "visioner" ? getVisionerApi() : null;
+    const useUnnoticed =
+      !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed");
     const revealTokens = game.settings.get(MODULE_ID, "removeGmHidden");
     const raiseShields = game.settings.get(MODULE_ID, "raiseShields");
     const rage = game.settings.get(MODULE_ID, "rage");
     const computeCover =
       perceptionApi && game.settings.get(MODULE_ID, "computeCover");
     const requireActivity = game.settings.get(MODULE_ID, "requireActivity");
-    const perceptiveApi =
-      conditionHandler === "perceptive" ? getPerceptiveApi() : null;
-    const visionerApi =
-      conditionHandler === "visioner" ? getVisionerApi() : null;
     let nonAvoidingPcs = [];
 
     const beforeV13 = Number(game.version.split()[0]) < 13;

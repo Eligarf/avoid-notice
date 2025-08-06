@@ -10,7 +10,7 @@
     },
     "useUnnoticed": {
       "name": "Unnoticed",
-      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative"
+      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative. This is ignored if using PF2e Visioner"
     },
     "removeGmHidden": {
       "name": "Reveal combatant tokens at Combat Start",
