@@ -7,6 +7,7 @@ import {
   getPerceptiveApi,
   getVisionerApi,
 } from "./main.js";
+import { updateVisioner } from "./visioner.js";
 
 function renderInitiativeDice(roll) {
   let content = `
@@ -201,24 +202,6 @@ async function updatePerception({ perceptionData, results, perceptionUpdate }) {
           perceptionUpdate[
             `flags.${PF2E_PERCEPTION_ID}.data.${result.id}.visibility`
           ] = visibility;
-      }
-    }
-  }
-}
-
-async function updateVisioner({ visionerApi, avoider, results }) {
-  const targetId = avoider.tokenId;
-  for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
-    if (condition in results) {
-      for (const result of results[condition]) {
-        await visionerApi.setVisibility(result.id, targetId, condition, {
-          skipEphemeralUpdate: true,
-        });
-        await visionerApi.updateEphemeralEffects(
-          targetId,
-          result.id,
-          condition,
-        );
       }
     }
   }

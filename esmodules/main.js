@@ -1,3 +1,5 @@
+import { clearVisionerData } from "./visioner.js";
+
 const CONSOLE_COLORS = ["background: #222; color: #80ffff", "color: #fff"];
 const SKILL_ACTIONS = [
   "action:hide",
@@ -64,24 +66,6 @@ async function clearPerceptionData(token) {
   }
   const updates = [{ _id: token.id, ...tokenUpdate }];
   await canvas.scene.updateEmbeddedDocuments("Token", updates);
-}
-
-async function clearVisionerData(token, visionerApi) {
-  const tokens = canvas.scene.tokens.filter((t) => {
-    const visibility = t.flags?.[VISIONER_ID]?.visibility;
-    if (!visibility) return false;
-    if (!(token.id in visibility)) return false;
-    return visibility[token.id] !== "observed";
-  });
-  if (!tokens.length) return;
-  for (const t of tokens) {
-    await visionerApi.setVisibility(t.id, token.id, "observed", {
-      skipEphemeralUpdate: true,
-    });
-    await visionerApi.updateEphemeralEffects(token.id, t.id, "observed");
-  }
-  if ("refreshEveryonesPerception" in visionerApi)
-    visionerApi.refreshEveryonesPerception();
 }
 
 Hooks.once("init", () => {
