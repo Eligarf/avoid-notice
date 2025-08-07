@@ -31,14 +31,14 @@ export function interpolateString(str, interpolations) {
   );
 }
 
-export function getConditiondHandler() {
-  let conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
-  if (conditionHandler === "auto") {
-    if (isVisionerActive()) conditionHandler = "visioner";
-    else if (isPerceptionActive()) conditionHandler = "perception";
-    // else if (isPerceptiveActive()) conditionHandler = "perceptive";
+export function getVisibilityHandler() {
+  let visibilityHandler = game.settings.get(MODULE_ID, "visibilityHandler");
+  if (visibilityHandler === "auto") {
+    if (isVisionerActive()) visibilityHandler = "visioner";
+    else if (isPerceptionActive()) visibilityHandler = "perception";
+    // else if (isPerceptiveActive()) visibilityHandler = "perceptive";
   }
-  return conditionHandler;
+  return visibilityHandler;
 }
 
 Hooks.once("init", () => {
@@ -68,11 +68,11 @@ Hooks.once("init", () => {
     hint: `${MODULE_ID}.observable.hint`,
     editable: [{ key: "KeyB" }],
     onDown: async () => {
-      const conditionHandler = getConditiondHandler();
+      const visibilityHandler = getVisibilityHandler();
       const perceptionApi =
-        conditionHandler === "perception" ? getPerceptionApi() : null;
+        visibilityHandler === "perception" ? getPerceptionApi() : null;
       const visionerApi =
-        conditionHandler === "visioner" ? getVisionerApi() : null;
+        visibilityHandler === "visioner" ? getVisionerApi() : null;
       const selectedTokens = canvas.tokens.controlled;
       for (const token of selectedTokens) {
         ui.notifications.info(
@@ -109,14 +109,13 @@ function migrate(moduleVersion, oldVersion) {
 
 Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
-  const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
+  const visibilityHandler = game.settings.get(MODULE_ID, "visibilityHandler");
   if (
-    (conditionHandler === "perception" && !isPerceptionActive()) ||
-    (conditionHandler === "perceptive" && !isPerceptiveActive()) ||
-    (conditionHandler === "visioner" && !isVisionerActive()) ||
-    conditionHandler === "ignore"
+    (visibilityHandler === "perception" && !isPerceptionActive()) ||
+    (visibilityHandler === "perceptive" && !isPerceptiveActive()) ||
+    (visibilityHandler === "visioner" && !isVisionerActive())
   ) {
-    game.settings.set(MODULE_ID, "conditionHandler", "auto");
+    game.settings.set(MODULE_ID, "visibilityHandler", "auto");
   }
 
   if (isPerceptionActive()) {
@@ -171,20 +170,19 @@ Hooks.once("setup", () => {
   const visioner = isVisionerActive();
 
   let choices = {
-    auto: `${MODULE_ID}.conditionHandler.auto`,
-    disabled: `${MODULE_ID}.conditionHandler.disabled`,
-    best: `${MODULE_ID}.conditionHandler.best`,
-    worst: `${MODULE_ID}.conditionHandler.worst`,
+    auto: `${MODULE_ID}.visibilityHandler.auto`,
+    disabled: `${MODULE_ID}.visibilityHandler.disabled`,
+    best: `${MODULE_ID}.visibilityHandler.best`,
+    worst: `${MODULE_ID}.visibilityHandler.worst`,
   };
-  if (visioner) choices.visioner = `${MODULE_ID}.conditionHandler.visioner`;
+  if (visioner) choices.visioner = `${MODULE_ID}.visibilityHandler.visioner`;
   if (perception)
-    choices.perception = `${MODULE_ID}.conditionHandler.perception`;
+    choices.perception = `${MODULE_ID}.visibilityHandler.perception`;
   if (perceptive)
-    choices.perceptive = `${MODULE_ID}.conditionHandler.perceptive`;
+    choices.perceptive = `${MODULE_ID}.visibilityHandler.perceptive`;
 
-  game.settings.register(MODULE_ID, "conditionHandler", {
-    name: game.i18n.localize(`${MODULE_ID}.conditionHandler.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.conditionHandler.hint`),
+  game.settings.register(MODULE_ID, "visibilityHandler", {
+    name: game.i18n.localize(`${MODULE_ID}.visibilityHandler.name`),
     scope: "world",
     config: true,
     type: String,

@@ -33,16 +33,17 @@ _PF2e Avoid Notice_ also can remove the GM hidden states of combatants if enable
 
 Initiative sometimes comes from a previous roll like a sneak check or the use of the avoid notice exploration activity in the Basic Action Macros. In these cases, if the GM has chosen to use the "Set as *Combatant's*initiative" button on the skill check card, there won't be an initiative card and the visibility results will be written to the check card instead. It finds it by looking for the latest message from that combatant with a check result that matches the combatant's initiative roll, so it possible that the visibility result could end up on the wrong card if the combatant has rolled some other kind of check that had the same check value after the designated initiative roll but prior to combat being started.
 
-## Condition Handling
+## Visibility Handling
 
 This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that an avoider might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system - you'll need to use an additional module for that.
 
-- It can do nothing and let the GM handle everything.
-- It can use the worst degree-of-success to determine which condition to apply to the avoider, or;
-- It can use the best degree-of-success.
-- The [_Perceptive_](https://foundryvtt.com/packages/perceptive) module can be chosen to handle things. Its only limitation is not being able to manage concurrent `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
-- The _PF2e Perception_ module can be selected. It handles multiple concurrent visibility states for a token, but is V12 only.
-- The [_PF2e Visioner_](https://github.com/roi007leaf/pf2e-visioner) module is the recommended condition handler for V13, and handles multiple concurrent visibility states for a token.
+- _auto_: this default mode will pick _PF2e Visioner_ if active, otherwise it picks _PF2e Perception_ if active.
+- _disabled_: let the GM handle everything.
+- _worst_: in the absence of target-relative visiblity tracking, use the worst degree-of-success to apply a condition to the avoider (favors the seekers), or;
+- _best_: use the best degree-of-success (favors the sneakers).
+- _perceptive_: the [_Perceptive_](https://foundryvtt.com/packages/perceptive) module handles things. Its only limitation is not being able to manage concurrent `undetected` and `hidden` on an avoider at the same time, but it does handle mixing `observed` states with those others.
+- _perception_: the _PF2e Perception_ module handles things. It handles multiple concurrent visibility states for a token, but is V12 only.
+- _visioner_: The [_PF2e Visioner_](https://foundryvtt.com/packages/pf2e-visioner) module is the recommended visibility handler for V13, and handles multiple concurrent visibility states for a token.
 
 ## PF2e Perception - v12 only
 

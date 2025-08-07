@@ -35,13 +35,12 @@
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
       "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
-    "conditionHandler": {
-      "name": "Condition Handler",
-      "hint": "Worst dc visually favors the sneakers, whereas best dc visually favors the seekers.",
+    "visibilityHandler": {
+      "name": "Visibility Handler",
       "auto": "Auto: PF2e Visioner > PF2e Perception",
       "disabled": "Don't set the status conditions",
-      "best": "Use the worst degree-of-success determine the condition",
-      "worst": "Use the best degree-of-success to determine the condition",
+      "best": "Use the worst degree-of-success (favor the seekers)",
+      "worst": "Use the best degree-of-success (favor the sneakers)",
       "visioner": "Let PF2e Visioner handle it",
       "perception": "Let pf2e-perception handle it",
       "perceptive": "Let Perceptive handle it"

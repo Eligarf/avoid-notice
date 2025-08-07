@@ -1,5 +1,5 @@
 import { MODULE_ID, COMPENDIUM_IDS } from "./const.js";
-import { log, interpolateString, getConditiondHandler } from "./main.js";
+import { log, interpolateString, getVisibilityHandler } from "./main.js";
 import { getVisionerApi, updateVisioner } from "./visioner.js";
 import {
   PF2E_PERCEPTION_ID,
@@ -21,13 +21,13 @@ import {
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter, ...args) => {
-    const conditionHandler = getConditiondHandler();
+    const visibilityHandler = getVisibilityHandler();
     const perceptionApi =
-      conditionHandler === "perception" ? getPerceptionApi() : null;
+      visibilityHandler === "perception" ? getPerceptionApi() : null;
     const perceptiveApi =
-      conditionHandler === "perceptive" ? getPerceptiveApi() : null;
+      visibilityHandler === "perceptive" ? getPerceptiveApi() : null;
     const visionerApi =
-      conditionHandler === "visioner" ? getVisionerApi() : null;
+      visibilityHandler === "visioner" ? getVisionerApi() : null;
     const useUnnoticed =
       !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed");
     const revealTokens = game.settings.get(MODULE_ID, "removeGmHidden");
@@ -273,7 +273,7 @@ Hooks.once("init", () => {
       }
 
       // Adjust the avoider's condition
-      switch (conditionHandler) {
+      switch (visibilityHandler) {
         case "best":
           updateConditionVsBestDc(avoider, results);
           break;

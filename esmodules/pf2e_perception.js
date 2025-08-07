@@ -1,5 +1,5 @@
 import { MODULE_ID } from "./const.js";
-import { getConditiondHandler, log } from "./main.js";
+import { getVisibilityHandler, log } from "./main.js";
 
 export const PF2E_PERCEPTION_ID = "pf2e-perception";
 
@@ -28,8 +28,8 @@ export async function clearPerceptionData(token) {
 
 export async function clearPf2ePerceptionFlags(item, options, userId) {
   // Only do stuff if we are changing hidden, undetected, or unnoticed conditions and using pf2e-perception
-  const conditionHandler = getConditiondHandler();
-  if (conditionHandler !== "perception") return;
+  const visibilityHandler = getVisibilityHandler();
+  if (visibilityHandler !== "perception") return;
   const perceptionApi = getPerceptionApi();
   if (!perceptionApi) return;
   if (

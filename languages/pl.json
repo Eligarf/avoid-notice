@@ -35,13 +35,12 @@
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
-    "conditionHandler": {
-      "name": "Obsługa stanów",
-      "hint": "Najgorsze ST wizualnie faworyzuje ukrytych, podczas gdy najlepsze ST wizualnie faworyzuje szukających.",
+    "visibilityHandler": {
+      "name": "Visibility Handler",
       "auto": "Auto: PF2e Visioner > PF2e Perception",
       "disabled": "Nie ustawiaj statusu stanu",
-      "best": "Użyj najgorszego stopnia sukcesu, aby określić stan",
-      "worst": "Użyj najlepszego stopnia sukcesu, aby określić stan",
+      "best": "Use the worst degree-of-success (favor the seekers)",
+      "worst": "Use the best degree-of-success (favor the sneakers)",
       "visioner": "Let PF2e Visioner handle it",
       "perception": "Niech zajmie się tym moduł pf2e-perception",
       "perceptive": "Niech zajmie się tym moduł Perceptive"
