@@ -36,7 +36,7 @@ export function getConditiondHandler() {
   if (conditionHandler === "auto") {
     if (isVisionerActive()) conditionHandler = "visioner";
     else if (isPerceptionActive()) conditionHandler = "perception";
-    else if (isPerceptiveActive()) conditionHandler = "perceptive";
+    // else if (isPerceptiveActive()) conditionHandler = "perceptive";
   }
   return conditionHandler;
 }

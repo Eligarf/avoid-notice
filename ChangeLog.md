@@ -1,7 +1,7 @@
 # v13.3.0
 
 - Broke up the files for easier maintenance
-- Added a new default autopick setting for the condition handler, where _PF2e Avoid Notice_ will adapt to the vision modules you have installed (_PF2e Visioner_ > _PF2e Perception_ > _Perceptive_). You can still opt-out of using any condition handler, or opt-in to using a specific one if the default priority doesn't suit you
+- Added a new default autopick setting for the condition handler, where _PF2e Avoid Notice_ will adapt to the vision modules you have installed (_PF2e Visioner_ > _PF2e Perception_). You can still opt-out of using any condition handler, or opt-in to using a specific one if the default priority doesn't suit you. _Perceptive_ is still opt-in, but it won't be selected automatically
 
 # v13.2.2
 

@@ -38,7 +38,7 @@
     "conditionHandler": {
       "name": "Condition Handler",
       "hint": "Worst dc visually favors the sneakers, whereas best dc visually favors the seekers.",
-      "auto": "Auto: PF2e Visioner > PF2e Perception > Perceptive",
+      "auto": "Auto: PF2e Visioner > PF2e Perception",
       "disabled": "Don't set the status conditions",
       "best": "Use the worst degree-of-success determine the condition",
       "worst": "Use the best degree-of-success to determine the condition",
