@@ -1,21 +1,23 @@
-import { clearVisionerData } from "./visioner.js";
-
-const CONSOLE_COLORS = ["background: #222; color: #80ffff", "color: #fff"];
-const SKILL_ACTIONS = [
-  "action:hide",
-  "action:create-a-diversion",
-  "action:sneak",
-];
-const MODULE_ID = "pf2e-avoid-notice";
-const PF2E_PERCEPTION_ID = "pf2e-perception";
-const PERCEPTIVE_ID = "perceptive";
-const VISIONER_ID = "pf2e-visioner";
+import { MODULE_ID, CONSOLE_COLORS } from "./const.js";
+import {
+  isVisionerActive,
+  getVisionerApi,
+  clearVisionerData,
+} from "./visioner.js";
+import { isPerceptiveActive } from "./perceptive.js";
+import {
+  isPerceptionActive,
+  getPerceptionApi,
+  clearPerceptionData,
+  clearPf2ePerceptionFlags,
+} from "./pf2e_perception.js";
+import { registerHooksForClearMovementHistory } from "./clearMovement.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
 }
 
-function log(format, ...args) {
+export function log(format, ...args) {
   const level = game.settings.get(MODULE_ID, "logLevel");
   if (level !== "none") {
     if (level === "debug") console.debug(...colorizeOutput(format, ...args));
@@ -23,49 +25,20 @@ function log(format, ...args) {
   }
 }
 
-function interpolateString(str, interpolations) {
+export function interpolateString(str, interpolations) {
   return str.replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) =>
     interpolations.hasOwnProperty(key) ? interpolations[key] : match,
   );
 }
 
-function getPerceptionApi() {
-  return game.modules.get(PF2E_PERCEPTION_ID)?.api;
-}
-
-function getPerceptiveApi() {
-  return game.modules.get(PERCEPTIVE_ID)?.api;
-}
-
-function getVisionerApi() {
-  return game.modules.get(VISIONER_ID)?.api;
-}
-
-export {
-  MODULE_ID,
-  PF2E_PERCEPTION_ID,
-  PERCEPTIVE_ID,
-  VISIONER_ID,
-  log,
-  interpolateString,
-  getPerceptionApi,
-  getPerceptiveApi,
-  getVisionerApi,
-};
-
-async function clearPerceptionData(token) {
-  // Remove any ids that perception is tracking
-  const perceptionData = token.flags?.[PF2E_PERCEPTION_ID]?.data;
-  if (!perceptionData || !Object.keys(perceptionData).length) return;
-  let tokenUpdate = {};
-  const beforeV13 = Number(game.version.split()[0]) < 13;
-  for (let id in perceptionData) {
-    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = beforeV13
-      ? true
-      : null;
+export function getConditiondHandler() {
+  let conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
+  if (conditionHandler === "auto") {
+    if (isVisionerActive()) conditionHandler = "visioner";
+    else if (isPerceptionActive()) conditionHandler = "perception";
+    else if (isPerceptiveActive()) conditionHandler = "perceptive";
   }
-  const updates = [{ _id: token.id, ...tokenUpdate }];
-  await canvas.scene.updateEmbeddedDocuments("Token", updates);
+  return conditionHandler;
 }
 
 Hooks.once("init", () => {
@@ -95,7 +68,7 @@ Hooks.once("init", () => {
     hint: `${MODULE_ID}.observable.hint`,
     editable: [{ key: "KeyB" }],
     onDown: async () => {
-      const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
+      const conditionHandler = getConditiondHandler();
       const perceptionApi =
         conditionHandler === "perception" ? getPerceptionApi() : null;
       const visionerApi =
@@ -111,7 +84,7 @@ Hooks.once("init", () => {
           ),
         );
         if (perceptionApi) await clearPerceptionData(token.document);
-        if (visionerApi) await clearVisionerData(token, visionerApi);
+        if (visionerApi) await clearVisionerData({ token, visionerApi });
         const conditions = token.actor.items
           .filter((i) =>
             ["hidden", "undetected", "unnoticed"].includes(i.system.slug),
@@ -138,37 +111,15 @@ Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
   const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
   if (
-    (conditionHandler === "perception" &&
-      !game.modules.get(PF2E_PERCEPTION_ID)?.active) ||
-    (conditionHandler === "perceptive" &&
-      !game.modules.get(PERCEPTIVE_ID)?.active) ||
-    (conditionHandler === "visioner" && !game.modules.get(VISIONER_ID)?.active)
+    (conditionHandler === "perception" && !isPerceptionActive()) ||
+    (conditionHandler === "perceptive" && !isPerceptiveActive()) ||
+    (conditionHandler === "visioner" && !isVisionerActive()) ||
+    conditionHandler === "ignore"
   ) {
-    log(`resetting condition Handler from '${conditionHandler}' to 'ignore'`);
-    game.settings.set(MODULE_ID, "conditionHandler", "ignore");
+    game.settings.set(MODULE_ID, "conditionHandler", "auto");
   }
 
-  async function clearPf2ePerceptionFlags(item, options, userId) {
-    // Only do stuff if we are changing hidden, undetected, or unnoticed conditions and using pf2e-perception
-    const conditionHandler = game.settings.get(MODULE_ID, "conditionHandler");
-    if (conditionHandler !== "perception") return;
-    const perceptionApi = getPerceptionApi();
-    if (!perceptionApi) return;
-    if (
-      item?.type !== "condition" ||
-      !["hidden", "undetected", "unnoticed"].includes(item?.system?.slug)
-    )
-      return;
-
-    // Get the token on the current scene
-    const token =
-      options.parent?.parent ??
-      canvas.scene.tokens.find((t) => t.actorId === options.parent.id);
-    if (!token) return;
-    await clearPerceptionData(token);
-  }
-
-  if (game.modules.get(PF2E_PERCEPTION_ID)?.active) {
+  if (isPerceptionActive()) {
     Hooks.on("deleteItem", async (item, options, userId) => {
       await clearPf2ePerceptionFlags(item, options, userId);
     });
@@ -178,26 +129,9 @@ Hooks.once("ready", () => {
     });
   }
 
-  async function endOfTurn(encounter, change, action) {
-    if (!game.settings.get(MODULE_ID, "clearMovement")) return;
-    const token = canvas.tokens.get(encounter.current.tokenId)?.document;
-    if (!token) return;
-    const movement = token?._movementHistory;
-    if (!movement) return;
-    const movementLength = movement?.length;
-    if (!movementLength) return;
-    await token.clearMovementHistory();
-  }
-
   const beforeV13 = Number(game.version.split()[0]) < 13;
   if (!beforeV13) {
-    Hooks.on("combatTurn", async (encounter, change, action) => {
-      await endOfTurn(encounter, change, action);
-    });
-
-    Hooks.on("combatRound", async (encounter, change, action) => {
-      await endOfTurn(encounter, change, action);
-    });
+    registerHooksForClearMovementHistory();
   }
 });
 
@@ -232,12 +166,13 @@ Hooks.once("setup", () => {
     default: true,
   });
 
-  const perception = game.modules.get(PF2E_PERCEPTION_ID)?.active;
-  const perceptive = game.modules.get(PERCEPTIVE_ID)?.active;
-  const visioner = game.modules.get(VISIONER_ID)?.active;
+  const perception = isPerceptionActive();
+  const perceptive = isPerceptiveActive();
+  const visioner = isVisionerActive();
 
   let choices = {
-    ignore: `${MODULE_ID}.conditionHandler.ignore`,
+    auto: `${MODULE_ID}.conditionHandler.auto`,
+    disabled: `${MODULE_ID}.conditionHandler.disabled`,
     best: `${MODULE_ID}.conditionHandler.best`,
     worst: `${MODULE_ID}.conditionHandler.worst`,
   };
@@ -254,7 +189,7 @@ Hooks.once("setup", () => {
     config: true,
     type: String,
     choices,
-    default: visioner ? "visioner" : "ignore",
+    default: "auto",
   });
 
   if (perception) {

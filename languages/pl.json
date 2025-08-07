@@ -38,7 +38,8 @@
     "conditionHandler": {
       "name": "Obsługa stanów",
       "hint": "Najgorsze ST wizualnie faworyzuje ukrytych, podczas gdy najlepsze ST wizualnie faworyzuje szukających.",
-      "ignore": "Nie ustawiaj statusu stanu",
+      "auto": "Auto: PF2e Visioner > PF2e Perception > Perceptive",
+      "disabled": "Nie ustawiaj statusu stanu",
       "best": "Użyj najgorszego stopnia sukcesu, aby określić stan",
       "worst": "Użyj najlepszego stopnia sukcesu, aby określić stan",
       "visioner": "Let PF2e Visioner handle it",

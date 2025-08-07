@@ -1,6 +1,16 @@
-import { VISIONER_ID } from "./main.js";
+import { log } from "./main.js";
 
-export async function clearVisionerData(token, visionerApi) {
+export const VISIONER_ID = "pf2e-visioner";
+
+export function isVisionerActive() {
+  return game.modules.get(VISIONER_ID)?.active;
+}
+
+export function getVisionerApi() {
+  return game.modules.get(VISIONER_ID)?.api;
+}
+
+export async function clearVisionerData({ token, visionerApi }) {
   const tokens = canvas.scene.tokens.filter((t) => {
     const visibility = t.flags?.[VISIONER_ID]?.visibility;
     if (!visibility) return false;
