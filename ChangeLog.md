@@ -1,3 +1,10 @@
+# v13.4.0
+
+- Use the cover API of _PF2e Visioner_ if it is active
+- Removed 'Make selected tokens observerable' keybind, Added 'Clear Stealth from selected tokens' (with no default key) in its place
+- Added a keybinding to clear stealth from all on-canvas members of the party (no default key)
+- Add a game setting to auto-clear stealth from the party at end of combat
+
 # v13.3.0
 
 - Broke up the files for easier maintenance

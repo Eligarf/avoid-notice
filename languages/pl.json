@@ -47,13 +47,22 @@
     },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",
-      "hint": "Użyj „PF2e Perception”, aby automatycznie obliczyć osłonę między tokenami używającymi Ukrycia dla inicjatywy i niesprzymierzonych tokenów. Jest on używany tylko do tego sprawdzenia i nie będzie wykorzystywał większej osłony"
+      "hint": "Use visibility module to automatically compute cover between tokens using stealth for initiative and non-allied Tokens. It is only used for this check"
     },
-    "observable": {
-      "name": "Spraw, by wybrane tokeny były obserwowalne",
-      "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów."
+    "clearStealth": {
+      "name": "Clear stealth from selected tokens",
+      "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów.",
+      "banner": "Clearing stealth data from {name}"
     },
-    "clearVisibility": "Clearing visibility data for {name}",
+    "clearPartyStealth": {
+      "name": "Clear stealth from the party",
+      "hint": "Remove hidden, undetected, and unnoticed statuses from the party.",
+      "banner": "Clearing stealth from the party"
+    },
+    "clearPartyStealthAfterCombat": {
+      "name": "Clear Stealth from Party after combat",
+      "hint": "Will remove stealth conditions from party tokens on the current scene when combat is ended"
+    },
     "clearMovement": {
       "name": "Wyczyść historię ruchu po zakończeniu tury",
       "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."

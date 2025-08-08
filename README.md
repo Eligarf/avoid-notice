@@ -29,6 +29,8 @@ In the above, _Amiri's_ initiative roll of 13 was successful against _monster_ a
 
 An _Unnoticed_ setting controls whether or not to use `Unnoticed` rather than `Undetected` for initiative checks that beat both the target's perception DC and initiative. `Undetected` is always used if the initiative roll beats the target's perception DC but doesn't beat the target's initiative roll.
 
+_Compute Cover at Combat Start_ will ignore existing cover flags at combat start and use the visibility handler to calculate new ones for each avoider token per token they are testing against. This setting is ignored if the chose visibility handler doesn't have the capability.
+
 _PF2e Avoid Notice_ also can remove the GM hidden states of combatants if enabled in the game settings, since forgetting to toggle combatant visibility happens to me far too often.
 
 Initiative sometimes comes from a previous roll like a sneak check or the use of the avoid notice exploration activity in the Basic Action Macros. In these cases, if the GM has chosen to use the "Set as *Combatant's*initiative" button on the skill check card, there won't be an initiative card and the visibility results will be written to the check card instead. It finds it by looking for the latest message from that combatant with a check result that matches the combatant's initiative roll, so it possible that the visibility result could end up on the wrong card if the combatant has rolled some other kind of check that had the same check value after the designated initiative roll but prior to combat being started.
@@ -50,7 +52,6 @@ This module provides the GM a number of options in the game settings for automat
 The 'Pathfinder on Foundry VTT Community and Volunteer Development Server' discord server leads to the excellent unlisted module [PF2e Perception](https://github.com/reonZ/pf2e-perception). It isn't required for the overall operation of this module, but additional capabilities become available:
 
 - If *PF2e Perception* cover flags are found on an avoider token, standard or greater cover bonuses will apply as appropriate against perception DCs. The are given higher priority than the system cover flag if both are on a token.
-- If _Compute Cover at Combat Start_ is selected, _PF2e Avoid Notice_ will ignore existing cover flags and use _PF2e Perception_ to calculate new ones for avoider tokens for each token they are testing against
 - Manually adding or removing the `hidden`, `undetected`, or `unnoticed` status condition on the token HUD will cause _PF2e Avoid Notice_ to clear out any existing _PF2e Perception_ flags on that token
 
 # Misfit features

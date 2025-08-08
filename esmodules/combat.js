@@ -5,6 +5,7 @@ import {
   PF2E_PERCEPTION_ID,
   getPerceptionApi,
   updatePerception,
+  updatePerceptionChanges,
 } from "./pf2e_perception.js";
 import { getPerceptiveApi, updatePerceptive } from "./perceptive.js";
 import {
@@ -18,6 +19,8 @@ import {
   findInitiativeCard,
   modifyInitiativeCard,
 } from "./initiative.js";
+import { findBaseCoverBonus, getRelativeCover } from "./cover.js";
+import { clearPartyStealth } from "./clearStealth.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter, ...args) => {
@@ -33,8 +36,7 @@ Hooks.once("init", () => {
     const revealTokens = game.settings.get(MODULE_ID, "removeGmHidden");
     const raiseShields = game.settings.get(MODULE_ID, "raiseShields");
     const rage = game.settings.get(MODULE_ID, "rage");
-    const computeCover =
-      perceptionApi && game.settings.get(MODULE_ID, "computeCover");
+    const computeCover = game.settings.get(MODULE_ID, "computeCover");
     const requireActivity = game.settings.get(MODULE_ID, "requireActivity");
     let nonAvoidingPcs = [];
 
@@ -121,25 +123,18 @@ Hooks.once("init", () => {
       const avoiderTokenDoc = isAvoiderToken
         ? avoider.token.document
         : avoider.token;
-      const coverEffect = avoiderTokenDoc.actor.items.find(
-        (i) => i.system.slug === "effect-cover",
-      );
-      const bonusElement = coverEffect?.flags.pf2e.rulesSelections.cover.bonus;
-      let baseCoverBonus = 0;
-      switch (bonusElement) {
-        case 2:
-        case 4:
-          baseCoverBonus = bonusElement;
-          break;
-      }
+
+      let baseCoverBonus = findBaseCoverBonus(avoiderTokenDoc);
+
+      let messageData = {};
+      let results = {};
 
       perceptionChanges[avoiderTokenDoc.id] = {};
       let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
-      let messageData = {};
-      let results = {};
       const perceptionData = perceptionApi
         ? avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data
         : undefined;
+
       for (const other of nonAllies) {
         const isOtherToken = beforeV13
           ? other?.token instanceof Token
@@ -159,27 +154,15 @@ Hooks.once("init", () => {
         };
 
         // We give priority to Perception's view of cover over the base cover effect
-        let coverBonus = baseCoverBonus;
-        if (perceptionApi) {
-          const cover = computeCover
-            ? perceptionApi.token.getCover(
-                avoider.token._object,
-                otherToken._object,
-              )
-            : perceptionData?.[otherToken.id]?.cover;
-
-          switch (cover) {
-            case "standard":
-              coverBonus = 2;
-              break;
-            case "greater":
-              coverBonus = 4;
-              break;
-            default:
-              coverBonus = 0;
-              break;
-          }
-        }
+        let coverBonus = getRelativeCover({
+          avoider,
+          otherToken,
+          computeCover,
+          perceptionApi,
+          perceptionData,
+          visionerApi,
+        });
+        if (coverBonus < 0) coverBonus = baseCoverBonus;
 
         if (coverBonus) {
           const oldDelta = avoider.initiative - target.dc;
@@ -350,11 +333,7 @@ Hooks.once("init", () => {
     // If PF2e-perception is around, move any non-empty changes into an update array
     let tokenUpdates = [];
     if (perceptionApi) {
-      for (const id in perceptionChanges) {
-        const update = perceptionChanges[id];
-        if (Object.keys(update).length)
-          tokenUpdates.push({ _id: id, ...update });
-      }
+      updatePerceptionChanges(tokenUpdates, perceptionChanges);
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
@@ -377,5 +356,13 @@ Hooks.once("init", () => {
 
     if (visionerApi && "refreshEveryonesPerception" in visionerApi)
       visionerApi.refreshEveryonesPerception();
+  });
+
+  Hooks.on("deleteCombat", async (...args) => {
+    const cleanUp = game.settings.get(
+      MODULE_ID,
+      "clearPartyStealthAfterCombat",
+    );
+    if (cleanUp) clearPartyStealth({ showBanner: false });
   });
 });

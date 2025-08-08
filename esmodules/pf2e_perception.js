@@ -69,3 +69,10 @@ export async function updatePerception({
     }
   }
 }
+
+export function updatePerceptionChanges(tokenUpdates, perceptionChanges) {
+  for (const id in perceptionChanges) {
+    const update = perceptionChanges[id];
+    if (Object.keys(update).length) tokenUpdates.push({ _id: id, ...update });
+  }
+}

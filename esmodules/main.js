@@ -12,6 +12,7 @@ import {
   clearPf2ePerceptionFlags,
 } from "./pf2e_perception.js";
 import { registerHooksForClearMovementHistory } from "./clearMovement.js";
+import { clearPartyStealth, clearTokenStealth } from "./clearStealth.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
@@ -63,37 +64,24 @@ Hooks.once("init", () => {
     origin?.rollDamage({ target: message.token });
   });
 
-  game.keybindings.register(MODULE_ID, "observable", {
-    name: `${MODULE_ID}.observable.name`,
-    hint: `${MODULE_ID}.observable.hint`,
-    editable: [{ key: "KeyB" }],
+  game.keybindings.register(MODULE_ID, "clearStealth", {
+    name: `${MODULE_ID}.clearStealth.name`,
+    hint: `${MODULE_ID}.clearStealth.hint`,
+    editable: [],
     onDown: async () => {
-      const visibilityHandler = getVisibilityHandler();
-      const perceptionApi =
-        visibilityHandler === "perception" ? getPerceptionApi() : null;
-      const visionerApi =
-        visibilityHandler === "visioner" ? getVisionerApi() : null;
       const selectedTokens = canvas.tokens.controlled;
       for (const token of selectedTokens) {
-        ui.notifications.info(
-          interpolateString(
-            game.i18n.localize("pf2e-avoid-notice.clearVisibility"),
-            {
-              name: token.name,
-            },
-          ),
-        );
-        if (perceptionApi) await clearPerceptionData(token.document);
-        if (visionerApi) await clearVisionerData({ token, visionerApi });
-        const conditions = token.actor.items
-          .filter((i) =>
-            ["hidden", "undetected", "unnoticed"].includes(i.system.slug),
-          )
-          .map((i) => i.id);
-        if (conditions.length > 0) {
-          await token.actor.deleteEmbeddedDocuments("Item", conditions);
-        }
+        await clearTokenStealth({ token, showBanner: true });
       }
+    },
+  });
+
+  game.keybindings.register(MODULE_ID, "clearPartyStealth", {
+    name: `${MODULE_ID}.clearPartyStealth.name`,
+    hint: `${MODULE_ID}.clearPartyStealth.hint`,
+    editable: [],
+    onDown: async () => {
+      await clearPartyStealth({ showBanner: true });
     },
   });
 });
@@ -190,16 +178,23 @@ Hooks.once("setup", () => {
     default: "auto",
   });
 
-  if (perception) {
-    game.settings.register(MODULE_ID, "computeCover", {
-      name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
-      hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
-      scope: "world",
-      config: perception,
-      type: Boolean,
-      default: false,
-    });
-  }
+  game.settings.register(MODULE_ID, "computeCover", {
+    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, "clearPartyStealthAfterCombat", {
+    name: game.i18n.localize(`${MODULE_ID}.clearPartyStealthAfterCombat.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.clearPartyStealthAfterCombat.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 
   game.settings.register(MODULE_ID, "raiseShields", {
     name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
