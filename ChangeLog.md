@@ -1,3 +1,7 @@
+# v13.4.1
+
+- Restrict clear party stealth keybinding to GM only
+
 # v13.4.0
 
 - Use the cover API of _PF2e Visioner_ if it is active
