@@ -80,6 +80,7 @@ Hooks.once("init", () => {
     name: `${MODULE_ID}.clearPartyStealth.name`,
     hint: `${MODULE_ID}.clearPartyStealth.hint`,
     editable: [],
+    restricted: true,
     onDown: async () => {
       await clearPartyStealth({ showBanner: true });
     },
