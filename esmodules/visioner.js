@@ -43,7 +43,7 @@ export async function clearVisionerData({ token, visionerApi, batch = null }) {
 
   await updateBatch({ batch, visionerApi, targetId: token.id, observers });
 
-  if ("refreshEveryonesPerception" in visionerApi)
+  if (!batch && "refreshEveryonesPerception" in visionerApi)
     visionerApi.refreshEveryonesPerception();
 }
 
