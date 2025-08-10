@@ -10,7 +10,25 @@ export function getVisionerApi() {
   return game.modules.get(VISIONER_ID)?.api;
 }
 
-export async function clearVisionerData({ token, visionerApi }) {
+async function updateBatch({ batch, visionerApi, targetId, observers }) {
+  // If doing batch mode, add new member and return
+  if (batch) {
+    batch[targetId] = observers;
+    return;
+  }
+
+  // Otherwise, iterate and set observers individually
+  for (const id of Object.keys(observers)) {
+    const condition = observers[id];
+    await visionerApi.setVisibility(
+      id,
+      targetId,
+      condition !== "unnoticed" ? condition : "undetected",
+    );
+  }
+}
+
+export async function clearVisionerData({ token, visionerApi, batch = null }) {
   const tokens = canvas.scene.tokens.filter((t) => {
     const visibility = t.flags?.[VISIONER_ID]?.visibility;
     if (!visibility) return false;
@@ -18,20 +36,33 @@ export async function clearVisionerData({ token, visionerApi }) {
     return visibility[token.id] !== "observed";
   });
   if (!tokens.length) return;
+  let observers = {};
   for (const t of tokens) {
-    await visionerApi.setVisibility(t.id, token.id, "observed");
+    observers[t.id] = "observed";
   }
+
+  await updateBatch({ batch, visionerApi, targetId: token.id, observers });
+
   if ("refreshEveryonesPerception" in visionerApi)
     visionerApi.refreshEveryonesPerception();
 }
 
-export async function updateVisioner({ visionerApi, avoider, results }) {
+export async function updateVisioner({
+  visionerApi,
+  avoider,
+  results,
+  batch = null,
+}) {
   const targetId = avoider.tokenId;
+  let observers = {};
   for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
     if (condition in results) {
       for (const result of results[condition]) {
-        await visionerApi.setVisibility(result.id, targetId, condition);
+        observers[result.id] =
+          condition !== "unnoticed" ? condition : "undetected";
       }
     }
   }
+
+  await updateBatch({ batch, visionerApi, targetId, observers });
 }
