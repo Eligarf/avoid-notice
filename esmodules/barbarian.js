@@ -12,7 +12,6 @@ export async function enrageBarbarians(pcs) {
     const object = barbarian.token?._object;
     if (!object?.control) continue;
     object.control();
-    log(`enraging ${barbarian.actor.name}`);
     await game.pf2e.rollItemMacro(rage.id);
   }
 }

@@ -27,7 +27,6 @@ export async function raiseDefendingShields(pcs) {
     const object = defender?.token?._object;
     if (!object?.control) continue;
     object.control();
-    log(`raising ${defender.actor.name}'s shield`);
     await game.pf2e.actions.raiseAShield({ actors: [defender.actor] });
     await modifyInitiativeCard({
       combatant: defender,
