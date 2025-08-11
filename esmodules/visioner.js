@@ -28,7 +28,17 @@ async function updateBatch({ batch, visionerApi, targetId, observers }) {
   }
 }
 
-export async function clearVisionerData({ token, visionerApi, batch = null }) {
+export function refreshVisionerPerception(visionerApi) {
+  if ("refreshEveryonesPerception" in visionerApi)
+    visionerApi.refreshEveryonesPerception();
+}
+
+export async function clearVisionerData({
+  token,
+  visionerApi,
+  refresh = false,
+  batch = null,
+}) {
   const tokens = canvas.scene.tokens.filter((t) => {
     const visibility = t.flags?.[VISIONER_ID]?.visibility;
     if (!visibility) return false;
@@ -43,8 +53,7 @@ export async function clearVisionerData({ token, visionerApi, batch = null }) {
 
   await updateBatch({ batch, visionerApi, targetId: token.id, observers });
 
-  if (!batch && "refreshEveryonesPerception" in visionerApi)
-    visionerApi.refreshEveryonesPerception();
+  if (refresh) refreshVisionerPerception(visionerApi);
 }
 
 export async function updateVisioner({

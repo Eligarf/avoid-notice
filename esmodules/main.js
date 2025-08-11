@@ -2,13 +2,11 @@ import { MODULE_ID, CONSOLE_COLORS } from "./const.js";
 import {
   isVisionerActive,
   getVisionerApi,
-  clearVisionerData,
+  refreshVisionerPerception,
 } from "./visioner.js";
 import { isPerceptiveActive } from "./perceptive.js";
 import {
   isPerceptionActive,
-  getPerceptionApi,
-  clearPerceptionData,
   clearPf2ePerceptionFlags,
 } from "./pf2e_perception.js";
 import { registerHooksForClearMovementHistory } from "./clearMovement.js";
@@ -40,6 +38,11 @@ export function getVisibilityHandler() {
     // else if (isPerceptiveActive()) visibilityHandler = "perceptive";
   }
   return visibilityHandler;
+}
+
+export function refreshPerception() {
+  const handler = getVisibilityHandler();
+  if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
 }
 
 Hooks.once("init", () => {
