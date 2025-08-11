@@ -27,12 +27,12 @@ export async function setPerceptiveCondition({
     await perceptiveApi.PerceptiveFlags.prepareSpottableToken(
       token,
       { PPDC: -1, APDC: dc, PPDice: dc },
-      "observed" in results ? results.observed.map((t) => t.doc) : [],
+      "observed" in results ? results.observed.map((o) => o.tokenDoc) : [],
     );
   } else {
     if ("observed" in results) {
-      for (const t of results.observed) {
-        await perceptiveApi.PerceptiveFlags.addSpottedby(token, t.doc);
+      for (const o of results.observed) {
+        await perceptiveApi.PerceptiveFlags.addSpottedby(token, o.tokenDoc);
       }
     }
     await perceptiveApi.PerceptiveFlags.setSpottingDCs(token, {
@@ -44,13 +44,14 @@ export async function setPerceptiveCondition({
 }
 
 export async function updatePerceptive({
-  perceptiveApi,
-  avoider,
-  avoiderTokenDoc,
+  avoiderApi,
   initiativeMessage,
   results,
 }) {
-  let slug;
+  const perceptiveApi = avoiderApi.perceptiveApi;
+  const avoider = avoiderApi.avoider;
+  const avoiderTokenDoc = avoiderApi.avoiderTokenDoc;
+
   await perceptiveApi.PerceptiveFlags.clearSpottedby(avoiderTokenDoc);
   const dc =
     avoider.actor.type === "hazard"

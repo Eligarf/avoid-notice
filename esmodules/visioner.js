@@ -56,13 +56,11 @@ export async function clearVisionerData({
   if (refresh) refreshVisionerPerception(visionerApi);
 }
 
-export async function updateVisioner({
-  visionerApi,
-  avoider,
-  results,
-  batch = null,
-}) {
+export async function updateVisioner({ avoiderApi, results, batch = null }) {
+  const avoider = avoiderApi.avoider;
   const targetId = avoider.tokenId;
+  const visionerApi = avoiderApi.visionerApi;
+
   let observers = {};
   for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
     if (condition in results) {

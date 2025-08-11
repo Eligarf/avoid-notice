@@ -47,10 +47,12 @@ export async function clearPf2ePerceptionFlags(item, options, userId) {
 }
 
 export async function updatePerception({
-  perceptionData,
+  avoiderApi,
   results,
   perceptionUpdate,
 }) {
+  const avoiderTokenDoc = avoiderApi.avoiderTokenDoc;
+  const perceptionData = avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data;
   if ("observed" in results) {
     for (const result of results.observed) {
       if (perceptionData && result.id in perceptionData)

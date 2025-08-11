@@ -1,5 +1,10 @@
 import { MODULE_ID, COMPENDIUM_IDS } from "./const.js";
-import { log, interpolateString, getVisibilityHandler } from "./main.js";
+import {
+  log,
+  interpolateString,
+  getVisibilityHandler,
+  refreshPerception,
+} from "./main.js";
 import { getVisionerApi, updateVisioner } from "./visioner.js";
 import {
   PF2E_PERCEPTION_ID,
@@ -21,6 +26,7 @@ import {
 } from "./initiative.js";
 import { findBaseCoverBonus, getRelativeCover } from "./cover.js";
 import { clearPartyStealth } from "./clearStealth.js";
+import { makeObservation } from "./observationLogic.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter, ...args) => {
@@ -31,17 +37,21 @@ Hooks.once("init", () => {
       visibilityHandler === "perceptive" ? getPerceptiveApi() : null;
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
-    const useUnnoticed =
-      !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed");
-    const revealTokens = game.settings.get(MODULE_ID, "removeGmHidden");
-    const raiseShields = game.settings.get(MODULE_ID, "raiseShields");
-    const rage = game.settings.get(MODULE_ID, "rage");
-    const computeCover = game.settings.get(MODULE_ID, "computeCover");
-    const requireActivity = game.settings.get(MODULE_ID, "requireActivity");
-    let nonAvoidingPcs = [];
+
+    const opts = {
+      useUnnoticed:
+        !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed"),
+      computeCover: game.settings.get(MODULE_ID, "computeCover"),
+      revealTokens: game.settings.get(MODULE_ID, "removeGmHidden"),
+      raiseShields: game.settings.get(MODULE_ID, "raiseShields"),
+      requireActivity: game.settings.get(MODULE_ID, "requireActivity"),
+      rage: game.settings.get(MODULE_ID, "rage"),
+    };
 
     const beforeV13 = Number(game.version.split()[0]) < 13;
 
+    // Find the avoiders
+    let nonAvoidingPcs = [];
     let avoiders = encounter.combatants.contents.filter(
       (c) =>
         !(c.actor?.parties?.size > 0 && c.actor.system?.exploration) &&
@@ -50,7 +60,7 @@ Hooks.once("init", () => {
     const pcs = encounter.combatants.contents.filter(
       (c) => c.actor?.parties?.size > 0 && c.actor.system?.exploration,
     );
-    if (!requireActivity) {
+    if (!opts.requireActivity) {
       avoiders = avoiders.concat(
         pcs.filter((c) => c.flags.pf2e.initiativeStatistic === "stealth"),
       );
@@ -71,14 +81,17 @@ Hooks.once("init", () => {
       );
     }
 
-    if (raiseShields) {
+    // Raise the shields
+    if (opts.raiseShields) {
       await raiseDefendingShields(pcs);
     }
 
-    if (rage) {
+    // Enrage the barbarians
+    if (opts.rage) {
       await enrageBarbarians(pcs);
     }
 
+    // Find suitable familiars
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) =>
@@ -87,10 +100,12 @@ Hooks.once("init", () => {
         ),
       );
 
+    // Find the eidolons
     const eidolons = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
 
+    // Find the unrevealed combatants
     const unrevealedIds = encounter.combatants.contents
       .map((c) =>
         (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
@@ -102,19 +117,21 @@ Hooks.once("init", () => {
       .map((t) => t.id);
 
     let perceptionChanges = {};
+    let seenBy = {};
     for (const avoider of avoiders) {
       // log("avoider", avoider);
 
       const initiativeRoll = avoider.initiative;
-      const dosDelta = initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
+      const initiativeDosDelta =
+        initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
 
       // Only check against non-allies
       const disposition = avoider.token.disposition;
-      const nonAllies = encounter.combatants.contents
+      const others = encounter.combatants.contents
         .filter((c) => c.token.disposition != disposition)
         .concat(familiars.filter((t) => t.disposition != disposition))
         .concat(eidolons.filter((t) => t.disposition != disposition));
-      if (!nonAllies.length) continue;
+      if (!others.length) continue;
 
       // Now extract some details about the avoider
       const isAvoiderToken = beforeV13
@@ -127,107 +144,68 @@ Hooks.once("init", () => {
       let baseCoverBonus = findBaseCoverBonus(avoiderTokenDoc);
 
       let messageData = {};
-      let results = {};
+      let statusResults = {};
 
+      seenBy[avoider.token.id] = {};
+      let avoiderSeenBy = seenBy[avoider.token.id];
       perceptionChanges[avoiderTokenDoc.id] = {};
       let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
-      const perceptionData = perceptionApi
-        ? avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data
-        : undefined;
 
-      for (const other of nonAllies) {
+      const avoiderApi = {
+        visionerApi,
+        perceptionApi,
+        perceptiveApi,
+        avoider,
+        avoiderTokenDoc,
+        baseCoverBonus,
+        initiativeDosDelta,
+      };
+
+      for (const other of others) {
         const isOtherToken = beforeV13
           ? other?.token instanceof Token
           : other?.token instanceof foundry.canvas.placeables.Token;
-        const otherTokenDoc = isOtherToken
-          ? other.token.document
-          : (other?.token ?? other);
         const otherToken = other?.token ?? other;
         const otherActor = otherToken.actor;
         if (otherActor.type === "hazard") continue;
+        const otherTokenDoc = isOtherToken
+          ? other.token.document
+          : (other?.token ?? other);
 
-        let target = {
-          dc: otherActor.system.perception.dc,
-          name: otherTokenDoc.name,
-          id: otherToken.id,
-          doc: otherTokenDoc,
-        };
-
-        // We give priority to Perception's view of cover over the base cover effect
-        let coverBonus = getRelativeCover({
-          avoider,
+        let observation = makeObservation({
+          avoiderApi,
+          opts,
           otherToken,
-          computeCover,
-          perceptionApi,
-          perceptionData,
-          visionerApi,
+          otherTokenDoc,
+          otherActor,
         });
-        if (coverBonus < 0) coverBonus = baseCoverBonus;
 
-        if (coverBonus) {
-          const oldDelta = avoider.initiative - target.dc;
-          target.oldDelta = oldDelta < 0 ? `${oldDelta}` : `+${oldDelta}`;
-          switch (coverBonus) {
-            case 2:
-              target.tooltip = `${game.i18n.localize(`${MODULE_ID}.standardCover`)}: +2`;
-              break;
-            case 4:
-              target.tooltip = `${game.i18n.localize(`${MODULE_ID}.greaterCover`)}: +4`;
-              break;
-          }
-        }
-
-        // Handle critical failing to win at stealth
-        const delta = avoider.initiative + coverBonus - target.dc;
-        const dos =
-          dosDelta + (delta < -9 ? 0 : delta < 0 ? 1 : delta < 9 ? 2 : 3);
-        if (dos < 1) {
-          target.result = "observed";
-          target.delta = `${delta}`;
-        }
-
-        // Normal fail is hidden
-        else if (dos < 2) {
-          const visibility = "hidden";
-          target.result = visibility;
-          target.delta = `${delta}`;
-        }
-
-        // avoider beat the other token at the stealth battle
-        else {
-          let visibility = "undetected";
-          target.delta = `+${delta}`;
-          if (useUnnoticed && avoider.initiative > other?.initiative) {
-            visibility = "unnoticed";
-          }
-          target.result = visibility;
-        }
-
-        if (!(target.result in results)) {
-          results[target.result] = [target];
+        avoiderSeenBy[observation.id] = { visibility: observation };
+        if (!(observation.result in statusResults)) {
+          statusResults[observation.result] = [observation];
         } else {
-          results[target.result].push(target);
+          statusResults[observation.result].push(observation);
         }
 
         // Add a new category if necessary, and put this other token's result in the message data
-        if (!(target.result in messageData)) {
-          const id = COMPENDIUM_IDS[target.result];
+        if (!(observation.result in messageData)) {
+          const id = COMPENDIUM_IDS[observation.result];
           const pack = "pf2e.conditionitems";
           const text = game.i18n.localize(
-            `PF2E.condition.${target.result}.name`,
+            `PF2E.condition.${observation.result}.name`,
           );
           const title = `
           <a class="content-link" draggable="true" data-link data-uuid="Compendium.${pack}.Item.${id}" data-id="${id}" data-type="Item" data-pack="${pack}">
             <i class="fa-solid fa-face-zany"></i>
             ${text}
           </a>`;
-          messageData[target.result] = {
+          messageData[observation.result] = {
             title,
-            resultClass: delta >= 0 ? "success" : "failure",
-            targets: [target],
+            resultClass: observation.success ? "success" : "failure",
+            observers: [observation],
           };
         } else {
-          messageData[target.result].targets.push(target);
+          messageData[observation.result].observers.push(observation);
         }
       }
 
@@ -258,25 +236,30 @@ Hooks.once("init", () => {
       // Adjust the avoider's condition
       switch (visibilityHandler) {
         case "best":
-          updateConditionVsBestDc(avoider, results);
+          updateConditionVsBestDc(avoider, statusResults);
           break;
         case "worst":
-          updateConditionVsWorstDc(avoider, results);
+          updateConditionVsWorstDc(avoider, statusResults);
           break;
         case "perceptive":
           await updatePerceptive({
-            perceptiveApi,
-            avoider,
-            avoiderTokenDoc,
+            avoiderApi,
             initiativeMessage,
-            results,
+            results: statusResults,
           });
           break;
         case "perception":
-          await updatePerception({ perceptionData, results, perceptionUpdate });
+          await updatePerception({
+            avoiderApi,
+            results: statusResults,
+            perceptionUpdate,
+          });
           break;
         case "visioner":
-          await updateVisioner({ visionerApi, avoider, results });
+          await updateVisioner({
+            avoiderApi,
+            results: statusResults,
+          });
           break;
       }
 
@@ -289,19 +272,19 @@ Hooks.once("init", () => {
               ${status.title}
               <table>
                 <tbody>`;
-          for (const target of status.targets) {
+          for (const observation of status.observers) {
             content += `
                   <tr>
-                    <td id="${MODULE_ID}-name">${target.name}</td>`;
-            if (target.oldDelta) {
+                    <td id="${MODULE_ID}-name">${observation.name}</td>`;
+            if (observation.oldDelta) {
               content += `
                     <td id="${MODULE_ID}-delta">
-                      <span><s>${target.oldDelta}</s></span>
-                      <span data-tooltip="<div>${target.tooltip}</div>"> <b>${target.delta}</b></span>
+                      <span><s>${observation.oldDelta}</s></span>
+                      <span data-tooltip="<div>${observation.tooltip}</div>"> <b>${observation.delta}</b></span>
                     </td>`;
             } else {
               content += `
-                    <td id="${MODULE_ID}-delta">${target.delta}</td>`;
+                    <td id="${MODULE_ID}-delta">${observation.delta}</td>`;
             }
             content += `
                   </tr>`;
@@ -337,7 +320,7 @@ Hooks.once("init", () => {
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
-    if (revealTokens) {
+    if (opts.revealTokens) {
       for (const t of unrevealedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
         if (update) {
@@ -354,8 +337,7 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
-    if (visionerApi && "refreshEveryonesPerception" in visionerApi)
-      visionerApi.refreshEveryonesPerception();
+    refreshPerception();
   });
 
   Hooks.on("deleteCombat", async (...args) => {
