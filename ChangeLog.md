@@ -1,6 +1,7 @@
 # v13.5.0
 
-- BREAKING CHANGE: Disable use of Perceptive as a visibility handler until such time as I can make it work
+- BREAKING CHANGE: Disable use of _Perceptive_ as a visibility handler until such time as I can make it work
+- Restructure internal loops to improve batch processing of visibility changes
 
 # v13.4.1
 

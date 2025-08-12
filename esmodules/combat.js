@@ -220,7 +220,7 @@ Hooks.once("init", () => {
         await processObservationsForPerceptive(observations);
         break;
       case "perception":
-        await processObservationsForPerception(observations);
+        await processObservationsForPerception(observations, tokenUpdates);
         break;
       case "visioner":
         await processObservationsForVisioner(observations);
@@ -233,25 +233,6 @@ Hooks.once("init", () => {
     }
 
     refreshPerception();
-
-    //   perceptionChanges = {}
-    //   perceptionChanges[avoiderTokenDoc.id] = {};
-    //   let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
-    //   let statusResults = {};
-    //
-    // if (!(observation.result in statusResults)) {
-    //   statusResults[observation.result] = [observation];
-    // } else {
-    //   statusResults[observation.result].push(observation);
-    // }
-    //
-    //
-    // }
-
-    // If PF2e-perception is around, move any non-empty changes into an update array
-    // if (perceptionApi) {
-    //   updatePerceptionChanges(tokenUpdates, perceptionChanges);
-    // }
   });
 
   Hooks.on("deleteCombat", async () => {

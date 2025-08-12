@@ -1,3 +1,4 @@
+import { MODULE_ID } from "./const.js";
 import { getRelativeCover } from "./cover.js";
 
 export function makeObservation({

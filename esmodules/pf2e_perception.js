@@ -81,14 +81,39 @@ export function updatePerceptionChanges(tokenUpdates, perceptionChanges) {
   }
 }
 
-export async function processObservationsForPerception(observations) {
+export async function processObservationsForPerception(
+  observations,
+  tokenUpdates,
+) {
+  const beforeV13 = Number(game.version.split()[0]) < 13;
+  const remove = beforeV13 ? true : null;
+
   for (const avoiderId in observations) {
     const { avoiderApi, observers } = observations[avoiderId];
-    const avoider = avoiderApi.avoider;
+    const avoiderTokenDoc = avoiderApi.avoiderTokenDoc;
+    const perceptionData = avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data;
+    let perceptionUpdate = { _id: avoiderTokenDoc.id };
 
     // walk through all the observers and group their observations by result
     for (const observerId in observers) {
       const observation = observers[observerId].visibility;
+      const condition = observation.result;
+      if (condition === "observed") {
+        if (perceptionData && observation.observerId in perceptionData) {
+          perceptionUpdate[
+            `flags.${PF2E_PERCEPTION_ID}.data.-=${observation.observerId}`
+          ] = remove;
+        }
+      } else if (["hidden", "undetected", "unnoticed"].includes(condition)) {
+        if (
+          perceptionData?.[observation.observerId]?.visibility !== condition
+        ) {
+          perceptionUpdate[
+            `flags.${PF2E_PERCEPTION_ID}.data.${observation.observerId}.visibility`
+          ] = condition;
+        }
+      }
     }
+    tokenUpdates.push(perceptionUpdate);
   }
 }
