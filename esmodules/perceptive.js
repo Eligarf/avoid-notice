@@ -4,11 +4,13 @@ import { findInitiativeCard } from "./initiative.js";
 export const PERCEPTIVE_ID = "perceptive";
 
 export function isPerceptiveActive() {
-  return game.modules.get(PERCEPTIVE_ID)?.active;
+  return false;
+  // return game.modules.get(PERCEPTIVE_ID)?.active;
 }
 
 export function getPerceptiveApi() {
-  return game.modules.get(PERCEPTIVE_ID)?.api;
+  return null;
+  // return game.modules.get(PERCEPTIVE_ID)?.api;
 }
 
 export async function setPerceptiveCondition({

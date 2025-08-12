@@ -1,3 +1,7 @@
+# v13.5.0
+
+- BREAKING CHANGE: Disable use of Perceptive as a visibility handler until such time as I can make it work
+
 # v13.4.1
 
 - Restrict clear party stealth keybinding to GM only
