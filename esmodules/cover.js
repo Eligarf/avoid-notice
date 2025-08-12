@@ -20,7 +20,7 @@ export function getRelativeCover({ api, opts, otherToken }) {
   let cover = "na";
   if (api.perceptionApi) {
     cover = opts.computeCover
-      ? api.erceptionApi.token.getCover(
+      ? api.perceptionApi.token.getCover(
           api.avoider.token._object,
           otherToken._object,
         )

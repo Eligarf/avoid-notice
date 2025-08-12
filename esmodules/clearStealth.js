@@ -16,7 +16,7 @@ export async function clearTokenStealth({
 
   const perceptionApi =
     visibilityHandler === "perception" ? getPerceptionApi() : null;
-  if (perceptionApi) await clearPerceptionData(token.document);
+  if (perceptionApi) await clearPerceptionData(token);
 
   const visionerApi =
     visibilityHandler === "visioner" ? getVisionerApi() : null;
