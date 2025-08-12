@@ -89,3 +89,15 @@ export async function updatePerceptive({
     await perceptiveApi.EffectManager.removeStealthEffects(avoiderTokenDoc);
   }
 }
+
+export async function processObservationsForPerceptive(observations) {
+  for (const avoiderId in observations) {
+    const { avoiderApi, observers } = observations[avoiderId];
+    const avoider = avoiderApi.avoider;
+
+    // walk through all the observers and group their observations by result
+    for (const observerId in observers) {
+      const observation = observers[observerId].visibility;
+    }
+  }
+}

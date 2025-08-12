@@ -80,3 +80,15 @@ export function updatePerceptionChanges(tokenUpdates, perceptionChanges) {
     if (Object.keys(update).length) tokenUpdates.push({ _id: id, ...update });
   }
 }
+
+export async function processObservationsForPerception(observations) {
+  for (const avoiderId in observations) {
+    const { avoiderApi, observers } = observations[avoiderId];
+    const avoider = avoiderApi.avoider;
+
+    // walk through all the observers and group their observations by result
+    for (const observerId in observers) {
+      const observation = observers[observerId].visibility;
+    }
+  }
+}

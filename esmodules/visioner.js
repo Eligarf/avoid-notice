@@ -10,10 +10,15 @@ export function getVisionerApi() {
   return game.modules.get(VISIONER_ID)?.api;
 }
 
-async function updateBatch({ batch, visionerApi, targetId, observers }) {
+async function updateBatch({
+  visionerApi,
+  avoiderId,
+  observers,
+  batch = null,
+}) {
   // If doing batch mode, add new member and return
   if (batch) {
-    batch[targetId] = observers;
+    batch[avoiderId] = observers;
     return;
   }
 
@@ -22,7 +27,7 @@ async function updateBatch({ batch, visionerApi, targetId, observers }) {
     const condition = observers[id];
     await visionerApi.setVisibility(
       id,
-      targetId,
+      avoiderId,
       condition !== "unnoticed" ? condition : "undetected",
     );
   }
@@ -47,29 +52,27 @@ export async function clearVisionerData({
   });
   if (!tokens.length) return;
   let observers = {};
-  for (const t of tokens) {
-    observers[t.id] = "observed";
+  for (const observer of tokens) {
+    observers[observer.id] = "observed";
   }
 
-  await updateBatch({ batch, visionerApi, targetId: token.id, observers });
+  await updateBatch({ visionerApi, avoiderId: token.id, observers, batch });
 
   if (refresh) refreshVisionerPerception(visionerApi);
 }
 
-export async function updateVisioner({ avoiderApi, results, batch = null }) {
-  const avoider = avoiderApi.avoider;
-  const targetId = avoider.tokenId;
-  const visionerApi = avoiderApi.visionerApi;
+export async function processObservationsForVisioner(observations) {
+  for (const avoiderId in observations) {
+    const { avoiderApi, observers } = observations[avoiderId];
+    const visionerApi = avoiderApi.visionerApi;
 
-  let observers = {};
-  for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
-    if (condition in results) {
-      for (const result of results[condition]) {
-        observers[result.observerId] =
-          condition !== "unnoticed" ? condition : "undetected";
-      }
+    for (const observerId in observers) {
+      const condition = observers[observerId].visibility.result;
+      await visionerApi.setVisibility(
+        observerId,
+        avoiderId,
+        condition !== "unnoticed" ? condition : "undetected",
+      );
     }
   }
-
-  await updateBatch({ batch, visionerApi, targetId, observers });
 }

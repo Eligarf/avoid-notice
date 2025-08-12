@@ -63,3 +63,27 @@ export async function updateConditionVsWorstDc(avoider, results) {
     });
   }
 }
+
+export async function processObservationsForBestDc(observations) {
+  for (const avoiderId in observations) {
+    const { avoiderApi, observers } = observations[avoiderId];
+    const avoider = avoiderApi.avoider;
+
+    // walk through all the observers and group their observations by result
+    for (const observerId in observers) {
+      const observation = observers[observerId].visibility;
+    }
+  }
+}
+
+export async function processObservationsForWorstDc(observations) {
+  for (const avoiderId in observations) {
+    const { avoiderApi, observers } = observations[avoiderId];
+    const avoider = avoiderApi.avoider;
+
+    // walk through all the observers and group their observations by result
+    for (const observerId in observers) {
+      const observation = observers[observerId].visibility;
+    }
+  }
+}
