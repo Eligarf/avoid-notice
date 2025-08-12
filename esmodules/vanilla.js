@@ -1,4 +1,4 @@
-export async function updateConditionStatus({ actor, remove = [], add = "" }) {
+async function updateConditionStatus({ actor, remove = [], add = "" }) {
   // log('tweakStatus', { actor, remove, add });
   const removals = actor.items
     .filter((i) => i.type === "condition" && remove.includes(i.system.slug))
@@ -10,7 +10,7 @@ export async function updateConditionStatus({ actor, remove = [], add = "" }) {
   await actor.toggleCondition(add, { active: true });
 }
 
-export async function updateConditionVsBestDc(avoider, results) {
+async function updateConditionVsBestDc(avoider, results) {
   if ("observed" in results) {
     await updateConditionStatus({
       actor: avoider.actor,
@@ -37,7 +37,7 @@ export async function updateConditionVsBestDc(avoider, results) {
   }
 }
 
-export async function updateConditionVsWorstDc(avoider, results) {
+async function updateConditionVsWorstDc(avoider, results) {
   if ("unnoticed" in results) {
     await updateConditionStatus({
       actor: avoider.actor,
@@ -69,10 +69,15 @@ export async function processObservationsForBestDc(observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
 
-    // walk through all the observers and group their observations by result
+    let results = {};
     for (const observerId in observers) {
       const observation = observers[observerId].visibility;
+
+      if (!(observation.result in results)) {
+        results[observation.result] = true;
+      }
     }
+    await updateConditionVsBestDc(avoider, results);
   }
 }
 
@@ -81,9 +86,14 @@ export async function processObservationsForWorstDc(observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
 
-    // walk through all the observers and group their observations by result
+    let results = {};
     for (const observerId in observers) {
       const observation = observers[observerId].visibility;
+
+      if (!(observation.result in results)) {
+        results[observation.result] = true;
+      }
     }
+    await updateConditionVsWorstDc(avoider, results);
   }
 }
