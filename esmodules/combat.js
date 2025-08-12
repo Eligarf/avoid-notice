@@ -87,11 +87,9 @@ Hooks.once("init", () => {
           (c) => c.actor._id == t.actor.system.master.id,
         ),
       );
-
     const eidolons = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
-
     const unrevealedIds = encounter.combatants.contents
       .map((c) =>
         (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
@@ -102,10 +100,11 @@ Hooks.once("init", () => {
       .filter((t) => t.hidden && t.actor.type !== "hazard")
       .map((t) => t.id);
 
+    // initialize the aggregators
     let perceptionChanges = {};
     let seenBy = {};
 
-    // Loop over all the avoiders to build up the batch lists of what has to change
+    // Loop over all the avoiders to build up lists of what has to change
     for (const avoider of avoiders) {
       // log("avoider", avoider);
 
@@ -143,7 +142,7 @@ Hooks.once("init", () => {
       // make some structures to acrue info into
       let messageData = {};
       let statusResults = {};
-      seenBy[avoider.token.id] = {};
+      seenBy[avoider.token.id] = { avoider };
       let avoiderSeenBy = seenBy[avoider.token.id];
       perceptionChanges[avoiderTokenDoc.id] = {};
       let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
@@ -201,7 +200,6 @@ Hooks.once("init", () => {
 
       // Find the last card with a check roll matching initiative for the avoider
       // continue;
-      let initiativeMessage = await findInitiativeCard(avoider);
       let content = interpolateString(
         game.i18n.localize("pf2e-avoid-notice.activity"),
         {
@@ -211,10 +209,11 @@ Hooks.once("init", () => {
           actor: avoider.actor.name,
         },
       );
+
+      let initiativeMessage = await findInitiativeCard(avoider);
       if (initiativeMessage) {
         content = renderInitiativeDice(initiativeMessage.rolls[0]) + content;
       } else {
-        log("card for", avoider);
         initiativeMessage = await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({
             actor: avoider.actor,
