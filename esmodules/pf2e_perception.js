@@ -1,4 +1,3 @@
-import { MODULE_ID } from "./const.js";
 import { getVisibilityHandler, log } from "./main.js";
 
 export const PF2E_PERCEPTION_ID = "pf2e-perception";
@@ -17,10 +16,9 @@ export async function clearPerceptionData(token) {
   if (!perceptionData || !Object.keys(perceptionData).length) return;
   let tokenUpdate = {};
   const beforeV13 = Number(game.version.split()[0]) < 13;
+  const remove = beforeV13 ? true : null;
   for (let id in perceptionData) {
-    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = beforeV13
-      ? true
-      : null;
+    tokenUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${id}`] = remove;
   }
   const updates = [{ _id: token.id, ...tokenUpdate }];
   await canvas.scene.updateEmbeddedDocuments("Token", updates);
@@ -54,19 +52,23 @@ export async function updatePerception({
   const avoiderTokenDoc = avoiderApi.avoiderTokenDoc;
   const perceptionData = avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data;
   if ("observed" in results) {
+    const beforeV13 = Number(game.version.split()[0]) < 13;
+    const remove = beforeV13 ? true : null;
     for (const result of results.observed) {
-      if (perceptionData && result.id in perceptionData)
-        perceptionUpdate[`flags.${PF2E_PERCEPTION_ID}.data.-=${result.id}`] =
-          true;
+      if (perceptionData && result.observerId in perceptionData) {
+        perceptionUpdate[
+          `flags.${PF2E_PERCEPTION_ID}.data.-=${result.observerId}`
+        ] = remove;
+      }
     }
   }
   for (const visibility of ["hidden", "undetected", "unnoticed"]) {
-    if (visibility in results) {
-      for (const result of results[visibility]) {
-        if (perceptionData?.[result.id]?.visibility !== visibility)
-          perceptionUpdate[
-            `flags.${PF2E_PERCEPTION_ID}.data.${result.id}.visibility`
-          ] = visibility;
+    if (!(visibility in results)) continue;
+    for (const result of results[visibility]) {
+      if (perceptionData?.[result.observerId]?.visibility !== visibility) {
+        perceptionUpdate[
+          `flags.${PF2E_PERCEPTION_ID}.data.${result.observerId}.visibility`
+        ] = visibility;
       }
     }
   }

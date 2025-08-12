@@ -65,7 +65,7 @@ export async function updateVisioner({ avoiderApi, results, batch = null }) {
   for (const condition of ["observed", "hidden", "undetected", "unnoticed"]) {
     if (condition in results) {
       for (const result of results[condition]) {
-        observers[result.id] =
+        observers[result.observerId] =
           condition !== "unnoticed" ? condition : "undetected";
       }
     }

@@ -10,7 +10,7 @@ export function makeObservation({
   let observation = {
     dc: otherActor.system.perception.dc,
     name: otherTokenDoc.name,
-    id: otherToken.id,
+    observerId: otherToken.id,
     tokenDoc: otherTokenDoc,
   };
 

@@ -7,7 +7,6 @@ import {
 } from "./main.js";
 import { getVisionerApi, updateVisioner } from "./visioner.js";
 import {
-  PF2E_PERCEPTION_ID,
   getPerceptionApi,
   updatePerception,
   updatePerceptionChanges,
@@ -24,12 +23,12 @@ import {
   findInitiativeCard,
   modifyInitiativeCard,
 } from "./initiative.js";
-import { findBaseCoverBonus, getRelativeCover } from "./cover.js";
+import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./clearStealth.js";
 import { makeObservation } from "./observationLogic.js";
 
 Hooks.once("init", () => {
-  Hooks.on("combatStart", async (encounter, ...args) => {
+  Hooks.on("combatStart", async (encounter) => {
     const visibilityHandler = getVisibilityHandler();
     const perceptionApi =
       visibilityHandler === "perception" ? getPerceptionApi() : null;
@@ -50,7 +49,7 @@ Hooks.once("init", () => {
 
     const beforeV13 = Number(game.version.split()[0]) < 13;
 
-    // Find the avoiders
+    // Build out the various lists of combatant types
     let nonAvoidingPcs = [];
     let avoiders = encounter.combatants.contents.filter(
       (c) =>
@@ -81,17 +80,6 @@ Hooks.once("init", () => {
       );
     }
 
-    // Raise the shields
-    if (opts.raiseShields) {
-      await raiseDefendingShields(pcs);
-    }
-
-    // Enrage the barbarians
-    if (opts.rage) {
-      await enrageBarbarians(pcs);
-    }
-
-    // Find suitable familiars
     const familiars = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) =>
@@ -100,12 +88,10 @@ Hooks.once("init", () => {
         ),
       );
 
-    // Find the eidolons
     const eidolons = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
 
-    // Find the unrevealed combatants
     const unrevealedIds = encounter.combatants.contents
       .map((c) =>
         (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
@@ -118,6 +104,8 @@ Hooks.once("init", () => {
 
     let perceptionChanges = {};
     let seenBy = {};
+
+    // Loop over all the avoiders to build up the batch lists of what has to change
     for (const avoider of avoiders) {
       // log("avoider", avoider);
 
@@ -126,6 +114,7 @@ Hooks.once("init", () => {
         initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
 
       // Only check against non-allies
+      // TODO: add a game setting to control this
       const disposition = avoider.token.disposition;
       const others = encounter.combatants.contents
         .filter((c) => c.token.disposition != disposition)
@@ -141,37 +130,37 @@ Hooks.once("init", () => {
         ? avoider.token.document
         : avoider.token;
 
-      let baseCoverBonus = findBaseCoverBonus(avoiderTokenDoc);
-
-      let messageData = {};
-      let statusResults = {};
-
-      seenBy[avoider.token.id] = {};
-      let avoiderSeenBy = seenBy[avoider.token.id];
-      perceptionChanges[avoiderTokenDoc.id] = {};
-      let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
-
       const avoiderApi = {
         visionerApi,
         perceptionApi,
         perceptiveApi,
         avoider,
         avoiderTokenDoc,
-        baseCoverBonus,
+        baseCoverBonus: findBaseCoverBonus(avoiderTokenDoc),
         initiativeDosDelta,
       };
 
+      // make some structures to acrue info into
+      let messageData = {};
+      let statusResults = {};
+      seenBy[avoider.token.id] = {};
+      let avoiderSeenBy = seenBy[avoider.token.id];
+      perceptionChanges[avoiderTokenDoc.id] = {};
+      let perceptionUpdate = perceptionChanges[avoiderTokenDoc.id];
+
+      // Iterate the others and test the observation of each
       for (const other of others) {
         const isOtherToken = beforeV13
           ? other?.token instanceof Token
           : other?.token instanceof foundry.canvas.placeables.Token;
         const otherToken = other?.token ?? other;
         const otherActor = otherToken.actor;
+
+        // Bail out if we are dealing with a hazard, otherwise make the observation
         if (otherActor.type === "hazard") continue;
         const otherTokenDoc = isOtherToken
           ? other.token.document
           : (other?.token ?? other);
-
         let observation = makeObservation({
           avoiderApi,
           opts,
@@ -180,7 +169,8 @@ Hooks.once("init", () => {
           otherActor,
         });
 
-        avoiderSeenBy[observation.id] = { visibility: observation };
+        // put the observation into the accrual containers
+        avoiderSeenBy[observation.observerId] = { visibility: observation };
         if (!(observation.result in statusResults)) {
           statusResults[observation.result] = [observation];
         } else {
@@ -337,10 +327,20 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
+    // Raise the shields
+    if (opts.raiseShields) {
+      await raiseDefendingShields(pcs);
+    }
+
+    // Enrage the barbarians
+    if (opts.rage) {
+      await enrageBarbarians(pcs);
+    }
+
     refreshPerception();
   });
 
-  Hooks.on("deleteCombat", async (...args) => {
+  Hooks.on("deleteCombat", async () => {
     const cleanUp = game.settings.get(
       MODULE_ID,
       "clearPartyStealthAfterCombat",
