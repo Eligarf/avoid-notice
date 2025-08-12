@@ -24,8 +24,8 @@ import {
   modifyInitiativeCard,
 } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
-import { clearPartyStealth } from "./clear-stealth.js/index.js";
-import { makeObservation } from "./observation-logic.js/index.js";
+import { clearPartyStealth } from "./clear-stealth.js";
+import { makeObservation } from "./observation-logic.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter) => {

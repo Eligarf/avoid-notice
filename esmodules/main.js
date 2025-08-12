@@ -9,11 +9,8 @@ import {
   isPerceptionActive,
   clearPf2ePerceptionFlags,
 } from "./pf2e_perception.js";
-import { registerHooksForClearMovementHistory } from "./clear-movement.js/index.js";
-import {
-  clearPartyStealth,
-  clearTokenStealth,
-} from "./clear-stealth.js/index.js";
+import { registerHooksForClearMovementHistory } from "./clear-movement.js";
+import { clearPartyStealth, clearTokenStealth } from "./clear-stealth.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
