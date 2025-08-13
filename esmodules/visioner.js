@@ -61,10 +61,32 @@ export async function clearVisionerData({
   if (refresh) refreshVisionerPerception(visionerApi);
 }
 
-export async function processObservationsForVisioner(observations) {
+async function processBulkObservationsForVisioner(visionerApi, observations) {
+  let updates = [];
   for (const avoiderId in observations) {
-    const { avoiderApi, observers } = observations[avoiderId];
-    const visionerApi = avoiderApi.visionerApi;
+    const { observers } = observations[avoiderId];
+    for (const observerId in observers) {
+      updates.push({
+        observerId,
+        targetId: avoiderId,
+        state: observers[observerId].visibility.result,
+      });
+    }
+  }
+  log("updates", updates);
+  if (updates.length > 0) await visionerApi.bulkSetVisibility(updates);
+}
+
+export async function processObservationsForVisioner(observations) {
+  const visionerApi = getVisionerApi();
+
+  // If we are in bulk mode, use that instead
+  if ("bulkSetVisibility" in visionerApi) {
+    return await processBulkObservationsForVisioner(visionerApi, observations);
+  }
+
+  for (const avoiderId in observations) {
+    const { observers } = observations[avoiderId];
 
     for (const observerId in observers) {
       const condition = observers[observerId].visibility.result;
