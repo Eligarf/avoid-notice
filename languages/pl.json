@@ -10,7 +10,7 @@
     },
     "useUnnoticed": {
       "name": "Niezauważony",
-      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy Ukrycia przewyższa ST Percepcji i inicjatywę celu"
+      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy skradania się przewyższa współczynnik percepcji i inicjatywę celu. Jest to ignorowane w przypadku używania PF2e Visioner."
     },
     "removeGmHidden": {
       "name": "Ujawnienie tokenów walczących na początku walki",
@@ -36,32 +36,32 @@
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
     "visibilityHandler": {
-      "name": "Visibility Handler",
+      "name": "Obsługa widoczności",
       "auto": "Auto: PF2e Visioner > PF2e Perception",
       "disabled": "Nie ustawiaj statusu stanu",
-      "best": "Use the worst degree-of-success (favor the seekers)",
-      "worst": "Use the best degree-of-success (favor the sneakers)",
-      "visioner": "Let PF2e Visioner handle it",
-      "perception": "Niech zajmie się tym moduł pf2e-perception",
-      "perceptive": "Niech zajmie się tym moduł Perceptive"
+      "best": "Użyj najgorszego stopnia sukcesu (preferuj osoby szukające)",
+      "worst": "Użyj najlepszego stopnia sukcesu (preferuj osoby skradające się)",
+      "visioner": "Niech PF2e Visioner się tym zajmie",
+      "perception": "Niech pf2e-perception się tym zajmie",
+      "perceptive": "Niech Perceptive się tym zajmie"
     },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",
-      "hint": "Use visibility module to automatically compute cover between tokens using stealth for initiative and non-allied Tokens. It is only used for this check"
+      "hint": "Użyj modułu widoczności, aby automatycznie obliczyć osłonę między tokenami przy użyciu skradania się dla inicjatywy i tokenów niebędących sojusznikami. Jest to używane wyłącznie do tego celu."
     },
     "clearStealth": {
-      "name": "Clear stealth from selected tokens",
-      "hint": "Usuwanie ukrytych, niewykrytych i niezauważonych statusów z wybranych tokenów.",
-      "banner": "Clearing stealth data from {name}"
+      "name": "Usuń ukrycie z wybranych tokenów",
+      "hint": "Usuwanie statusów ukryty, niewykryty i niezauważony z wybranych tokenów.",
+      "banner": "Usuwanie danych Ukrycia z {name}"
     },
     "clearPartyStealth": {
-      "name": "Clear stealth from the party",
-      "hint": "Remove hidden, undetected, and unnoticed statuses from the party.",
-      "banner": "Clearing stealth from the party"
+      "name": "Usuń Ukrycie z drużyny",
+      "hint": "Usuwanie statusów ukryty, niewykryty i niezauważony z drużyny.",
+      "banner": "Usunięcie Ukrycia z drużyny"
     },
     "clearPartyStealthAfterCombat": {
-      "name": "Clear Stealth from Party after combat",
-      "hint": "Will remove stealth conditions from party tokens on the current scene when combat is ended"
+      "name": "Usuń Ukrycie z drużyny po walce",
+      "hint": "Usuwa stan Ukrycie z tokenów drużyny w bieżącej scenie po zakończeniu walki."
     },
     "clearMovement": {
       "name": "Wyczyść historię ruchu po zakończeniu tury",
