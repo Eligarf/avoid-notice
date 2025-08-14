@@ -181,7 +181,8 @@ Hooks.once("init", () => {
     // the result structure and build the messages for each affected chat card, as well
     // as the calls we need to do for the visibility manager
     //
-    await renderStatus(observations);
+    if (!game.settings.get(MODULE_ID, "noSummary"))
+      await renderStatus(observations);
 
     // Raise the shields
     if (options.raiseShields) {

@@ -157,6 +157,15 @@ Hooks.once("setup", () => {
     default: false,
   });
 
+  game.settings.register(MODULE_ID, "noSummary", {
+    name: game.i18n.localize(`${MODULE_ID}.noSummary.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.noSummary.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register(MODULE_ID, "requireActivity", {
     name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
     hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
