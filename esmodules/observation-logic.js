@@ -3,7 +3,7 @@ import { getRelativeCover } from "./cover.js";
 
 export function makeObservation({
   avoiderApi,
-  opts,
+  options,
   otherToken,
   otherTokenDoc,
   otherActor,
@@ -17,7 +17,7 @@ export function makeObservation({
 
   let coverBonus = getRelativeCover({
     api: avoiderApi,
-    opts,
+    options,
     otherToken,
   });
   if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
@@ -62,7 +62,7 @@ export function makeObservation({
     let visibility = "undetected";
     observation.delta = `+${delta}`;
     if (
-      opts.useUnnoticed &&
+      options.useUnnoticed &&
       avoiderApi.avoider.initiative > other?.initiative
     ) {
       visibility = "unnoticed";

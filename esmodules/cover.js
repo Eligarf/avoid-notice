@@ -16,10 +16,10 @@ export function findBaseCoverBonus(avoider) {
   return baseCoverBonus;
 }
 
-export function getRelativeCover({ api, opts, otherToken }) {
+export function getRelativeCover({ api, options, otherToken }) {
   let cover = "na";
   if (api.perceptionApi) {
-    cover = opts.computeCover
+    cover = options.computeCover
       ? api.perceptionApi.token.getCover(
           api.avoider.token._object,
           otherToken._object,

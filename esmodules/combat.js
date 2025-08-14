@@ -31,15 +31,17 @@ Hooks.once("init", () => {
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
 
-    const opts = {
+    const options = {
       useUnnoticed:
         !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed"),
       computeCover: game.settings.get(MODULE_ID, "computeCover"),
       revealTokens: game.settings.get(MODULE_ID, "removeGmHidden"),
       raiseShields: game.settings.get(MODULE_ID, "raiseShields"),
       requireActivity: game.settings.get(MODULE_ID, "requireActivity"),
+      hideFromAllies: game.settings.get(MODULE_ID, "hideFromAllies"),
       rage: game.settings.get(MODULE_ID, "rage"),
     };
+    log("options", options);
 
     const beforeV13 = Number(game.version.split()[0]) < 13;
 
@@ -53,7 +55,7 @@ Hooks.once("init", () => {
     const pcs = encounter.combatants.contents.filter(
       (c) => c.actor?.parties?.size > 0 && c.actor.system?.exploration,
     );
-    if (!opts.requireActivity) {
+    if (!options.requireActivity) {
       avoiders = avoiders.concat(
         pcs.filter((c) => c.flags.pf2e.initiativeStatistic === "stealth"),
       );
@@ -108,12 +110,23 @@ Hooks.once("init", () => {
       const initiativeDosDelta =
         initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
 
-      // TODO: add a game setting to control checking vs non-allies or all
       const disposition = avoider.token.disposition;
       const others = encounter.combatants.contents
-        .filter((c) => c.token.disposition != disposition)
-        .concat(familiars.filter((t) => t.disposition != disposition))
-        .concat(eidolons.filter((t) => t.disposition != disposition));
+        .filter(
+          (c) =>
+            c.token.disposition !== disposition ||
+            (options.hideFromAllies && c.id !== avoider.id),
+        )
+        .concat(
+          familiars.filter(
+            (t) => !options.hideFromAllies || t.disposition != disposition,
+          ),
+        )
+        .concat(
+          eidolons.filter(
+            (t) => !options.hideFromAllies || t.disposition != disposition,
+          ),
+        );
       if (!others.length) continue;
 
       const isAvoiderToken = beforeV13
@@ -151,7 +164,7 @@ Hooks.once("init", () => {
           : (other?.token ?? other);
         let observation = makeObservation({
           avoiderApi,
-          opts,
+          options,
           otherToken,
           otherTokenDoc,
           otherActor,
@@ -171,12 +184,12 @@ Hooks.once("init", () => {
     await renderStatus(observations);
 
     // Raise the shields
-    if (opts.raiseShields) {
+    if (options.raiseShields) {
       await raiseDefendingShields(pcs);
     }
 
     // Enrage the barbarians
-    if (opts.rage) {
+    if (options.rage) {
       await enrageBarbarians(pcs);
     }
 
@@ -197,7 +210,7 @@ Hooks.once("init", () => {
     let tokenUpdates = [];
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
-    if (opts.revealTokens) {
+    if (options.revealTokens) {
       for (const t of unrevealedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
         if (update) {

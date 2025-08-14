@@ -148,6 +148,15 @@ Hooks.once("setup", () => {
     default: false,
   });
 
+  game.settings.register(MODULE_ID, "hideFromAllies", {
+    name: game.i18n.localize(`${MODULE_ID}.hideFromAllies.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.hideFromAllies.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register(MODULE_ID, "requireActivity", {
     name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
     hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
@@ -250,6 +259,15 @@ Hooks.once("setup", () => {
       log: game.i18n.localize(`${MODULE_ID}.logLevel.log`),
     },
     default: "none",
+  });
+
+  game.settings.register(MODULE_ID, "useBulkApi", {
+    name: game.i18n.localize(`${MODULE_ID}.useBulkApi.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.useBulkApi.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register(MODULE_ID, "schema", {
