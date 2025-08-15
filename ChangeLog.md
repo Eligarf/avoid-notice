@@ -1,3 +1,7 @@
+# v13.5.1
+
+- Fix error when hazards are included in initiative list
+
 # v13.5.0
 
 - BREAKING CHANGE: Disable use of _Perceptive_ as a visibility handler until such time as I can make it work
