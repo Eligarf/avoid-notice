@@ -36,12 +36,12 @@
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
     "noSummary": {
-      "name": "Disable chat card summaries",
-      "hint": "Will skip updating the initiative card with stealth results"
+      "name": "Wyłącz podsumowania kart czatu",
+      "hint": "Pominie aktualizację karty inicjatywy o wyniki ukrycia"
     },
     "hideFromAllies": {
-      "name": "Apply stealth results to allies",
-      "hint": "If enabled, stealth will be applied against both allied and non-allied tokens"
+      "name": "Zastosuj efekty ukrycia do sojuszników",
+      "hint": "Jeśli opcja jest włączona, ukrycie zostanie zastosowane zarówno wobec tokenów sojuszniczych, jak i nie sojuszniczych"
     },
     "visibilityHandler": {
       "name": "Obsługa widoczności",
@@ -76,8 +76,8 @@
       "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."
     },
     "useBulkApi": {
-      "name": "Use Visioner Bulk APIs",
-      "hint": "These APIs are under development. Use at your own risk"
+      "name": "Korzystaj z API Visioner Bulk",
+      "hint": "Te interfejsy API są w trakcie opracowywania. Korzystaj z nich na własne ryzyko."
     },
     "schema": {
       "name": "Wersja schematu",
