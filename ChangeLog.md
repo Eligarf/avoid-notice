@@ -5,6 +5,7 @@
 - Added opt-in game setting to allow stealth initiative rolls to apply against allies.
 - Added opt-in game setting to disable writing stealth summaries to initiative cards.
 - Added opt-in advanced game setting to use Visioner bulk API
+- Update Polish Translation (thanks Lioheart)
 
 # v13.4.1
 
