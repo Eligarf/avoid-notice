@@ -16,21 +16,17 @@ export function findBaseCoverBonus(avoider) {
   return baseCoverBonus;
 }
 
-export function getRelativeCover({
-  avoider,
-  otherToken,
-  computeCover,
-  perceptionApi,
-  perceptionData,
-  visionerApi,
-}) {
+export function getRelativeCover({ api, options, otherToken }) {
   let cover = "na";
-  if (perceptionApi) {
-    cover = computeCover
-      ? perceptionApi.token.getCover(avoider.token._object, otherToken._object)
-      : perceptionData?.[otherToken.id]?.cover;
-  } else if (visionerApi) {
-    cover = visionerApi.getCover(otherToken.id, avoider.token.id);
+  if (api.perceptionApi) {
+    cover = options.computeCover
+      ? api.perceptionApi.token.getCover(
+          api.avoider.token._object,
+          otherToken._object,
+        )
+      : api.perceptionData?.[otherToken.id]?.cover;
+  } else if (api.visionerApi) {
+    cover = api.visionerApi.getCover(otherToken.id, api.avoider.token.id);
   }
 
   let coverBonus = -1;

@@ -35,6 +35,14 @@
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
       "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
+    "noSummary": {
+      "name": "Disable chat card summaries",
+      "hint": "Will skip updating the initiative card with stealth results"
+    },
+    "hideFromAllies": {
+      "name": "Apply stealth results to allies",
+      "hint": "If enabled, stealth will be applied against both allied and non-allied tokens"
+    },
     "visibilityHandler": {
       "name": "Visibility Handler",
       "auto": "Auto: PF2e Visioner > PF2e Perception",
@@ -66,6 +74,10 @@
     "clearMovement": {
       "name": "Clear movement history at turn end",
       "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
+    },
+    "useBulkApi": {
+      "name": "Use Visioner Bulk APIs",
+      "hint": "These APIs are under development. Use at your own risk"
     },
     "schema": {
       "name": "Schema Version",

@@ -35,6 +35,14 @@
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
+    "noSummary": {
+      "name": "Disable chat card summaries",
+      "hint": "Will skip updating the initiative card with stealth results"
+    },
+    "hideFromAllies": {
+      "name": "Apply stealth results to allies",
+      "hint": "If enabled, stealth will be applied against both allied and non-allied tokens"
+    },
     "visibilityHandler": {
       "name": "Obsługa widoczności",
       "auto": "Auto: PF2e Visioner > PF2e Perception",
@@ -66,6 +74,10 @@
     "clearMovement": {
       "name": "Wyczyść historię ruchu po zakończeniu tury",
       "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."
+    },
+    "useBulkApi": {
+      "name": "Use Visioner Bulk APIs",
+      "hint": "These APIs are under development. Use at your own risk"
     },
     "schema": {
       "name": "Wersja schematu",

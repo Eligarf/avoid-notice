@@ -2,17 +2,15 @@ import { MODULE_ID, CONSOLE_COLORS } from "./const.js";
 import {
   isVisionerActive,
   getVisionerApi,
-  clearVisionerData,
+  refreshVisionerPerception,
 } from "./visioner.js";
 import { isPerceptiveActive } from "./perceptive.js";
 import {
   isPerceptionActive,
-  getPerceptionApi,
-  clearPerceptionData,
   clearPf2ePerceptionFlags,
 } from "./pf2e_perception.js";
-import { registerHooksForClearMovementHistory } from "./clearMovement.js";
-import { clearPartyStealth, clearTokenStealth } from "./clearStealth.js";
+import { registerHooksForClearMovementHistory } from "./clear-movement.js";
+import { clearPartyStealth, clearTokenStealth } from "./clear-stealth.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
@@ -40,6 +38,11 @@ export function getVisibilityHandler() {
     // else if (isPerceptiveActive()) visibilityHandler = "perceptive";
   }
   return visibilityHandler;
+}
+
+export function refreshPerception() {
+  const handler = getVisibilityHandler();
+  if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
 }
 
 Hooks.once("init", () => {
@@ -139,6 +142,24 @@ Hooks.once("setup", () => {
   game.settings.register(MODULE_ID, "removeGmHidden", {
     name: game.i18n.localize(`${MODULE_ID}.removeGmHidden.name`),
     hint: game.i18n.localize(`${MODULE_ID}.removeGmHidden.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, "hideFromAllies", {
+    name: game.i18n.localize(`${MODULE_ID}.hideFromAllies.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.hideFromAllies.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
+  game.settings.register(MODULE_ID, "noSummary", {
+    name: game.i18n.localize(`${MODULE_ID}.noSummary.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.noSummary.hint`),
     scope: "world",
     config: true,
     type: Boolean,
@@ -247,6 +268,15 @@ Hooks.once("setup", () => {
       log: game.i18n.localize(`${MODULE_ID}.logLevel.log`),
     },
     default: "none",
+  });
+
+  game.settings.register(MODULE_ID, "useBulkApi", {
+    name: game.i18n.localize(`${MODULE_ID}.useBulkApi.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.useBulkApi.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register(MODULE_ID, "schema", {
