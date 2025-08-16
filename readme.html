@@ -1,0 +1,174 @@
+<p>
+  A module that shows results of initiative stealth check vs combatant
+  perception DCs on the initiative messages when <em>Begin Encounter</em> is
+  clicked.
+</p>
+<p>
+  The term <em>Avoider</em> refers to any combatant that should get hide checks
+  at start of combat. These are:
+</p>
+<ul>
+  <li>
+    PC&#39;s with <code>Avoid Notice</code> as an active exploration activity.
+  </li>
+  <li>
+    PC&#39;s with stealth selected for initiative if the game settings don&#39;t
+    require <code>Avoid Notice</code> to be active
+  </li>
+  <li>NPCs that are using stealth for initiative</li>
+</ul>
+<h2 id="initiative-messages">Initiative messages</h2>
+<p>
+  When <em>Begin Encounter</em> is clicked on the combat tracker, this module
+  checks the initiative value for the avoider against its non-allied combatants
+  and appends GM-only information to its initiative roll message, grouped by
+  detection status: <code>Unnoticed</code>, <code>Undetected</code>,
+  <code>Hidden</code>, and <code>Observed</code>. The numbers by each listed
+  token in the groups shows the difference between the avoider&#39;s initiative
+  check and the perception DC of that combatants they are hiding from.
+</p>
+<p>
+  One mechanical note: rules-as-written, the
+  <code>Avoid Notice</code> exploration activity must be active for PCs to gain
+  the benefit of using their initiative roll as their sneak check. Usually this
+  is paired with using stealth for initiative, but some advanced character feats
+  might allow other skills to be used for initiative while still hiding. GMs can
+  control whether or not this is a requirement in the game settings.
+</p>
+<p>
+  <img
+    src="https://github.com/Eligarf/avoid-notice/assets/16523503/9d45f113-5078-4972-9110-3c924b0e3c4d"
+    alt="image"
+  />
+</p>
+<p>
+  In the above, <em>Amiri&#39;s</em> initiative roll of 13 was successful
+  against <em>monster</em> and <em>creature</em>, who had perception DC&#39;s of
+  10 and 13 and so <em>Amiri</em> is <code>Undetected</code> by them. The roll
+  was not successful against <em>beast</em> or <em>grumpkin</em>, who in turn
+  had perception DC&#39;s of 17 and 20, so <em>Amiri</em> is only
+  <code>Hidden</code> against them. <em>PF2e Avoid Notice</em> will apply this
+  bonus automatically if the avoider has an
+  <code>Effect: Cover (Standard)</code> or
+  <code>Effect: Cover (Greater)</code> effect on it unless
+  <em>PF2e Perception</em> is active.
+</p>
+<p>
+  An <em>Unnoticed</em> setting controls whether or not to use
+  <code>Unnoticed</code> rather than <code>Undetected</code> for initiative
+  checks that beat both the target&#39;s perception DC and initiative.
+  <code>Undetected</code> is always used if the initiative roll beats the
+  target&#39;s perception DC but doesn&#39;t beat the target&#39;s initiative
+  roll.
+</p>
+<p>
+  <em>Compute Cover at Combat Start</em> will ignore existing cover flags at
+  combat start and use the visibility handler to calculate new ones for each
+  avoider token per token they are testing against. This setting is ignored if
+  the chose visibility handler doesn&#39;t have the capability.
+</p>
+<p>
+  <em>PF2e Avoid Notice</em> also can remove the GM hidden states of combatants
+  if enabled in the game settings, since forgetting to toggle combatant
+  visibility happens to me far too often.
+</p>
+<p>
+  Initiative sometimes comes from a previous roll like a sneak check or the use
+  of the avoid notice exploration activity in the Basic Action Macros. In these
+  cases, if the GM has chosen to use the &quot;Set as
+  <em>Combatant&#39;s</em>initiative&quot; button on the skill check card, there
+  won&#39;t be an initiative card and the visibility results will be written to
+  the check card instead. It finds it by looking for the latest message from
+  that combatant with a check result that matches the combatant&#39;s initiative
+  roll, so it possible that the visibility result could end up on the wrong card
+  if the combatant has rolled some other kind of check that had the same check
+  value after the designated initiative roll but prior to combat being started.
+</p>
+<h2 id="visibility-modules">Visibility modules</h2>
+<ul>
+  <li>
+    <a href="https://foundryvtt.com/packages/pf2e-visioner">PF2e Visioner</a>:
+    recommended for V13.
+  </li>
+  <li>
+    <a href="https://github.com/reonZ/pf2e-perception">PF2e Perception</a>:
+    recommended for v12. Note that the module is unlisted and not actively
+    maintained.
+  </li>
+  <li>
+    <a href="https://foundryvtt.com/packages/perceptive">Perceptive</a>: works
+    in both V12 and V13, but I don&#39;t currently support this in
+    <em>PF2e Avoid Notice</em> because it has limitations in handling concurrent
+    stealth conditions, and I haven&#39;t worked out how to properly use its
+    API.
+  </li>
+</ul>
+<h2 id="visibility-handling">Visibility Handling</h2>
+<p>
+  This module provides the GM a number of options in the game settings for
+  automating the application of status results at combat start. Note that an
+  avoider might end up with <code>undetected</code>, <code>hidden</code>, and
+  <code>observed</code> on the same roll vs different observers, and
+  target-relative conditions aren&#39;t handled by the base system - you&#39;ll
+  need to use one of the above additional modules for that.
+</p>
+<ul>
+  <li>
+    <em>auto</em>: this default mode will pick <em>PF2e Visioner</em> if active,
+    otherwise it picks <em>PF2e Perception</em> if active.
+  </li>
+  <li><em>disabled</em>: let the GM handle everything.</li>
+  <li>
+    <em>worst</em>: in the absence of target-relative visiblity tracking, use
+    the worst degree-of-success to apply a condition to the avoider (favors the
+    seekers), or;
+  </li>
+  <li><em>best</em>: use the best degree-of-success (favors the sneakers).</li>
+  <li>
+    <em>visioner</em>: The <em>PF2e Visioner</em> module is handles things. V13
+    only.
+  </li>
+  <li>
+    <em>perception</em>: the <em>PF2e Perception</em> module handles things. V12
+    only.
+  </li>
+  <li>
+    <em>perceptive</em>: the <em>Perceptive</em> module handles things.
+    Currently Disabled
+  </li>
+</ul>
+<h1 id="misfit-features">Misfit features</h1>
+<p>
+  These really don&#39;t belong here and should be in some other module(s), but
+  they are handy to me so I&#39;m sharing.
+</p>
+<h2 id="raise-a-shield">Raise a Shield</h2>
+<p>
+  This is an opt-out setting to automatically apply
+  <code>Raise a shield</code> to PCs using <code>Defend</code> at combat start.
+  Full automation requires use of <em>PF2e Toolbelt</em>, wherein you must
+  enable the &#39;Auto Self-Applied&#39; checkbox in the &#39;Actionable&#39;
+  section of its game settings.
+</p>
+<h2 id="autoroll-spell-damage">Autoroll Spell Damage</h2>
+<p>
+  This is an opt-in setting to enable autorolling damage on non-attack spells,
+  which only rolls the damage if the message card from the spell cast has a
+  button with a <code>spell-damage</code> data action when it is created. This
+  works differently from the autoroll feature of <em>PF2e Workbench</em> since
+  it immediately rolls the damage and doesn&#39;t wait for a saving throw roll
+  to trigger the automatic damage roll. It is off by default to avoid upsetting
+  GMs who want to hide more rolls, but I heartily recommend it.
+</p>
+<h2 id="rage">Rage</h2>
+<p>
+  This is an opt-in setting to automate Barbarians with
+  <code>Quick-Tempered</code> so they automatically enter <code>Rage</code> at
+  combat start. The <code>Rage</code> action will be ignored if it doesn&#39;t
+  have a self-applied effect.
+</p>
+<h2 id="clear-movement-history">Clear Movement History</h2>
+<p>
+  Foundry v13 only. This opt-in setting will clear a token&#39;s movement
+  history when it ends its turn in combat.
+</p>
