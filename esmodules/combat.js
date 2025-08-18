@@ -15,7 +15,7 @@ import {
 } from "./vanilla.js";
 import { enrageBarbarians } from "./barbarian.js";
 import { raiseDefendingShields } from "./defender.js";
-import { modifyInitiativeCard } from "./initiative.js";
+import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./clear-stealth.js";
 import { makeObservation } from "./observation-logic.js";
@@ -106,9 +106,11 @@ Hooks.once("init", () => {
     for (const avoider of avoiders) {
       // log("avoider", avoider);
 
-      const initiativeRoll = avoider.initiative;
-      const initiativeDosDelta =
-        initiativeRoll == 1 ? -1 : initiativeRoll == 20 ? 1 : 0;
+      const initiativeCard = await findInitiativeCard(avoider);
+      const rolls = initiativeCard?.rolls;
+      const dice = rolls?.[0]?.dice;
+      const rawRoll = dice?.[0]?.total;
+      const initiativeDosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
 
       const disposition = avoider.token.disposition;
       const others = encounter.combatants.contents

@@ -1,3 +1,7 @@
+# v13.5.2
+
+- Fix error detecting natural 1s and 20s on intiative rolls
+
 # v13.5.1
 
 - Fix error when hazards are included in initiative list
