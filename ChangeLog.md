@@ -1,6 +1,6 @@
 # v13.5.2
 
-- Fix error detecting natural 1s and 20s on intiative rolls
+- Fix error detecting natural 1s and 20s on initiative rolls
 
 # v13.5.1
 
