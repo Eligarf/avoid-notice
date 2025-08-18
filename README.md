@@ -17,6 +17,12 @@ The term _Avoider_ refers to any combatant that should get hide checks at start 
 - PC's with stealth selected for initiative if the game settings don't require `Avoid Notice` to be active
 - NPCs that are using stealth for initiative
 
+## What the module doesn't do
+
+The module was written with the perspective that the Foundry canvas probably doesn't have all the details, and oversharing is worse than undersharing. When it mechanically checks the various stealth results against the perspective DCs, it makes the broad assumption that the GM doesn't allow someone to avoid notice if it isn't appropriate to the situation, like standing next to an enemy, in an open doorway, or in the middle of a forest clearing with nothing to hide behind. Likewise, it doesn't verify that proper concealment/cover has been achieved for each pair-wise avoider/observer - this is something that will be validated by the GM given their table rules, level of Foundry strictness vs handwaving, etc.
+
+I judge that having a GM show things that shouldn't have been hidden has less impact on the encounter meta than the GM trying to hide things after they've been shown.
+
 ## Initiative messages
 
 When _Begin Encounter_ is clicked on the combat tracker, this module checks the initiative value for the avoider against its non-allied combatants and appends GM-only information to its initiative roll message, grouped by detection status: `Unnoticed`, `Undetected`, `Hidden`, and `Observed`. The numbers by each listed token in the groups shows the difference between the avoider's initiative check and the perception DC of that combatants they are hiding from.
