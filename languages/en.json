@@ -35,6 +35,10 @@
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
       "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
+    "strict": {
+      "name": "Strict Mode",
+      "hint": "Not recommended, likely won't respond to any bug reports related to something showing up that shouldn't have. Require avoiding tokens to have explicit cover or concealment conditions from observing tokens in order to become hidden or undetected from them. Not recommended, likely won't respond to any bugs related to something showing up that shouldn't have"
+    },
     "noSummary": {
       "name": "Disable chat card summaries",
       "hint": "Will skip updating the initiative card with stealth results"

@@ -1,5 +1,11 @@
 import { MODULE_ID, CONSOLE_COLORS } from "./const.js";
 import {
+  SETTINGS,
+  setupSettings,
+  setupKeybindings,
+  groupSettings,
+} from "./settings.js";
+import {
   isVisionerActive,
   getVisionerApi,
   refreshVisionerPerception,
@@ -10,14 +16,13 @@ import {
   clearPf2ePerceptionFlags,
 } from "./pf2e_perception.js";
 import { registerHooksForClearMovementHistory } from "./clear-movement.js";
-import { clearPartyStealth, clearTokenStealth } from "./clear-stealth.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
 }
 
 export function log(format, ...args) {
-  const level = game.settings.get(MODULE_ID, "logLevel");
+  const level = game.settings.get(MODULE_ID, SETTINGS.logLevel);
   if (level !== "none") {
     if (level === "debug") console.debug(...colorizeOutput(format, ...args));
     else if (level === "log") console.log(...colorizeOutput(format, ...args));
@@ -31,7 +36,10 @@ export function interpolateString(str, interpolations) {
 }
 
 export function getVisibilityHandler() {
-  let visibilityHandler = game.settings.get(MODULE_ID, "visibilityHandler");
+  let visibilityHandler = game.settings.get(
+    MODULE_ID,
+    SETTINGS.visibilityHandler,
+  );
   if (visibilityHandler === "auto") {
     if (isVisionerActive()) visibilityHandler = "visioner";
     else if (isPerceptionActive()) visibilityHandler = "perception";
@@ -48,7 +56,7 @@ export function refreshPerception() {
 Hooks.once("init", () => {
   Hooks.on("createChatMessage", async (message, options, id) => {
     if (game.userId != id) return;
-    if (!game.settings.get(MODULE_ID, "autorollSpellDamage")) return;
+    if (!game.settings.get(MODULE_ID, SETTINGS.autorollSpellDamage)) return;
     const pf2eFlags = message?.flags?.pf2e;
 
     // Accept only spell casting of non-attack damaging spells
@@ -67,27 +75,7 @@ Hooks.once("init", () => {
     origin?.rollDamage({ target: message.token });
   });
 
-  game.keybindings.register(MODULE_ID, "clearStealth", {
-    name: `${MODULE_ID}.clearStealth.name`,
-    hint: `${MODULE_ID}.clearStealth.hint`,
-    editable: [],
-    onDown: async () => {
-      const selectedTokens = canvas.tokens.controlled;
-      for (const token of selectedTokens) {
-        await clearTokenStealth({ token, showBanner: true });
-      }
-    },
-  });
-
-  game.keybindings.register(MODULE_ID, "clearPartyStealth", {
-    name: `${MODULE_ID}.clearPartyStealth.name`,
-    hint: `${MODULE_ID}.clearPartyStealth.hint`,
-    editable: [],
-    restricted: true,
-    onDown: async () => {
-      await clearPartyStealth({ showBanner: true });
-    },
-  });
+  setupKeybindings();
 });
 
 function migrate(moduleVersion, oldVersion) {
@@ -101,13 +89,16 @@ function migrate(moduleVersion, oldVersion) {
 
 Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
-  const visibilityHandler = game.settings.get(MODULE_ID, "visibilityHandler");
+  const visibilityHandler = game.settings.get(
+    MODULE_ID,
+    SETTINGS.visibilityHandler,
+  );
   if (
     (visibilityHandler === "perception" && !isPerceptionActive()) ||
     (visibilityHandler === "perceptive" && !isPerceptiveActive()) ||
     (visibilityHandler === "visioner" && !isVisionerActive())
   ) {
-    game.settings.set(MODULE_ID, "visibilityHandler", "auto");
+    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "auto");
   }
 
   if (isPerceptionActive()) {
@@ -130,158 +121,11 @@ Hooks.once("setup", () => {
   const module = game.modules.get(MODULE_ID);
   const moduleVersion = module.version;
 
-  game.settings.register(MODULE_ID, "useUnnoticed", {
-    name: game.i18n.localize(`${MODULE_ID}.useUnnoticed.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.useUnnoticed.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
+  setupSettings();
 
-  game.settings.register(MODULE_ID, "removeGmHidden", {
-    name: game.i18n.localize(`${MODULE_ID}.removeGmHidden.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.removeGmHidden.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "hideFromAllies", {
-    name: game.i18n.localize(`${MODULE_ID}.hideFromAllies.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.hideFromAllies.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "noSummary", {
-    name: game.i18n.localize(`${MODULE_ID}.noSummary.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.noSummary.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "requireActivity", {
-    name: game.i18n.localize(`${MODULE_ID}.requireActivity.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.requireActivity.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
-  const perception = isPerceptionActive();
-  const perceptive = isPerceptiveActive();
-  const visioner = isVisionerActive();
-
-  let choices = {
-    auto: `${MODULE_ID}.visibilityHandler.auto`,
-    disabled: `${MODULE_ID}.visibilityHandler.disabled`,
-    best: `${MODULE_ID}.visibilityHandler.best`,
-    worst: `${MODULE_ID}.visibilityHandler.worst`,
-  };
-  if (visioner) choices.visioner = `${MODULE_ID}.visibilityHandler.visioner`;
-  if (perception)
-    choices.perception = `${MODULE_ID}.visibilityHandler.perception`;
-  if (perceptive)
-    choices.perceptive = `${MODULE_ID}.visibilityHandler.perceptive`;
-
-  game.settings.register(MODULE_ID, "visibilityHandler", {
-    name: game.i18n.localize(`${MODULE_ID}.visibilityHandler.name`),
-    scope: "world",
-    config: true,
-    type: String,
-    choices,
-    default: "auto",
-  });
-
-  game.settings.register(MODULE_ID, "computeCover", {
-    name: game.i18n.localize(`${MODULE_ID}.computeCover.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.computeCover.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "clearPartyStealthAfterCombat", {
-    name: game.i18n.localize(`${MODULE_ID}.clearPartyStealthAfterCombat.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.clearPartyStealthAfterCombat.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "raiseShields", {
-    name: game.i18n.localize(`${MODULE_ID}.raiseShields.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.raiseShields.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
-  game.settings.register(MODULE_ID, "autorollSpellDamage", {
-    name: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.autorollSpellDamage.hint`),
-    scope: "client",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "rage", {
-    name: game.i18n.localize(`${MODULE_ID}.rage.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.rage.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  const beforeV13 = Number(game.version.split()[0]) < 13;
-  if (!beforeV13) {
-    game.settings.register(MODULE_ID, "clearMovement", {
-      name: game.i18n.localize(`${MODULE_ID}.clearMovement.name`),
-      hint: game.i18n.localize(`${MODULE_ID}.clearMovement.hint`),
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: false,
-    });
-  }
-
-  game.settings.register(MODULE_ID, "logLevel", {
-    name: game.i18n.localize(`${MODULE_ID}.logLevel.name`),
-    scope: "client",
-    config: true,
-    type: String,
-    choices: {
-      none: game.i18n.localize(`${MODULE_ID}.logLevel.none`),
-      debug: game.i18n.localize(`${MODULE_ID}.logLevel.debug`),
-      log: game.i18n.localize(`${MODULE_ID}.logLevel.log`),
-    },
-    default: "none",
-  });
-
-  game.settings.register(MODULE_ID, "useBulkApi", {
-    name: game.i18n.localize(`${MODULE_ID}.useBulkApi.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.useBulkApi.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, "schema", {
-    name: game.i18n.localize(`${MODULE_ID}.schema.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.schema.hint`),
+  game.settings.register(MODULE_ID, SETTINGS.schema, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.schema}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.schema}.hint`),
     scope: "world",
     config: true,
     type: String,
@@ -289,16 +133,17 @@ Hooks.once("setup", () => {
     onChange: (value) => {
       const newValue = migrate(moduleVersion, value);
       if (value != newValue) {
-        game.settings.set(MODULE_ID, "schema", newValue);
+        game.settings.set(MODULE_ID, SETTINGS.schema, newValue);
       }
     },
   });
-  const schemaVersion = game.settings.get(MODULE_ID, "schema");
+
+  const schemaVersion = game.settings.get(MODULE_ID, SETTINGS.schema);
   if (schemaVersion !== moduleVersion) {
     Hooks.once("ready", () => {
       game.settings.set(
         MODULE_ID,
-        "schema",
+        SETTINGS.schema,
         migrate(moduleVersion, schemaVersion),
       );
     });
@@ -308,19 +153,5 @@ Hooks.once("setup", () => {
 });
 
 Hooks.on("renderSettingsConfig", (app, html, data) => {
-  const sections = [
-    { label: "general", before: "useUnnoticed" },
-    { label: "misfits", before: "raiseShields" },
-    { label: "debug", before: "logLevel" },
-  ];
-  for (const section of sections) {
-    $("<div>")
-      .addClass("form-group group-header")
-      .html(game.i18n.localize(`${MODULE_ID}.config.${section.label}`))
-      .insertBefore(
-        $(`[name="${MODULE_ID}.${section.before}"]`).parents(
-          "div.form-group:first",
-        ),
-      );
-  }
+  groupSettings();
 });

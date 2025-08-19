@@ -1,4 +1,4 @@
-import { interpolateString } from "./main.js";
+import { log, interpolateString } from "./main.js";
 
 export function renderInitiativeDice(roll) {
   let content = `

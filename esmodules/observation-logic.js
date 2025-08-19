@@ -1,28 +1,39 @@
 import { MODULE_ID } from "./const.js";
-import { getRelativeCover } from "./cover.js";
+import { log } from "./main.js";
+import { getRelativeCover, getRelativeConcealment } from "./cover.js";
 
 export function makeObservation({
   avoiderApi,
   options,
-  otherToken,
-  otherTokenDoc,
-  otherActor,
+  otherToken: observerToken,
+  otherTokenDoc: observerTokenDoc,
+  otherActor: observerActor,
 }) {
   let observation = {
-    dc: otherActor.system.perception.dc,
-    name: otherTokenDoc.name,
-    observerId: otherToken.id,
-    tokenDoc: otherTokenDoc,
+    dc: observerActor.system.perception.dc,
+    name: observerTokenDoc.name,
+    observerId: observerToken.id,
+    tokenDoc: observerTokenDoc,
+    coverOrConcealment: !options.strict,
   };
 
   let coverBonus = getRelativeCover({
     api: avoiderApi,
     options,
-    otherToken,
+    observerToken,
   });
-  if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
 
-  // We give priority to relative cover over the base cover effect
+  if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
+  if (!observation.coverOrConcealment) {
+    observation.coverOrConcealment =
+      coverBonus > 1
+        ? true
+        : getRelativeConcealment({
+            api: avoiderApi,
+            options,
+            observerToken,
+          });
+  }
 
   if (coverBonus > 0) {
     const oldDelta = avoiderApi.avoider.initiative - observation.dc;
@@ -42,7 +53,8 @@ export function makeObservation({
   const dos =
     avoiderApi.initiativeDosDelta +
     (delta < -9 ? 0 : delta < 0 ? 1 : delta < 9 ? 2 : 3);
-  if (dos < 1) {
+
+  if (dos < 1 || !observation.coverOrConcealment) {
     observation.success = false;
     observation.result = "observed";
     observation.delta = `${delta}`;

@@ -1,4 +1,5 @@
 import { MODULE_ID } from "./const.js";
+import { SETTINGS } from "./settings.js";
 import { log, getVisibilityHandler, refreshPerception } from "./main.js";
 import { getVisionerApi, processObservationsForVisioner } from "./visioner.js";
 import {
@@ -33,15 +34,15 @@ Hooks.once("init", () => {
 
     const options = {
       useUnnoticed:
-        !visionerApi && game.settings.get(MODULE_ID, "useUnnoticed"),
-      computeCover: game.settings.get(MODULE_ID, "computeCover"),
-      revealTokens: game.settings.get(MODULE_ID, "removeGmHidden"),
-      raiseShields: game.settings.get(MODULE_ID, "raiseShields"),
-      requireActivity: game.settings.get(MODULE_ID, "requireActivity"),
-      hideFromAllies: game.settings.get(MODULE_ID, "hideFromAllies"),
-      rage: game.settings.get(MODULE_ID, "rage"),
+        !visionerApi && game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
+      computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
+      revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
+      strict: game.settings.get(MODULE_ID, SETTINGS.strict),
+      raiseShields: game.settings.get(MODULE_ID, SETTINGS.raiseShields),
+      requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
+      hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
+      rage: game.settings.get(MODULE_ID, SETTINGS.rage),
     };
-    log("options", options);
 
     const beforeV13 = Number(game.version.split()[0]) < 13;
 
@@ -183,7 +184,7 @@ Hooks.once("init", () => {
     // the result structure and build the messages for each affected chat card, as well
     // as the calls we need to do for the visibility manager
     //
-    if (!game.settings.get(MODULE_ID, "noSummary"))
+    if (!game.settings.get(MODULE_ID, SETTINGS.noSummary))
       await renderStatus(observations);
 
     // Raise the shields
@@ -254,7 +255,7 @@ Hooks.once("init", () => {
   Hooks.on("deleteCombat", async () => {
     const cleanUp = game.settings.get(
       MODULE_ID,
-      "clearPartyStealthAfterCombat",
+      SETTINGS.clearPartyStealthAfterCombat,
     );
     if (cleanUp) clearPartyStealth({ showBanner: false });
   });

@@ -1,5 +1,6 @@
 import { log } from "./main.js";
 import { MODULE_ID } from "./const.js";
+import { SETTINGS } from "./settings.js";
 
 export const VISIONER_ID = "pf2e-visioner";
 
@@ -74,7 +75,6 @@ async function processBulkObservationsForVisioner(visionerApi, observations) {
       });
     }
   }
-  log("updates", updates);
   if (updates.length > 0) await visionerApi.bulkSetVisibility(updates);
 }
 
@@ -82,7 +82,7 @@ export async function processObservationsForVisioner(observations) {
   const visionerApi = getVisionerApi();
 
   // If we are in bulk mode, use that instead
-  const useBulkApi = game.settings.get(MODULE_ID, "useBulkApi");
+  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
   if (useBulkApi && "bulkSetVisibility" in visionerApi) {
     return await processBulkObservationsForVisioner(visionerApi, observations);
   }
