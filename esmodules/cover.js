@@ -15,7 +15,7 @@ export function findBaseCoverBonus(avoider) {
   return baseCoverBonus;
 }
 
-export function getRelativeCover({ api, options, observerToken }) {
+export function getCoverFrom({ api, options, observerToken }) {
   let cover = "na";
   if (api.perceptionApi) {
     cover = options.computeCover
@@ -51,7 +51,7 @@ export function getRelativeCover({ api, options, observerToken }) {
   return coverBonus;
 }
 
-export function getRelativeConcealment({ api, options, observerToken }) {
+export function isConcealedFrom({ api, options, observerToken }) {
   if (api.visionerApi) {
     const visibility = api.visionerApi.getVisibility(
       observerToken.id,

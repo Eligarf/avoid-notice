@@ -1,6 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { log } from "./main.js";
-import { getRelativeCover, getRelativeConcealment } from "./cover.js";
+import { getCoverFrom, isConcealedFrom } from "./cover.js";
 
 export function makeObservation({
   avoiderApi,
@@ -17,7 +17,7 @@ export function makeObservation({
     coverOrConcealment: !options.strict,
   };
 
-  let coverBonus = getRelativeCover({
+  let coverBonus = getCoverFrom({
     api: avoiderApi,
     options,
     observerToken,
@@ -28,7 +28,7 @@ export function makeObservation({
     observation.coverOrConcealment =
       coverBonus > 1
         ? true
-        : getRelativeConcealment({
+        : isConcealedFrom({
             api: avoiderApi,
             options,
             observerToken,
@@ -52,7 +52,7 @@ export function makeObservation({
   const delta = avoiderApi.avoider.initiative + coverBonus - observation.dc;
   const dos =
     avoiderApi.initiativeDosDelta +
-    (delta < -9 ? 0 : delta < 0 ? 1 : delta < 9 ? 2 : 3);
+    (delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2);
 
   if (dos < 1 || !observation.coverOrConcealment) {
     observation.success = false;
