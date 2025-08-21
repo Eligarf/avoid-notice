@@ -13,8 +13,8 @@
       "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy skradania się przewyższa współczynnik percepcji i inicjatywę celu. Jest to ignorowane w przypadku używania PF2e Visioner."
     },
     "removeGmHidden": {
-      "name": "Toggle on GM-Hidden combatants at Combat Start",
-      "hint": "Combatant tokens whose visibility as been toggled off with token HUD will be toggled on. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
+      "name": "Ujawnienie tokenów walczących na początku walki",
+      "hint": "Tokeny walczących z wyłączoną widocznością zostaną ujawnione na początku walki, dzięki czemu wyniki percepcji/ukrycia będą zachowywać się zgodnie z oczekiwaniami."
     },
     "activity": "Aktywność eksploracyjna: {activity}",
     "raiseShields": {
@@ -37,7 +37,7 @@
     },
     "strict": {
       "name": "Tryb ścisły",
-      "hint": "Niezalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związanych z pojawieniem się czegoś, co nie powinno się pojawić. Wymagaj, aby tokeny unikające miały wyraźny stan osłony lub ukrycia względem tokenów obserwujących, aby stały się niewidoczne lub niewykrywalne dla tych tokenów."
+      "hint": "Nie zalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związane z pojawieniem się czegoś, co nie powinno się pojawić. Wymagaj, aby tokeny unikające miały wyraźne stany zakrycia lub przysłonięcia przed tokenami obserwującymi, aby stały się niewidoczne lub niewykrywalne dla nich."
     },
     "noSummary": {
       "name": "Wyłącz podsumowania kart czatu",
