@@ -1,3 +1,7 @@
+# v13.6.3
+
+- Remove warning notification on player clients when clearing stealth for party at combat end.
+
 # v13.6.2
 
 - Use the bulk API switch to also control routing the clear stealth functions for visioner into its specific API call if enabled. Don't enable it unless you are testing functionality as these Visioner APIs are still baking.

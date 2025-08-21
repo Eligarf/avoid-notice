@@ -77,7 +77,9 @@ export async function clearVisionerData({
   if (refresh) refreshVisionerPerception(visionerApi);
 }
 
-async function processBulkObservationsForVisioner(visionerApi, observations) {
+export async function processObservationsForVisioner(observations) {
+  const visionerApi = getVisionerApi();
+
   let updates = [];
   for (const avoiderId in observations) {
     const { observers } = observations[avoiderId];
@@ -89,28 +91,15 @@ async function processBulkObservationsForVisioner(visionerApi, observations) {
       });
     }
   }
-  if (updates.length > 0) await visionerApi.bulkSetVisibility(updates);
-}
-
-export async function processObservationsForVisioner(observations) {
-  const visionerApi = getVisionerApi();
+  if (!updates.length) return;
 
   // If we are in bulk mode, use that instead
   const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
   if (useBulkApi && "bulkSetVisibility" in visionerApi) {
-    return await processBulkObservationsForVisioner(visionerApi, observations);
-  }
-
-  for (const avoiderId in observations) {
-    const { observers } = observations[avoiderId];
-
-    for (const observerId in observers) {
-      const condition = observers[observerId].observation.visibility;
-      await visionerApi.setVisibility(
-        observerId,
-        avoiderId,
-        condition !== "unnoticed" ? condition : "undetected",
-      );
+    await visionerApi.bulkSetVisibility(updates);
+  } else {
+    for (const { observerId, targetId, state } of updates) {
+      await visionerApi.setVisibility(observerId, targetId, state);
     }
   }
 }

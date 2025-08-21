@@ -262,6 +262,7 @@ Hooks.once("init", () => {
   });
 
   Hooks.on("deleteCombat", async () => {
+    if (!game.user?.isActiveGM) return;
     const cleanUp = game.settings.get(
       MODULE_ID,
       SETTINGS.clearPartyStealthAfterCombat,
