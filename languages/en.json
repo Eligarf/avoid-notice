@@ -37,7 +37,7 @@
     },
     "strict": {
       "name": "Strict Mode",
-      "hint": "Not recommended, likely won't respond to any bug reports related to something showing up that shouldn't have. Require avoiding tokens to have explicit cover or concealment conditions from observing tokens in order to become hidden or undetected from them. Not recommended, likely won't respond to any bugs related to something showing up that shouldn't have"
+      "hint": "Not recommended, likely won't respond to any bug reports related to something showing up that shouldn't have. Require avoiding tokens to have explicit cover or concealment conditions from observing tokens in order to become hidden or undetected from them."
     },
     "noSummary": {
       "name": "Disable chat card summaries",

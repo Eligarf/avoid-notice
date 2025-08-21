@@ -10,25 +10,25 @@ async function updateConditionStatus({ actor, remove = [], add = "" }) {
   await actor.toggleCondition(add, { active: true });
 }
 
-async function updateConditionVsBestDc(avoider, results) {
-  if ("observed" in results) {
+async function updateConditionVsBestDc(avoider, visibilities) {
+  if ("observed" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["hidden", "undetected", "unnoticed"],
     });
-  } else if ("hidden" in results) {
+  } else if ("hidden" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["undetected", "unnoticed"],
       add: "hidden",
     });
-  } else if ("undetected" in results) {
+  } else if ("undetected" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["hidden", "unnoticed"],
       add: "undetected",
     });
-  } else if ("unnoticed" in results) {
+  } else if ("unnoticed" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["hidden", "undetected"],
@@ -37,20 +37,20 @@ async function updateConditionVsBestDc(avoider, results) {
   }
 }
 
-async function updateConditionVsWorstDc(avoider, results) {
-  if ("unnoticed" in results) {
+async function updateConditionVsWorstDc(avoider, visibilities) {
+  if ("unnoticed" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["hidden", "undetected"],
       add: "unnoticed",
     });
-  } else if ("undetected" in results) {
+  } else if ("undetected" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["hidden", "unnoticed"],
       add: "undetected",
     });
-  } else if ("hidden" in results) {
+  } else if ("hidden" in visibilities) {
     await updateConditionStatus({
       actor: avoider.actor,
       remove: ["undetected", "unnoticed"],
@@ -69,15 +69,15 @@ export async function processObservationsForBestDc(observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
 
-    let results = {};
+    let visibilities = {};
     for (const observerId in observers) {
-      const observation = observers[observerId].visibility;
+      const observation = observers[observerId].observation;
 
-      if (!(observation.result in results)) {
-        results[observation.result] = true;
+      if (!(observation.visibility in visibilities)) {
+        visibilities[observation.visibility] = true;
       }
     }
-    await updateConditionVsBestDc(avoider, results);
+    await updateConditionVsBestDc(avoider, visibilities);
   }
 }
 
@@ -86,14 +86,14 @@ export async function processObservationsForWorstDc(observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
 
-    let results = {};
+    let visibilities = {};
     for (const observerId in observers) {
-      const observation = observers[observerId].visibility;
+      const observation = observers[observerId].observation;
 
-      if (!(observation.result in results)) {
-        results[observation.result] = true;
+      if (!(observation.visibility in visibilities)) {
+        visibilities[observation.visibility] = true;
       }
     }
-    await updateConditionVsWorstDc(avoider, results);
+    await updateConditionVsWorstDc(avoider, visibilities);
   }
 }

@@ -37,7 +37,7 @@
     },
     "strict": {
       "name": "Tryb ścisły",
-      "hint": "Niezalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związanych z pojawieniem się czegoś, co nie powinno się pojawić. Wymagaj, aby tokeny unikające miały wyraźny stan osłony lub ukrycia względem tokenów obserwujących, aby stały się niewidoczne lub niewykrywalne dla tych tokenów. Niezalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związanych z pojawieniem się czegoś, co nie powinno się pojawić."
+      "hint": "Niezalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związanych z pojawieniem się czegoś, co nie powinno się pojawić. Wymagaj, aby tokeny unikające miały wyraźny stan osłony lub ukrycia względem tokenów obserwujących, aby stały się niewidoczne lub niewykrywalne dla tych tokenów."
     },
     "noSummary": {
       "name": "Wyłącz podsumowania kart czatu",

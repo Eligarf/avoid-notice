@@ -40,7 +40,7 @@ export function refreshVisionerPerception(visionerApi) {
     visionerApi.refreshEveryonesPerception();
 }
 
-export async function clearVisionerData({
+async function clearVisionerDataHardWay({
   token,
   visionerApi,
   refresh = false,
@@ -59,6 +59,20 @@ export async function clearVisionerData({
   }
 
   await updateBatch({ visionerApi, avoiderId: token.id, observers, batch });
+}
+
+export async function clearVisionerData({
+  token,
+  visionerApi,
+  refresh = false,
+  batch = null,
+}) {
+  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
+  if (!useBulkApi)
+    await clearVisionerDataHardWay({ token, visionerApi, refresh, batch });
+  else {
+    await visionerApi.clearAllDataForSelectedToken(token);
+  }
 
   if (refresh) refreshVisionerPerception(visionerApi);
 }
@@ -71,7 +85,7 @@ async function processBulkObservationsForVisioner(visionerApi, observations) {
       updates.push({
         observerId,
         targetId: avoiderId,
-        state: observers[observerId].visibility.result,
+        state: observers[observerId].observation.visibility,
       });
     }
   }
@@ -91,7 +105,7 @@ export async function processObservationsForVisioner(observations) {
     const { observers } = observations[avoiderId];
 
     for (const observerId in observers) {
-      const condition = observers[observerId].visibility.result;
+      const condition = observers[observerId].observation.visibility;
       await visionerApi.setVisibility(
         observerId,
         avoiderId,

@@ -46,15 +46,15 @@ export async function clearPf2ePerceptionFlags(item, options, userId) {
 
 export async function updatePerception({
   avoiderApi,
-  results,
+  visibilities,
   perceptionUpdate,
 }) {
   const avoiderTokenDoc = avoiderApi.avoiderTokenDoc;
   const perceptionData = avoiderTokenDoc?.flags?.[PF2E_PERCEPTION_ID]?.data;
-  if ("observed" in results) {
+  if ("observed" in visibilities) {
     const beforeV13 = Number(game.version.split()[0]) < 13;
     const remove = beforeV13 ? true : null;
-    for (const result of results.observed) {
+    for (const result of visibilities.observed) {
       if (perceptionData && result.observerId in perceptionData) {
         perceptionUpdate[
           `flags.${PF2E_PERCEPTION_ID}.data.-=${result.observerId}`
@@ -63,8 +63,8 @@ export async function updatePerception({
     }
   }
   for (const visibility of ["hidden", "undetected", "unnoticed"]) {
-    if (!(visibility in results)) continue;
-    for (const result of results[visibility]) {
+    if (!(visibility in visibilities)) continue;
+    for (const result of visibilities[visibility]) {
       if (perceptionData?.[result.observerId]?.visibility !== visibility) {
         perceptionUpdate[
           `flags.${PF2E_PERCEPTION_ID}.data.${result.observerId}.visibility`
@@ -96,8 +96,8 @@ export async function processObservationsForPerception(
 
     // walk through all the observers and group their observations by result
     for (const observerId in observers) {
-      const observation = observers[observerId].visibility;
-      const condition = observation.result;
+      const observation = observers[observerId].observation;
+      const condition = observation.visibility;
       if (condition === "observed") {
         if (perceptionData && observation.observerId in perceptionData) {
           perceptionUpdate[

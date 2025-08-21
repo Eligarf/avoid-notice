@@ -19,7 +19,7 @@ import { raiseDefendingShields } from "./defender.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./clear-stealth.js";
-import { makeObservation } from "./observation-logic.js";
+import { makeObservation, evaluateObservation } from "./observation-logic.js";
 import { renderStatus } from "./render-status.js";
 
 Hooks.once("init", () => {
@@ -114,7 +114,7 @@ Hooks.once("init", () => {
       const initiativeDosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
 
       const disposition = avoider.token.disposition;
-      const others = encounter.combatants.contents
+      const observers = encounter.combatants.contents
         .filter(
           (c) =>
             c.token.disposition !== disposition ||
@@ -130,7 +130,7 @@ Hooks.once("init", () => {
             (t) => !options.hideFromAllies || t.disposition != disposition,
           ),
         );
-      if (!others.length) continue;
+      if (!observers.length) continue;
 
       const isAvoiderToken = beforeV13
         ? avoider.token instanceof Token
@@ -152,30 +152,38 @@ Hooks.once("init", () => {
       observations[avoider.token.id] = { avoiderApi, observers: {} };
       let avoiderSeenBy = observations[avoider.token.id];
 
-      for (const other of others) {
-        const isOtherToken = beforeV13
-          ? other?.token instanceof Token
-          : other?.token instanceof foundry.canvas.placeables.Token;
-        const otherToken = other?.token ?? other;
-        const otherActor = otherToken.actor;
+      for (const observer of observers) {
+        const isObserverToken = beforeV13
+          ? observer?.token instanceof Token
+          : observer?.token instanceof foundry.canvas.placeables.Token;
+        const observerToken = observer?.token ?? observer;
+        const observerActor = observerToken.actor;
 
         // Bail out if we are dealing with a hazard, otherwise make the observation
-        if (otherActor.type === "hazard") continue;
+        if (observerActor.type === "hazard") continue;
 
-        const otherTokenDoc = isOtherToken
-          ? other.token.document
-          : (other?.token ?? other);
+        const observerTokenDoc = isObserverToken
+          ? observer.token.document
+          : (observer?.token ?? observer);
         let observation = makeObservation({
           avoiderApi,
           options,
-          otherToken,
-          otherTokenDoc,
-          otherActor,
+          observer,
+          observerToken,
+          observerTokenDoc,
+          observerActor,
         });
 
-        avoiderSeenBy.observers[observation.observerId] = {
-          visibility: observation,
-        };
+        avoiderSeenBy.observers[observation.observerId] = { observation };
+      }
+    }
+
+    // Now evaluate each observation
+    for (const avoiderId in observations) {
+      const { observers } = observations[avoiderId];
+      for (const observerId in observers) {
+        const observation = observers[observerId].observation;
+        evaluateObservation(observation);
       }
     }
 
@@ -213,18 +221,6 @@ Hooks.once("init", () => {
 
     let tokenUpdates = [];
 
-    // Reveal GM-hidden combatants so that their sneak results can control visibility
-    if (options.revealTokens) {
-      for (const t of unrevealedIds) {
-        let update = tokenUpdates.find((u) => u._id === t);
-        if (update) {
-          update.hidden = false;
-        } else {
-          tokenUpdates.push({ _id: t, hidden: false });
-        }
-      }
-    }
-
     // Adjust the avoider's condition
     switch (visibilityHandler) {
       case "best":
@@ -242,6 +238,19 @@ Hooks.once("init", () => {
       case "visioner":
         await processObservationsForVisioner(observations);
         break;
+    }
+
+    // Reveal GM-hidden combatants so that their sneak results can control visibility
+    // Do this last to avoid any flashes of observability
+    if (options.revealTokens) {
+      for (const t of unrevealedIds) {
+        let update = tokenUpdates.find((u) => u._id === t);
+        if (update) {
+          update.hidden = false;
+        } else {
+          tokenUpdates.push({ _id: t, hidden: false });
+        }
+      }
     }
 
     // Update all the tokens at once, skipping an empty update

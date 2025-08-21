@@ -19,9 +19,9 @@ export async function setPerceptiveCondition({
   type,
   dc,
   formula,
-  results,
+  visibilities,
 }) {
-  // log('tellPerceptive', { token, type, dc, formula, results });
+  // log('tellPerceptive', { token, type, dc, formula, visibilities });
   await perceptiveApi.EffectManager.applyStealthEffects(token, {
     Type: type,
     EffectInfos: { RollFormula: formula },
@@ -30,11 +30,13 @@ export async function setPerceptiveCondition({
     await perceptiveApi.PerceptiveFlags.prepareSpottableToken(
       token,
       { PPDC: -1, APDC: dc, PPDice: dc },
-      "observed" in results ? results.observed.map((o) => o.tokenDoc) : [],
+      "observed" in visibilities
+        ? visibilities.observed.map((o) => o.tokenDoc)
+        : [],
     );
   } else {
-    if ("observed" in results) {
-      for (const o of results.observed) {
+    if ("observed" in visibilities) {
+      for (const o of visibilities.observed) {
         await perceptiveApi.PerceptiveFlags.addSpottedby(token, o.tokenDoc);
       }
     }
@@ -51,12 +53,12 @@ export async function processObservationsForPerceptive(observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
 
-    let results = {};
+    let visibilities = {};
     for (const observerId in observers) {
-      const observation = observers[observerId].visibility;
+      const observation = observers[observerId].observation;
 
-      if (!(observation.result in results)) {
-        results[observation.result] = true;
+      if (!(observation.visibility in visibilities)) {
+        visibilities[observation.visibility] = true;
       }
     }
     const perceptiveApi = avoiderApi.perceptiveApi;
@@ -69,32 +71,32 @@ export async function processObservationsForPerceptive(observations) {
         : avoider.actor.system.skills.stealth.dc;
     let initiativeMessage = await findInitiativeCard(avoider);
 
-    if ("hidden" in results) {
+    if ("hidden" in visibilities) {
       await setPerceptiveCondition({
         perceptiveApi,
         token: avoiderTokenDoc,
         type: "hide",
         dc,
         formula: initiativeMessage.rolls[0].formula,
-        results,
+        visibilities,
       });
-    } else if ("unnoticed" in results) {
+    } else if ("unnoticed" in visibilities) {
       await setPerceptiveCondition({
         perceptiveApi,
         token: avoiderTokenDoc,
         type: "sneak",
         dc,
         formula: initiativeMessage.rolls[0].formula,
-        results,
+        visibilities,
       });
-    } else if ("undetected" in results) {
+    } else if ("undetected" in visibilities) {
       await setPerceptiveCondition({
         perceptiveApi,
         token: avoiderTokenDoc,
         type: "sneak",
         dc,
         formula: initiativeMessage.rolls[0].formula,
-        results,
+        visibilities,
       });
     } else {
       await perceptiveApi.EffectManager.removeStealthEffects(avoiderTokenDoc);

@@ -1,3 +1,10 @@
+# v13.6.2
+
+- Use the bulk API switch to also control routing the clear stealth functions for visioner into its specific API call if enabled. Don't enable it unless you are testing functionality as these Visioner APIs are still baking.
+- Add an exclamation point to delta values on initiative cards when a token is observed due to strict mode.
+- if enabled, reveal GM-hidden encounter tokens last to ensure visibility handlers have had a chance to set the visibility modes.
+- Update Polish Translation (thanks Lioheart)
+
 # v13.6.1
 
 - Fix off-by-one error

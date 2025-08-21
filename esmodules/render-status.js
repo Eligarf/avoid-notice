@@ -11,26 +11,26 @@ export async function renderStatus(observations) {
 
     // walk through all the observers and group their observations by result
     for (const observerId in observers) {
-      const observation = observers[observerId].visibility;
+      const observation = observers[observerId].observation;
 
-      if (!(observation.result in messageData)) {
-        const id = COMPENDIUM_IDS[observation.result];
+      if (!(observation.visibility in messageData)) {
+        const id = COMPENDIUM_IDS[observation.visibility];
         const pack = "pf2e.conditionitems";
         const text = game.i18n.localize(
-          `PF2E.condition.${observation.result}.name`,
+          `PF2E.condition.${observation.visibility}.name`,
         );
         const title = `
         <a class="content-link" draggable="true" data-link data-uuid="Compendium.${pack}.Item.${id}" data-id="${id}" data-type="Item" data-pack="${pack}">
           <i class="fa-solid fa-face-zany"></i>
           ${text}
         </a>`;
-        messageData[observation.result] = {
+        messageData[observation.visibility] = {
           title,
           resultClass: observation.success ? "success" : "failure",
           observers: [observation],
         };
       } else {
-        messageData[observation.result].observers.push(observation);
+        messageData[observation.visibility].observers.push(observation);
       }
     }
 
@@ -70,13 +70,13 @@ export async function renderStatus(observations) {
                   <td id="${MODULE_ID}-name">${observation.name}</td>`;
           if (observation.oldDelta) {
             content += `
-                  <td id="${MODULE_ID}-delta">
+                  <td id="${MODULE_ID}-deltaStr">
                     <span><s>${observation.oldDelta}</s></span>
-                    <span data-tooltip="<div>${observation.tooltip}</div>"> <b>${observation.delta}</b></span>
+                    <span data-tooltip="<div>${observation.tooltip}</div>"> <b>${observation.deltaStr}</b></span>
                   </td>`;
           } else {
             content += `
-                  <td id="${MODULE_ID}-delta">${observation.delta}</td>`;
+                  <td id="${MODULE_ID}-deltaStr">${observation.deltaStr}</td>`;
           }
           content += `
                 </tr>`;

@@ -5,16 +5,18 @@ import { getCoverFrom, isConcealedFrom } from "./cover.js";
 export function makeObservation({
   avoiderApi,
   options,
-  otherToken: observerToken,
-  otherTokenDoc: observerTokenDoc,
-  otherActor: observerActor,
+  observer,
+  observerToken,
+  observerTokenDoc,
+  observerActor,
 }) {
   let observation = {
     dc: observerActor.system.perception.dc,
     name: observerTokenDoc.name,
+    observer,
     observerId: observerToken.id,
     tokenDoc: observerTokenDoc,
-    coverOrConcealment: !options.strict,
+    validAvoidance: !options.strict,
   };
 
   let coverBonus = getCoverFrom({
@@ -24,8 +26,8 @@ export function makeObservation({
   });
 
   if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
-  if (!observation.coverOrConcealment) {
-    observation.coverOrConcealment =
+  if (!observation.validAvoidance) {
+    observation.validAvoidance =
       coverBonus > 1
         ? true
         : isConcealedFrom({
@@ -36,6 +38,7 @@ export function makeObservation({
   }
 
   if (coverBonus > 0) {
+    observation.coverBonus = coverBonus;
     const oldDelta = avoiderApi.avoider.initiative - observation.dc;
     observation.oldDelta = oldDelta < 0 ? `${oldDelta}` : `+${oldDelta}`;
     switch (coverBonus) {
@@ -50,37 +53,43 @@ export function makeObservation({
 
   // Handle critical failing to win at stealth
   const delta = avoiderApi.avoider.initiative + coverBonus - observation.dc;
+  observation.delta = delta;
   const dos =
     avoiderApi.initiativeDosDelta +
     (delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2);
+  observation.degreeOfSuccess = dos;
 
-  if (dos < 1 || !observation.coverOrConcealment) {
-    observation.success = false;
-    observation.result = "observed";
-    observation.delta = `${delta}`;
+  if (dos < 1) {
+    observation.visibility = "observed";
   }
 
   // Normal fail is hidden
   else if (dos < 2) {
-    observation.success = false;
-    const visibility = "hidden";
-    observation.result = visibility;
-    observation.delta = `${delta}`;
+    observation.visibility = "hidden";
   }
 
   // avoider beat the other token at the stealth battle
   else {
-    observation.success = true;
-    let visibility = "undetected";
-    observation.delta = `+${delta}`;
-    if (
+    observation.visibility =
       options.useUnnoticed &&
-      avoiderApi.avoider.initiative > other?.initiative
-    ) {
-      visibility = "unnoticed";
-    }
-    observation.result = visibility;
+      avoiderApi.avoider.initiative > observation.observer?.initiative
+        ? "unnoticed"
+        : "undetected";
   }
 
   return observation;
+}
+
+export function evaluateObservation(observation) {
+  const delta = observation.delta;
+  observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
+
+  if (!observation.validAvoidance) {
+    observation.visibility = "observed";
+    observation.success = false;
+    observation.deltaStr += "!";
+  } else
+    observation.success =
+      observation.visibility !== "observed" &&
+      observation.visibility !== "hidden";
 }
