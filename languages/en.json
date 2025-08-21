@@ -13,8 +13,8 @@
       "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative. This is ignored if using PF2e Visioner"
     },
     "removeGmHidden": {
-      "name": "Reveal combatant tokens at Combat Start",
-      "hint": "Combatant tokens with disabled visibility will be revealed at combat start, allowing perception/stealth results to behave as expected"
+      "name": "Toggle on GM-Hidden combatants at Combat Start",
+      "hint": "Combatant tokens whose visibility as been toggled off with token HUD will be toggled on. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
     },
     "activity": "Exploration Activity: {activity}",
     "raiseShields": {
