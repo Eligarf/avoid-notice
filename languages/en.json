@@ -9,8 +9,8 @@
       "log": "Log level"
     },
     "useUnnoticed": {
-      "name": "Unnoticed",
-      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative. This is ignored if using PF2e Visioner"
+      "name": "Use Unnoticed",
+      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative. combatants unnoticed by all PCs will not get visibility automatically toggled on when using that option. This be treated as 'Undetected' when talking to PF2e Visioner"
     },
     "removeGmHidden": {
       "name": "Toggle on GM-Hidden combatants at Combat Start",

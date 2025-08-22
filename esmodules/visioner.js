@@ -84,10 +84,11 @@ export async function processObservationsForVisioner(observations) {
   for (const avoiderId in observations) {
     const { observers } = observations[avoiderId];
     for (const observerId in observers) {
+      let state = observers[observerId].observation.visibility;
       updates.push({
         observerId,
         targetId: avoiderId,
-        state: observers[observerId].observation.visibility,
+        state: state !== "unnoticed" ? state : "undetected",
       });
     }
   }

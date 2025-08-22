@@ -33,8 +33,7 @@ Hooks.once("init", () => {
       visibilityHandler === "visioner" ? getVisionerApi() : null;
 
     const options = {
-      useUnnoticed:
-        !visionerApi && game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
+      useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
       revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
       strict: game.settings.get(MODULE_ID, SETTINGS.strict),
@@ -77,25 +76,16 @@ Hooks.once("init", () => {
       );
     }
 
-    const familiars = canvas.scene.tokens
+    const familiarTokens = canvas.scene.tokens
       .filter((t) => t?.actor?.system?.master)
       .filter((t) =>
         encounter.combatants.contents.some(
           (c) => c.actor._id == t.actor.system.master.id,
         ),
       );
-    const eidolons = canvas.scene.tokens.filter(
+    const eidolonTokens = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
-    const unrevealedIds = encounter.combatants.contents
-      .map((c) =>
-        (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
-        (beforeV13 && c.token instanceof Token)
-          ? c.token.document
-          : c.token,
-      )
-      .filter((t) => t.hidden && t.actor.type !== "hazard")
-      .map((t) => t.id);
 
     // initialize the aggregators
     let observations = {};
@@ -121,13 +111,13 @@ Hooks.once("init", () => {
             (options.hideFromAllies && c.id !== avoider.id),
         )
         .concat(
-          familiars.filter(
-            (t) => !options.hideFromAllies || t.disposition != disposition,
+          familiarTokens.filter(
+            (t) => options.hideFromAllies || t.disposition != disposition,
           ),
         )
         .concat(
-          eidolons.filter(
-            (t) => !options.hideFromAllies || t.disposition != disposition,
+          eidolonTokens.filter(
+            (t) => options.hideFromAllies || t.disposition != disposition,
           ),
         );
       if (!observers.length) continue;
@@ -183,7 +173,12 @@ Hooks.once("init", () => {
       const { observers } = observations[avoiderId];
       for (const observerId in observers) {
         const observation = observers[observerId].observation;
-        evaluateObservation(observation);
+        evaluateObservation({
+          observation,
+          options,
+          familiarTokens,
+          eidolonTokens,
+        });
       }
     }
 
@@ -243,6 +238,25 @@ Hooks.once("init", () => {
     // Reveal GM-hidden combatants so that their sneak results can control visibility
     // Do this last to avoid any flashes of observability
     if (options.revealTokens) {
+      const pcTokenIds = pcs.map((c) => c.token.id);
+
+      const unrevealedIds = encounter.combatants.contents
+        .map((c) =>
+          (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
+          (beforeV13 && c.token instanceof Token)
+            ? c.token.document
+            : c.token,
+        )
+        .filter((t) => t.hidden && t.actor.type !== "hazard")
+        .map((t) => t.id)
+        .filter((avoiderId) => {
+          if (!options.useUnnoticed) return true;
+          const observers = observations[avoiderId].observers;
+          return pcTokenIds.some(
+            (id) => observers?.[id]?.observation?.visibility !== "unnoticed",
+          );
+        });
+
       for (const t of unrevealedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
         if (update) {

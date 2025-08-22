@@ -80,7 +80,12 @@ export function makeObservation({
   return observation;
 }
 
-export function evaluateObservation(observation) {
+export function evaluateObservation({
+  observation,
+  options,
+  familiarTokens,
+  eidolonTokens,
+}) {
   const delta = observation.delta;
   observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
 
@@ -88,8 +93,16 @@ export function evaluateObservation(observation) {
     observation.visibility = "observed";
     observation.success = false;
     observation.deltaStr += "!";
-  } else
+  } else {
     observation.success =
       observation.visibility !== "observed" &&
       observation.visibility !== "hidden";
+
+    if (options.useUnnoticed && observation.visibility === "undetected") {
+      const observerId = observation.observerId;
+      const familiar = familiarTokens.some((t) => t.id === observerId);
+      const eidolon = eidolonTokens.some((t) => t.id === observerId);
+      if (familiar || eidolon) observation.deltaStr += "?";
+    }
+  }
 }
