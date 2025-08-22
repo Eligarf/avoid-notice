@@ -83,6 +83,10 @@
       "name": "Korzystaj z API Visioner Bulk",
       "hint": "Te interfejsy API są w trakcie opracowywania. Korzystaj z nich na własne ryzyko."
     },
+    "hideTokens": {
+      "name": "Hide selected tokens",
+      "hint": "Toggle visibility off and set initiative to stealth for the selected tokens"
+    },
     "schema": {
       "name": "Wersja schematu",
       "hint": "Ustaw to na poprzednią wersję, aby wymusić migrację danych z określonej wersji do wersji bieżącej."

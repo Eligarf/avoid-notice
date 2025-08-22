@@ -1,3 +1,8 @@
+# v13.7.0
+
+- Add a keybind to toggle visibility for selected NPC token(s) off and set their initiative skill to stealth. Super handy for prepping group of NPCs waiting in ambush if you have 'Toggle on GM-Hidden combatants at Combat Start' enabled.
+- Update Polish Translation (thanks Lioheart)
+
 # v13.6.3
 
 - Remove warning notification on player clients when clearing stealth for party at combat end.

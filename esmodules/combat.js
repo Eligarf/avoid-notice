@@ -18,7 +18,7 @@ import { enrageBarbarians } from "./barbarian.js";
 import { raiseDefendingShields } from "./defender.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
-import { clearPartyStealth } from "./clear-stealth.js";
+import { clearPartyStealth } from "./stealth.js";
 import { makeObservation, evaluateObservation } from "./observation-logic.js";
 import { renderStatus } from "./render-status.js";
 

@@ -2,12 +2,12 @@ import { MODULE_ID } from "./const.js";
 import { isVisionerActive } from "./visioner.js";
 import { isPerceptiveActive } from "./perceptive.js";
 import { isPerceptionActive } from "./pf2e_perception.js";
-import { clearPartyStealth, clearTokenStealth } from "./clear-stealth.js";
+import { clearPartyStealth, clearTokenStealth } from "./stealth.js";
+import { hideTokens } from "./stealth.js";
 
 export const SETTINGS = {
-  clearPartyStealth: "clearPartyStealth",
+  // General settings
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
-  clearStealth: "clearStealth",
   computeCover: "computeCover",
   hideFromAllies: "hideFromAllies",
   noSummary: "noSummary",
@@ -17,14 +17,21 @@ export const SETTINGS = {
   useUnnoticed: "useUnnoticed",
   visibilityHandler: "visibilityHandler",
 
+  // Misfit settings
   autorollSpellDamage: "autorollSpellDamage",
   clearMovement: "clearMovement",
   rage: "rage",
   raiseShields: "raiseShields",
 
+  // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
   useBulkApi: "useBulkApi",
+
+  // keybindings
+  clearPartyStealth: "clearPartyStealth",
+  clearStealth: "clearStealth",
+  hideTokens: "hideTokens",
 };
 
 export function setupSettings() {
@@ -222,6 +229,17 @@ export function setupKeybindings() {
     restricted: true,
     onDown: async () => {
       await clearPartyStealth({ showBanner: true });
+    },
+  });
+
+  game.keybindings.register(MODULE_ID, SETTINGS.hideTokens, {
+    name: `${MODULE_ID}.${SETTINGS.hideTokens}.name`,
+    hint: `${MODULE_ID}.${SETTINGS.hideTokens}.hint`,
+    editable: [],
+    restricted: true,
+    onDown: async () => {
+      const selectedTokens = canvas.tokens.controlled;
+      await hideTokens(selectedTokens);
     },
   });
 }

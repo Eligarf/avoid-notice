@@ -83,6 +83,10 @@
       "name": "Use Visioner Bulk APIs",
       "hint": "These APIs are under development. Use at your own risk"
     },
+    "hideTokens": {
+      "name": "Hide selected tokens",
+      "hint": "Toggle visibility off and set initiative to stealth for the selected tokens"
+    },
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"

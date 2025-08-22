@@ -58,3 +58,18 @@ export async function clearPartyStealth({ showBanner = false }) {
     );
   }
 }
+
+export async function hideTokens(tokens) {
+  let tokenUpdates = [];
+
+  for (const token of tokens) {
+    tokenUpdates.push({ _id: token.id, hidden: true });
+    const actor = token?.actor;
+    if (!actor) continue;
+    await actor.update({ "system.initiative.statistic": "stealth" });
+  }
+
+  if (tokenUpdates.length > 0) {
+    canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
+  }
+}
