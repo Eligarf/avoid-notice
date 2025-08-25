@@ -1,3 +1,7 @@
+# v13.7.2
+
+- Update Polish Translation (thanks Lioheart)
+
 # v13.7.1
 
 - Some tweaks to `Use Unnoticed` option
