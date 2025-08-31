@@ -111,10 +111,10 @@ Hooks.once("ready", () => {
     });
   }
 
-  const beforeV13 = Number(game.version.split()[0]) < 13;
-  if (!beforeV13) {
-    registerHooksForClearMovementHistory();
-  }
+  const splitVersion = game.version.split();
+  const clearMovement =
+    Number(splitVersion[0]) === 13 && Number(splitVersion[1]) < 347;
+  if (clearMovement) registerHooksForClearMovementHistory();
 });
 
 Hooks.once("setup", () => {

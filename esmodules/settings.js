@@ -168,8 +168,10 @@ export function setupSettings() {
     default: false,
   });
 
-  const beforeV13 = Number(game.version.split()[0]) < 13;
-  if (!beforeV13) {
+  const splitVersion = game.version.split();
+  const clearMovement =
+    Number(splitVersion[0]) === 13 && Number(splitVersion[1]) < 347;
+  if (clearMovement) {
     game.settings.register(MODULE_ID, SETTINGS.clearMovement, {
       name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.clearMovement}.name`),
       hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.clearMovement}.hint`),

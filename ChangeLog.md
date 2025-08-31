@@ -1,3 +1,7 @@
+# v13.7.3
+
+- If running on Foundry 13.347+, deprecate _PF2e Avoid Notice_ game setting to clear movement history at turn end since that is now standard system behavior
+
 # v13.7.2
 
 - Update Polish Translation (thanks Lioheart)
