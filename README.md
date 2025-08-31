@@ -75,7 +75,3 @@ This is an opt-in setting to enable autorolling damage on non-attack spells, whi
 ## Rage
 
 This is an opt-in setting to automate Barbarians with `Quick-Tempered` so they automatically enter `Rage` at combat start. The `Rage` action will be ignored if it doesn't have a self-applied effect.
-
-## Clear Movement History
-
-Foundry v13 only. This opt-in setting will clear a token's movement history when it ends its turn in combat.
