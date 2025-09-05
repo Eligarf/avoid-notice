@@ -67,6 +67,8 @@ export async function hideTokens(tokens) {
     const actor = token?.actor;
     if (!actor) continue;
     await actor.update({ "system.initiative.statistic": "stealth" });
+    if (actor.type === "hazard")
+      await actor.toggleCondition("hidden", { active: true });
   }
 
   if (tokenUpdates.length > 0) {

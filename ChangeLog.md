@@ -1,6 +1,10 @@
+# v13.7.4
+
+- When using the 'Hide selected tokens' keybind, the generic hidden condition will be applied to any selected hazards. This lets _PF2e Visioner_ interact with the hazards as expected.
+
 # v13.7.3
 
-- If running on Foundry 13.347+, deprecate _PF2e Avoid Notice_ game setting to clear movement history at turn end since that is now standard system behavior
+- If running on Foundry 13.347+, deprecate _PF2e Avoid Notice_ game setting to clear movement history at turn end since that is now standard system behavior.
 
 # v13.7.2
 
