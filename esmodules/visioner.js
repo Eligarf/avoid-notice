@@ -108,7 +108,10 @@ export async function processObservationsForVisioner(observations) {
 
 export async function hideLoot() {
   const hiddenLoot = canvas.scene.tokens.filter(
-    (t) => t?.hidden && t?.actor?.type === "loot",
+    (t) =>
+      t?.hidden &&
+      t?.flags?.[VISIONER_ID]?.stealthDC > 0 &&
+      t?.actor?.type === "loot",
   );
   const party = canvas.scene.tokens.filter((t) =>
     game.actors.party.members.some((a) => a.id === t?.actor?.id),

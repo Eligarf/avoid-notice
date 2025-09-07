@@ -1,6 +1,10 @@
+# v13.8.1
+
+- Adjust new keybind to only affect loot tokens that have a stealth DC greater than 0, to avoid messing with tokens that are just hidden for organizational purposes.
+
 # v13.8.0
 
-- Add a keybind to set all foundry-hidden loot tokens on the canvas as hidden to the current party in _PF2e Visioner_. Not as good as prepping before hand, but at least it's a one-button workaround.
+- Add a keybind to set all foundry-hidden loot tokens in the scene as hidden to the current party in _PF2e Visioner_. Not as good as prepping before hand, but at least it's a one-button workaround.
 
 # v13.7.4
 
