@@ -1,9 +1,11 @@
 import { MODULE_ID } from "./const.js";
+import { log, getVisibilityHandler } from "./main.js";
 import { isVisionerActive } from "./visioner.js";
 import { isPerceptiveActive } from "./perceptive.js";
 import { isPerceptionActive } from "./pf2e_perception.js";
 import { clearPartyStealth, clearTokenStealth } from "./stealth.js";
 import { hideTokens } from "./stealth.js";
+import { hideLoot } from "./visioner.js";
 
 export const SETTINGS = {
   // General settings
@@ -32,6 +34,7 @@ export const SETTINGS = {
   clearPartyStealth: "clearPartyStealth",
   clearStealth: "clearStealth",
   hideTokens: "hideTokens",
+  hideLoot: "hideLoot",
 };
 
 export function setupSettings() {
@@ -242,6 +245,17 @@ export function setupKeybindings() {
     onDown: async () => {
       const selectedTokens = canvas.tokens.controlled;
       await hideTokens(selectedTokens);
+    },
+  });
+
+  game.keybindings.register(MODULE_ID, SETTINGS.hideLoot, {
+    name: `${MODULE_ID}.${SETTINGS.hideLoot}.name`,
+    hint: `${MODULE_ID}.${SETTINGS.hideLoot}.hint`,
+    editable: [],
+    restricted: true,
+    onDown: async () => {
+      if (getVisibilityHandler() !== "visioner") return;
+      await hideLoot();
     },
   });
 }

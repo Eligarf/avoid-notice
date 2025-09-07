@@ -87,6 +87,10 @@
       "name": "Hide selected tokens",
       "hint": "Toggle visibility off and set initiative to stealth for the selected tokens"
     },
+    "hideLoot": {
+      "name": "Hide all foundry-hidden loot tokens",
+      "hint": "PF2e Visioner only. Use the visibility manager to set all foundry-hidden loot tokens as hidden to the current party"
+    },
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"

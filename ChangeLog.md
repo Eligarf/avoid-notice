@@ -1,3 +1,7 @@
+# v13.8.0
+
+- Add a keybind to set all foundry-hidden loot tokens on the canvas as hidden to the current party in _PF2e Visioner_. Not as good as prepping before hand, but at least it's a one-button workaround.
+
 # v13.7.4
 
 - When using the 'Hide selected tokens' keybind, the generic hidden condition will be applied to any selected hazards. This lets _PF2e Visioner_ interact with the hazards as expected.

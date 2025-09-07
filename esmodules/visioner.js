@@ -77,9 +77,20 @@ export async function clearVisionerData({
   if (refresh) refreshVisionerPerception(visionerApi);
 }
 
-export async function processObservationsForVisioner(observations) {
+export async function setVisionerData(updates) {
+  if (!updates.length) return;
   const visionerApi = getVisionerApi();
+  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
+  if (useBulkApi && "bulkSetVisibility" in visionerApi) {
+    await visionerApi.bulkSetVisibility(updates);
+  } else {
+    for (const { observerId, targetId, state } of updates) {
+      await visionerApi.setVisibility(observerId, targetId, state);
+    }
+  }
+}
 
+export async function processObservationsForVisioner(observations) {
   let updates = [];
   for (const avoiderId in observations) {
     const { observers } = observations[avoiderId];
@@ -92,15 +103,23 @@ export async function processObservationsForVisioner(observations) {
       });
     }
   }
-  if (!updates.length) return;
+  await setVisionerData(updates);
+}
 
-  // If we are in bulk mode, use that instead
-  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
-  if (useBulkApi && "bulkSetVisibility" in visionerApi) {
-    await visionerApi.bulkSetVisibility(updates);
-  } else {
-    for (const { observerId, targetId, state } of updates) {
-      await visionerApi.setVisibility(observerId, targetId, state);
+export async function hideLoot() {
+  const hiddenLoot = canvas.scene.tokens.filter(
+    (t) => t?.hidden && t?.actor?.type === "loot",
+  );
+  const party = canvas.scene.tokens.filter((t) =>
+    game.actors.party.members.some((a) => a.id === t?.actor?.id),
+  );
+
+  let updates = [];
+  for (const pc of party) {
+    for (const loot of hiddenLoot) {
+      updates.push({ observerId: pc.id, targetId: loot.id, state: "hidden" });
     }
   }
+
+  await setVisionerData(updates);
 }
