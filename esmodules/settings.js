@@ -74,7 +74,6 @@ export function setupSettings() {
     config: !beforeV13,
     type: Boolean,
     default: !beforeV13,
-    requiresReload: true,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {

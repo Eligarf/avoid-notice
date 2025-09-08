@@ -1,6 +1,7 @@
-# v13.9.0
+# 13.9.0
 
-- v13 only. Add an opt-out client game setting to pan/zoom at combat start to include all tokens known to be in combat by that client, ignoring any foundry-hidden tokens, as well as any that are undetected or unnoticed to tokens controlled by that client. Feature requires socketlib.
+- socketlib is now a required module.
+- In v13 only, add an opt-out client game setting to pan/zoom at combat start to include all tokens known to be in combat by that client, ignoring any foundry-hidden tokens, and any that are undetected or unnoticed by tokens controlled by that client.
 
 # v13.8.1
 
@@ -20,7 +21,7 @@
 
 # v13.7.2
 
-- Update Polish Translation (thanks Lioheart)
+- Update Polish Translation (thanks Lioheart).
 
 # v13.7.1
 
@@ -29,12 +30,12 @@
   - Actually put the word 'Use' in the option name.
   - Any `unnoticed` states will be treated as `undetected` when talking to _PF2e Visioner_.
   - Familiar and Eidolon tokens still show as `undetected`, since they don't have initiative rolls, but I'm adding a "?" to the delta string printed for that token on an avoider's initiative card to give a heads up to the GM that maybe it's unnoticed instead.
-  - Fix hide-from-allies filter for familiars and eidolons
+  - Fix hide-from-allies filter for familiars and eidolons.
 
 # v13.7.0
 
 - Add a keybind to toggle visibility for selected NPC token(s) off and set their initiative skill to stealth. Super handy for prepping group of NPCs waiting in ambush if you have `Toggle on GM-Hidden combatants at Combat Start` enabled.
-- Update Polish Translation (thanks Lioheart)
+- Update Polish Translation (thanks Lioheart).
 
 # v13.6.3
 
@@ -45,11 +46,11 @@
 - Use the bulk API switch to also control routing the clear stealth functions for visioner into its specific API call if enabled. Don't enable it unless you are testing functionality as these Visioner APIs are still baking.
 - Add an exclamation point to delta values on initiative cards when a token is observed due to strict mode.
 - if enabled, reveal GM-hidden encounter tokens last to ensure visibility handlers have had a chance to set the visibility modes.
-- Update Polish Translation (thanks Lioheart)
+- Update Polish Translation (thanks Lioheart).
 
 # v13.6.1
 
-- Fix off-by-one error
+- Fix off-by-one error.
 
 # v13.6.0
 
@@ -62,7 +63,7 @@
 
 # v13.5.2
 
-- Fix error detecting natural 1s and 20s on initiative rolls
+- Fix error detecting natural 1s and 20s on initiative rolls.
 
 # v13.5.1
 
