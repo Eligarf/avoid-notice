@@ -1,5 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { log } from "./main.js";
+import { SETTINGS } from "./settings.js";
 
 let socket = null;
 
@@ -13,6 +14,9 @@ Hooks.once("socketlib.ready", () => {
 });
 
 async function onZoomToCombat(targetList) {
+  const beforeV13 = Number(game.version.split()[0]) < 13;
+  if (beforeV13) return;
+  if (!game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat)) return;
   const tokens = targetList.map((id) => canvas.tokens.get(id));
   await zoomToTokens(tokens);
 }

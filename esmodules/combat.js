@@ -44,8 +44,6 @@ Hooks.once("init", () => {
       requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
       hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
       rage: game.settings.get(MODULE_ID, SETTINGS.rage),
-      panZoom:
-        !beforeV13 && game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat),
     };
 
     // Build out the various lists of combatant types
@@ -275,8 +273,8 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
-    if (options.panZoom) zoomToCombat(encounter, observations);
-    else refreshPerception();
+    if (!beforeV13) zoomToCombat(encounter, observations);
+    refreshPerception();
   });
 
   Hooks.on("deleteCombat", async () => {
