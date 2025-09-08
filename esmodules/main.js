@@ -115,6 +115,13 @@ Hooks.once("ready", () => {
   const clearMovement =
     Number(splitVersion[0]) === 13 && Number(splitVersion[1]) < 347;
   if (clearMovement) registerHooksForClearMovementHistory();
+
+  if (
+    game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat) &&
+    typeof socketlib === "undefined"
+  ) {
+    showNotification(`{MODULE_ID}.notifications.noSocketLib`, "warn");
+  }
 });
 
 Hooks.once("setup", () => {

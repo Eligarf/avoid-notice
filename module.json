@@ -25,6 +25,14 @@
           "verified": "7.4"
         }
       }
+    ],
+    "requires": [
+      {
+        "id": "socketlib",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/manuelVo/foundryvtt-socketlib/master/module.json",
+        "compatibility": {}
+      }
     ]
   },
   "esmodules": ["esmodules/main.js", "esmodules/combat.js"],

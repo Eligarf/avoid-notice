@@ -18,6 +18,7 @@ export const SETTINGS = {
   strict: "strict",
   useUnnoticed: "useUnnoticed",
   visibilityHandler: "visibilityHandler",
+  panZoomToCombat: "panZoomToCombat",
 
   // Misfit settings
   autorollSpellDamage: "autorollSpellDamage",
@@ -38,6 +39,8 @@ export const SETTINGS = {
 };
 
 export function setupSettings() {
+  const beforeV13 = Number(game.version.split()[0]) < 13;
+
   const perception = isPerceptionActive();
   const perceptive = isPerceptiveActive();
   const visioner = isVisionerActive();
@@ -62,6 +65,16 @@ export function setupSettings() {
     type: String,
     choices,
     default: "auto",
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.panZoomToCombat, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.hint`),
+    scope: "client",
+    config: !beforeV13,
+    type: Boolean,
+    default: !beforeV13,
+    requiresReload: true,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {

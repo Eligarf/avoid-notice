@@ -1,6 +1,6 @@
-### PF2e Avoid Notice v13.8.1
+### PF2e Avoid Notice v13.9.0
 
-- Adjust new keybind to only affect loot tokens that have a stealth DC greater than 0, to avoid messing with tokens that are just hidden for organizational purposes.
+- v13 only. Add an opt-out client game setting to pan/zoom at combat start to include all tokens known to be in combat by that client, ignoring any foundry-hidden tokens, as well as any that are undetected or unnoticed to tokens controlled by that client. Feature requires socketlib. No more missing combatants because I was too zoomed in!
 
-[Full Change Log](<https://github.com/Eligarf/avoid-notice/blob/v13.8.1/ChangeLog.md>)
+[Full Change Log](<https://github.com/Eligarf/avoid-notice/blob/v13.9.0/ChangeLog.md>)
 [module](<https://foundryvtt.com/packages/pf2e-avoid-notice>) | [Github](<https://github.com/Eligarf/avoid-notice>) | <#1408174774382755900> 

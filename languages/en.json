@@ -91,6 +91,13 @@
       "name": "Hide all foundry-hidden loot tokens",
       "hint": "PF2e Visioner only. Use the visibility manager to set all foundry-hidden loot tokens as hidden to the current party"
     },
+    "panZoomToCombat": {
+      "name": "Pan/Zoom to combat",
+      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden, undetected, or unnoticed combatants"
+    },
+    "notifications": {
+      "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
+    },
     "schema": {
       "name": "Schema Version",
       "hint": "Set this to a previous version to force a data migration from the specified version to the current version"

@@ -21,6 +21,7 @@ import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
 import { makeObservation, evaluateObservation } from "./observation-logic.js";
 import { renderStatus } from "./render-status.js";
+import { zoomToCombat } from "./socket.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter) => {
@@ -32,6 +33,8 @@ Hooks.once("init", () => {
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
 
+    const beforeV13 = Number(game.version.split()[0]) < 13;
+
     const options = {
       useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
@@ -41,9 +44,9 @@ Hooks.once("init", () => {
       requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
       hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
       rage: game.settings.get(MODULE_ID, SETTINGS.rage),
+      panZoom:
+        !beforeV13 && game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat),
     };
-
-    const beforeV13 = Number(game.version.split()[0]) < 13;
 
     // Build out the various lists of combatant types
     let nonAvoidingPcs = [];
@@ -272,7 +275,8 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
-    refreshPerception();
+    if (options.panZoom) zoomToCombat(encounter, observations);
+    else refreshPerception();
   });
 
   Hooks.on("deleteCombat", async () => {
