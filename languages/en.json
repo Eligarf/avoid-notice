@@ -80,7 +80,7 @@
       "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
     },
     "useBulkApi": {
-      "name": "Use Visioner Bulk APIs",
+      "name": "Use experimental Visioner APIs",
       "hint": "These APIs are under development. Use at your own risk"
     },
     "hideTokens": {

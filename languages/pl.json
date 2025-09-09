@@ -80,7 +80,7 @@
       "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."
     },
     "useBulkApi": {
-      "name": "Korzystaj z API Visioner Bulk",
+      "name": "Use experimental Visioner APIs",
       "hint": "Te interfejsy API są w trakcie opracowywania. Korzystaj z nich na własne ryzyko."
     },
     "hideTokens": {
