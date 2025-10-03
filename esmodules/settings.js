@@ -29,7 +29,7 @@ export const SETTINGS = {
   // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
-  useBulkApi: "useBulkApi",
+  useNewApis: "useBulkApi",
 
   // keybindings
   clearPartyStealth: "clearPartyStealth",
@@ -40,6 +40,15 @@ export const SETTINGS = {
 
 export function setupSettings() {
   const beforeV13 = Number(game.version.split()[0]) < 13;
+
+  game.settings.register(MODULE_ID, SETTINGS.panZoomToCombat, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.hint`),
+    scope: "client",
+    config: !beforeV13,
+    type: Boolean,
+    default: !beforeV13,
+  });
 
   const perception = isPerceptionActive();
   const perceptive = isPerceptiveActive();
@@ -65,15 +74,6 @@ export function setupSettings() {
     type: String,
     choices,
     default: "auto",
-  });
-
-  game.settings.register(MODULE_ID, SETTINGS.panZoomToCombat, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.hint`),
-    scope: "client",
-    config: !beforeV13,
-    type: Boolean,
-    default: !beforeV13,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
@@ -152,15 +152,6 @@ export function setupSettings() {
     default: false,
   });
 
-  game.settings.register(MODULE_ID, SETTINGS.raiseShields, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
-
   game.settings.register(MODULE_ID, SETTINGS.autorollSpellDamage, {
     name: game.i18n.localize(
       `${MODULE_ID}.${SETTINGS.autorollSpellDamage}.name`,
@@ -172,6 +163,15 @@ export function setupSettings() {
     config: true,
     type: Boolean,
     default: false,
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.raiseShields, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.rage, {
@@ -210,21 +210,15 @@ export function setupSettings() {
     default: "none",
   });
 
-  game.settings.register(MODULE_ID, SETTINGS.useBulkApi, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useBulkApi}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useBulkApi}.hint`),
+  game.settings.register(MODULE_ID, SETTINGS.useNewApis, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.hint`),
     scope: "world",
     config: true,
     type: Boolean,
     default: false,
   });
 }
-
-const SETTING_GROUPS = [
-  { label: "general", before: SETTINGS.visibilityHandler },
-  { label: "misfits", before: SETTINGS.raiseShields },
-  { label: "debug", before: SETTINGS.logLevel },
-];
 
 export function setupKeybindings() {
   game.keybindings.register(MODULE_ID, SETTINGS.clearStealth, {
@@ -271,6 +265,12 @@ export function setupKeybindings() {
     },
   });
 }
+
+const SETTING_GROUPS = [
+  { label: "general", before: SETTINGS.panZoomToCombat },
+  { label: "misfits", before: SETTINGS.autorollSpellDamage },
+  { label: "debug", before: SETTINGS.logLevel },
+];
 
 export function groupSettings() {
   for (const section of SETTING_GROUPS) {

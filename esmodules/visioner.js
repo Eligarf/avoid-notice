@@ -67,11 +67,14 @@ export async function clearVisionerData({
   refresh = false,
   batch = null,
 }) {
-  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
-  if (!useBulkApi)
+  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
+  if (!useNewApis)
     await clearVisionerDataHardWay({ token, visionerApi, refresh, batch });
   else {
-    await visionerApi.clearAllDataForSelectedToken(token);
+    if ("clearAllDataForSelectedTokens" in visionerApi)
+      await visionerApi.clearAllDataForSelectedTokens([token]);
+    else if ("clearAllDataForSelectedToken" in visionerApi)
+      await visionerApi.clearAllDataForSelectedToken(token);
   }
 
   if (refresh) refreshVisionerPerception(visionerApi);
@@ -80,8 +83,8 @@ export async function clearVisionerData({
 export async function setVisionerData(updates) {
   if (!updates.length) return;
   const visionerApi = getVisionerApi();
-  const useBulkApi = game.settings.get(MODULE_ID, SETTINGS.useBulkApi);
-  if (useBulkApi && "bulkSetVisibility" in visionerApi) {
+  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
+  if (useNewApis && "bulkSetVisibility" in visionerApi) {
     await visionerApi.bulkSetVisibility(updates);
   } else {
     for (const { observerId, targetId, state } of updates) {
@@ -108,10 +111,7 @@ export async function processObservationsForVisioner(observations) {
 
 export async function hideLoot() {
   const hiddenLoot = canvas.scene.tokens.filter(
-    (t) =>
-      t?.hidden &&
-      t?.flags?.[VISIONER_ID]?.stealthDC > 0 &&
-      t?.actor?.type === "loot",
+    (t) => t?.hidden && t?.actor?.type === "loot",
   );
   const party = canvas.scene.tokens.filter((t) =>
     game.actors.party.members.some((a) => a.id === t?.actor?.id),
