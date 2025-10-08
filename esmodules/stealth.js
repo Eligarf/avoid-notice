@@ -6,6 +6,8 @@ import {
 } from "./main.js";
 import { getPerceptionApi, clearPerceptionData } from "./pf2e_perception.js";
 import { getVisionerApi, clearVisionerData } from "./visioner.js";
+import { SETTINGS } from "./settings.js";
+import { MODULE_ID } from "./const.js";
 
 export async function clearTokenStealth({
   token,
@@ -47,11 +49,29 @@ export async function clearPartyStealth({ showBanner = false }) {
   const party = canvas.scene.tokens.filter((t) =>
     game.actors.party.members.some((a) => a.id === t?.actor?.id),
   );
-  for (const token of party) {
-    await clearTokenStealth({ token, refresh: false });
-  }
-  refreshPerception();
 
+  // If using visioner and new APIs, do a bulk update
+  const visibilityHandler = getVisibilityHandler();
+  const visionerApi =
+    visibilityHandler === "visioner" ? getVisionerApi() : null;
+  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
+  if (
+    visionerApi &&
+    useNewApis &&
+    "clearAllDataForSelectedTokens" in visionerApi
+  ) {
+    await visionerApi.clearAllDataForSelectedTokens(party);
+  }
+
+  // Otherwise, clear one by one
+  else {
+    for (const token of party) {
+      await clearTokenStealth({ token, refresh: false });
+    }
+  }
+
+  // Refresh everyone and maybe show banner
+  refreshPerception();
   if (showBanner) {
     ui.notifications.info(
       game.i18n.localize("pf2e-avoid-notice.clearPartyStealth.banner"),

@@ -1,3 +1,7 @@
+# 13.9.2
+
+- Update party clear stealth function to use Visioner bulk API if enabled.
+
 # 13.9.1
 
 - Reorder settings so that client settings come first in each section so players see correct section grouping too.
