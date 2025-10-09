@@ -88,8 +88,8 @@
       "hint": "Toggle visibility off and set initiative to stealth for the selected tokens"
     },
     "hideLoot": {
-      "name": "Hide all foundry-hidden loot tokens",
-      "hint": "PF2e Visioner only. Use the visibility manager to set all foundry-hidden loot tokens as hidden to the current party"
+      "name": "Hide all foundry-hidden loot and hazard tokens",
+      "hint": "PF2e Visioner only. Use the visibility manager to set all foundry-hidden loot and hazard tokens as hidden to the current party"
     },
     "panZoomToCombat": {
       "name": "Pan/Zoom to combat",

@@ -1,3 +1,7 @@
+# 13.9.3
+
+- Add foundry-hidden hazards to the list of tokens that can get hidden by Visioner from the party via keybind.
+
 # 13.9.2
 
 - Update party clear stealth function to use Visioner bulk API if enabled.
