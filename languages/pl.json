@@ -88,8 +88,8 @@
       "hint": "Wyłącz widoczność i ustaw inicjatywę na Ukrycie dla wybranych tokenów."
     },
     "hideLoot": {
-      "name": "Ukryj wszystkie ukryte tokeny łupów z Foundry",
-      "hint": "Tylko PF2e Visioner. Użyj menedżera widoczności, aby ustawić wszystkie ukryte przez foundry tokeny łupów jako ukryte dla bieżącej drużyny."
+      "name": "Ukryj wszystkie znalezione ukryte łupy i tokeny zagrożeń",
+      "hint": "Tylko PF2e Visioner. Użyj menedżera widoczności, aby ustawić wszystkie ukryte przez Foundry tokeny łupów i zagrożeń jako ukryte dla aktualnej drużyny."
     },
     "panZoomToCombat": {
       "name": "Przesunięcie / Powiększenie w walce",
