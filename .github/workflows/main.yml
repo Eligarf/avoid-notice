@@ -54,7 +54,7 @@ jobs:
           url: ${{ env.project_url }}
           manifest: ${{ env.latest_manifest_url }}
           download: ${{ env.release_module_url }}
-          changelog: ${{ env.release_blob }}/ChangeLog.md
+          changelog: ${{ env.release_blob }}/CHANGELOG.md
           bugs: ${{ env.project_url }}/issues
           readme: ${{ env.release_blob }}/README.md
           license: ${{ env.release_blob }}/LICENSE
@@ -66,7 +66,7 @@ jobs:
           module.json \
           README.md \
           LICENSE \
-          ChangeLog.md \
+          CHANGELOG.md \
           languages/ \
           esmodules/ \
           styles/ \
