@@ -252,7 +252,7 @@ Hooks.once("init", () => {
         .map((t) => t.id)
         .filter((avoiderId) => {
           if (!options.useUnnoticed) return true;
-          const observers = observations[avoiderId].observers;
+          const observers = observations[avoiderId]?.observers;
           return pcTokenIds.some(
             (id) => observers?.[id]?.observation?.visibility !== "unnoticed",
           );
