@@ -22,7 +22,15 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "verified": "7.7"
+          "verified": "7.9"
+        }
+      },
+      {
+        "id": "sf2e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "0.0.1",
+          "verified": "0.0.3"
         }
       }
     ],

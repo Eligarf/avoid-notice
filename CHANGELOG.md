@@ -1,3 +1,7 @@
+# 13.10
+
+- Compatibility release for sf2e 0.0.3
+
 # 13.9.4
 
 - Fix error when revealing foundry-hidden tokens that weren't using stealth for initiative.

@@ -4,7 +4,9 @@ export function findBaseCoverBonus(avoider) {
   const coverEffect = avoider.actor.items.find(
     (i) => i.system.slug === "effect-cover",
   );
-  const bonusElement = coverEffect?.flags?.pf2e?.rulesSelections?.cover?.bonus;
+  const systemFlags =
+    coverEffect?.flags?.system || coverEffect?.flags?.pf2e || {};
+  const bonusElement = systemFlags?.rulesSelections?.cover?.bonus;
   let baseCoverBonus = 0;
   switch (bonusElement) {
     case 2:

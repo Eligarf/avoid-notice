@@ -51,14 +51,16 @@ Hooks.once("init", () => {
     let avoiders = encounter.combatants.contents.filter(
       (c) =>
         !(c.actor?.parties?.size > 0 && c.actor.system?.exploration) &&
-        c.flags.pf2e.initiativeStatistic === "stealth",
+        c.flags[game.system.id]?.initiativeStatistic === "stealth",
     );
     const pcs = encounter.combatants.contents.filter(
       (c) => c.actor?.parties?.size > 0 && c.actor.system?.exploration,
     );
     if (!options.requireActivity) {
       avoiders = avoiders.concat(
-        pcs.filter((c) => c.flags.pf2e.initiativeStatistic === "stealth"),
+        pcs.filter(
+          (c) => c.flags[game.system.id]?.initiativeStatistic === "stealth",
+        ),
       );
     } else {
       avoiders = avoiders.concat(
@@ -70,7 +72,7 @@ Hooks.once("init", () => {
       );
       nonAvoidingPcs = pcs.filter(
         (c) =>
-          c.flags.pf2e.initiativeStatistic === "stealth" &&
+          c.flags[game.system.id]?.initiativeStatistic === "stealth" &&
           !c.actor.system.exploration.some(
             (a) => c.actor.items.get(a)?.system?.slug === "avoid-notice",
           ),

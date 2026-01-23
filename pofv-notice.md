@@ -1,6 +1,6 @@
-### PF2e Avoid Notice v13.9.4
+### PF2e Avoid Notice v13.10.0
 
-- Fix error when revealing foundry-hidden tokens that weren't using stealth for initiative.
+- Compatibility release for sf2e 0.0.3
 
 [Full Change Log](<https://github.com/Eligarf/avoid-notice/blob/v13.9.0/ChangeLog.md>)
 [module](<https://foundryvtt.com/packages/pf2e-avoid-notice>) | [Github](<https://github.com/Eligarf/avoid-notice>)

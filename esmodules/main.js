@@ -57,11 +57,11 @@ Hooks.once("init", () => {
   Hooks.on("createChatMessage", async (message, options, id) => {
     if (game.userId != id) return;
     if (!game.settings.get(MODULE_ID, SETTINGS.autorollSpellDamage)) return;
-    const pf2eFlags = message?.flags?.pf2e;
+    const systemFlags = message?.flags?.[game.system.id];
 
     // Accept only spell casting of non-attack damaging spells
-    if (!pf2eFlags?.casting) return;
-    const originUuid = pf2eFlags?.origin?.uuid;
+    if (!systemFlags?.casting) return;
+    const originUuid = systemFlags?.origin?.uuid;
     const origin = originUuid ? await fromUuid(originUuid) : null;
     if (origin?.traits?.has("attack")) return;
     if (

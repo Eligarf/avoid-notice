@@ -42,8 +42,8 @@ export async function findInitiativeCard(combatant) {
     messages = game.messages.contents.filter(
       (m) =>
         m.speaker.token === combatant.tokenId &&
-        m.flags?.pf2e?.modifierName ===
-          combatant.flags?.pf2e?.initiativeStatistic &&
+        m.flags?.[game.system.id]?.modifierName ===
+          combatant.flags?.[game.system.id]?.initiativeStatistic &&
         m?.rolls?.[0]?.total === combatant.initiative,
     );
   }
