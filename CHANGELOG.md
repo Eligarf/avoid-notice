@@ -1,6 +1,6 @@
 # 14.0.0
 
-- v14 Compatibility
+- Foundry VTT v14 Compatibility
 
 # 13.10
 
