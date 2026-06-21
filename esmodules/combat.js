@@ -79,17 +79,11 @@ Hooks.once("init", () => {
       );
     }
 
-    const familiarTokens = canvas.scene.tokens
-      .filter((t) => t?.actor?.system?.master)
-      .filter((t) =>
-        encounter.combatants.contents.some(
-          (c) => c.actor._id == t.actor.system.master.id,
-        ),
-      );
+    const minionTokens = canvas.scene.tokens.filter(
+        (t) => t?.actor?.system?.traits?.value?.includes("minion") && t?.actor?.system?.details?.alliance === "party");
     const eidolonTokens = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
-
     // initialize the aggregators
     let observations = {};
 
@@ -114,9 +108,9 @@ Hooks.once("init", () => {
             (options.hideFromAllies && c.id !== avoider.id),
         )
         .concat(
-          familiarTokens.filter(
-            (t) => options.hideFromAllies || t.disposition != disposition,
-          ),
+            minionTokens.filter(
+                (t) => options.hideFromAllies || t.disposition != disposition,
+            )
         )
         .concat(
           eidolonTokens.filter(
@@ -179,7 +173,7 @@ Hooks.once("init", () => {
         evaluateObservation({
           observation,
           options,
-          familiarTokens,
+          minionTokens,
           eidolonTokens,
         });
       }

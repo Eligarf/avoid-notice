@@ -1,3 +1,7 @@
+# 14.0.1
+
+- Check all party minions (not just familiars) for visibility against stealthing enemies at combat start
+    
 # 14.0.0
 
 - Foundry VTT v14 Compatibility
