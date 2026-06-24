@@ -3,14 +3,6 @@ import { SETTINGS } from "./settings.js";
 import { log, getVisibilityHandler, refreshPerception } from "./main.js";
 import { getVisionerApi, processObservationsForVisioner } from "./visioner.js";
 import {
-  getPerceptionApi,
-  processObservationsForPerception,
-} from "./pf2e_perception.js";
-import {
-  getPerceptiveApi,
-  processObservationsForPerceptive,
-} from "./perceptive.js";
-import {
   processObservationsForBestDc,
   processObservationsForWorstDc,
 } from "./vanilla.js";
@@ -26,10 +18,6 @@ import { zoomToCombat } from "./socket.js";
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter) => {
     const visibilityHandler = getVisibilityHandler();
-    const perceptionApi =
-      visibilityHandler === "perception" ? getPerceptionApi() : null;
-    const perceptiveApi =
-      visibilityHandler === "perceptive" ? getPerceptiveApi() : null;
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
 
@@ -80,7 +68,10 @@ Hooks.once("init", () => {
     }
 
     const minionTokens = canvas.scene.tokens.filter(
-        (t) => t?.actor?.system?.traits?.value?.includes("minion") && t?.actor?.system?.details?.alliance === "party");
+      (t) =>
+        t?.actor?.system?.traits?.value?.includes("minion") &&
+        t?.actor?.system?.details?.alliance === "party",
+    );
     const eidolonTokens = canvas.scene.tokens.filter(
       (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
     );
@@ -108,9 +99,9 @@ Hooks.once("init", () => {
             (options.hideFromAllies && c.id !== avoider.id),
         )
         .concat(
-            minionTokens.filter(
-                (t) => options.hideFromAllies || t.disposition != disposition,
-            )
+          minionTokens.filter(
+            (t) => options.hideFromAllies || t.disposition != disposition,
+          ),
         )
         .concat(
           eidolonTokens.filter(
@@ -128,8 +119,6 @@ Hooks.once("init", () => {
 
       const avoiderApi = {
         visionerApi,
-        perceptionApi,
-        perceptiveApi,
         avoider,
         avoiderTokenDoc,
         baseCoverBonus: findBaseCoverBonus(avoiderTokenDoc),
@@ -220,12 +209,6 @@ Hooks.once("init", () => {
         break;
       case "worst":
         await processObservationsForWorstDc(observations);
-        break;
-      case "perceptive":
-        await processObservationsForPerceptive(observations);
-        break;
-      case "perception":
-        await processObservationsForPerception(observations, tokenUpdates);
         break;
       case "visioner":
         await processObservationsForVisioner(observations);

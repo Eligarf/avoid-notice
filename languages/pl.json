@@ -49,13 +49,11 @@
     },
     "visibilityHandler": {
       "name": "Obsługa widoczności",
-      "auto": "Auto: PF2e Visioner > PF2e Perception",
+      "auto": "Auto",
       "disabled": "Nie ustawiaj statusu stanu",
       "best": "Użyj najgorszego stopnia sukcesu (preferuj osoby szukające)",
       "worst": "Użyj najlepszego stopnia sukcesu (preferuj osoby skradające się)",
-      "visioner": "Niech PF2e Visioner się tym zajmie",
-      "perception": "Niech pf2e-perception się tym zajmie",
-      "perceptive": "Niech Perceptive się tym zajmie"
+      "visioner": "Niech PF2e Visioner się tym zajmie"
     },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",
