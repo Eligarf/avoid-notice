@@ -1,8 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { log, getVisibilityHandler } from "./main.js";
 import { isVisionerActive } from "./visioner.js";
-import { isPerceptiveActive } from "./perceptive.js";
-import { isPerceptionActive } from "./pf2e_perception.js";
 import { clearPartyStealth, clearTokenStealth } from "./stealth.js";
 import { hideTokens } from "./stealth.js";
 import { hideLoot } from "./visioner.js";
@@ -50,8 +48,6 @@ export function setupSettings() {
     default: !beforeV13,
   });
 
-  const perception = isPerceptionActive();
-  const perceptive = isPerceptiveActive();
   const visioner = isVisionerActive();
 
   let choices = {
@@ -62,10 +58,6 @@ export function setupSettings() {
   };
   if (visioner)
     choices.visioner = `${MODULE_ID}.${SETTINGS.visibilityHandler}.visioner`;
-  if (perception)
-    choices.perception = `${MODULE_ID}.${SETTINGS.visibilityHandler}.perception`;
-  if (perceptive)
-    choices.perceptive = `${MODULE_ID}.${SETTINGS.visibilityHandler}.perceptive`;
 
   game.settings.register(MODULE_ID, SETTINGS.visibilityHandler, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.name`),

@@ -49,13 +49,11 @@
     },
     "visibilityHandler": {
       "name": "Visibility Handler",
-      "auto": "Auto: PF2e Visioner > PF2e Perception",
+      "auto": "Auto",
       "disabled": "Don't set the status conditions",
       "best": "Use the worst degree-of-success (favor the seekers)",
       "worst": "Use the best degree-of-success (favor the sneakers)",
-      "visioner": "Let PF2e Visioner handle it",
-      "perception": "Let pf2e-perception handle it",
-      "perceptive": "Let Perceptive handle it"
+      "visioner": "Let PF2e Visioner handle it"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",

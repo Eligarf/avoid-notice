@@ -10,11 +10,6 @@ import {
   getVisionerApi,
   refreshVisionerPerception,
 } from "./visioner.js";
-import { isPerceptiveActive } from "./perceptive.js";
-import {
-  isPerceptionActive,
-  clearPf2ePerceptionFlags,
-} from "./pf2e_perception.js";
 import { registerHooksForClearMovementHistory } from "./clear-movement.js";
 
 function colorizeOutput(format, ...args) {
@@ -42,8 +37,6 @@ export function getVisibilityHandler() {
   );
   if (visibilityHandler === "auto") {
     if (isVisionerActive()) visibilityHandler = "visioner";
-    else if (isPerceptionActive()) visibilityHandler = "perception";
-    // else if (isPerceptiveActive()) visibilityHandler = "perceptive";
   }
   return visibilityHandler;
 }
@@ -94,21 +87,11 @@ Hooks.once("ready", () => {
     SETTINGS.visibilityHandler,
   );
   if (
-    (visibilityHandler === "perception" && !isPerceptionActive()) ||
-    (visibilityHandler === "perceptive" && !isPerceptiveActive()) ||
+    visibilityHandler === "perception" ||
+    visibilityHandler === "perceptive" ||
     (visibilityHandler === "visioner" && !isVisionerActive())
   ) {
     game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "auto");
-  }
-
-  if (isPerceptionActive()) {
-    Hooks.on("deleteItem", async (item, options, userId) => {
-      await clearPf2ePerceptionFlags(item, options, userId);
-    });
-
-    Hooks.on("createItem", async (item, options, userId) => {
-      await clearPf2ePerceptionFlags(item, options, userId);
-    });
   }
 
   const splitVersion = game.version.split();
