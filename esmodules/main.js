@@ -36,7 +36,7 @@ export function getVisibilityHandler() {
     SETTINGS.visibilityHandler,
   );
   if (visibilityHandler === "auto") {
-    if (isVisionerActive()) visibilityHandler = "visioner";
+    visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
   }
   return visibilityHandler;
 }
@@ -88,10 +88,15 @@ Hooks.once("ready", () => {
   );
   if (
     visibilityHandler === "perception" ||
-    visibilityHandler === "perceptive" ||
-    (visibilityHandler === "visioner" && !isVisionerActive())
+    visibilityHandler === "perceptive"
   ) {
-    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "auto");
+    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "disabled");
+  } else if (visibilityHandler === "auto") {
+    game.settings.set(
+      MODULE_ID,
+      SETTINGS.visibilityHandler,
+      isVisionerActive() ? "visioner" : "disabled",
+    );
   }
 
   const splitVersion = game.version.split();
