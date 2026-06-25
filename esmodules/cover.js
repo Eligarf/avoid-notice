@@ -19,14 +19,7 @@ export function findBaseCoverBonus(avoider) {
 
 export function getCoverFrom({ api, options, observerToken }) {
   let cover = "na";
-  if (api.perceptionApi) {
-    cover = options.computeCover
-      ? api.perceptionApi.token.getCover(
-          api.avoider.token._object,
-          observerToken._object,
-        )
-      : api.perceptionData?.[observerToken.id]?.cover;
-  } else if (api.visionerApi) {
+  if (api.visionerApi) {
     cover = options.computeCover
       ? api.visionerApi.getAutoCoverState(
           observerToken.id,

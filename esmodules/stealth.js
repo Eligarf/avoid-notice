@@ -4,7 +4,6 @@ import {
   log,
   refreshPerception,
 } from "./main.js";
-import { getPerceptionApi, clearPerceptionData } from "./pf2e_perception.js";
 import { getVisionerApi, clearVisionerData } from "./visioner.js";
 import { SETTINGS } from "./settings.js";
 import { MODULE_ID } from "./const.js";
@@ -15,10 +14,6 @@ export async function clearTokenStealth({
   showBanner = false,
 } = {}) {
   const visibilityHandler = getVisibilityHandler();
-
-  const perceptionApi =
-    visibilityHandler === "perception" ? getPerceptionApi() : null;
-  if (perceptionApi) await clearPerceptionData(token);
 
   const visionerApi =
     visibilityHandler === "visioner" ? getVisionerApi() : null;
