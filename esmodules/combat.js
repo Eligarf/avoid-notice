@@ -21,8 +21,6 @@ Hooks.once("init", () => {
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
 
-    const beforeV13 = Number(game.version.split()[0]) < 13;
-
     const options = {
       useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
@@ -110,9 +108,8 @@ Hooks.once("init", () => {
         );
       if (!observers.length) continue;
 
-      const isAvoiderToken = beforeV13
-        ? avoider.token instanceof Token
-        : avoider.token instanceof foundry.canvas.placeables.Token;
+      const isAvoiderToken =
+        avoider.token instanceof foundry.canvas.placeables.Token;
       const avoiderTokenDoc = isAvoiderToken
         ? avoider.token.document
         : avoider.token;
@@ -129,9 +126,8 @@ Hooks.once("init", () => {
       let avoiderSeenBy = observations[avoider.token.id];
 
       for (const observer of observers) {
-        const isObserverToken = beforeV13
-          ? observer?.token instanceof Token
-          : observer?.token instanceof foundry.canvas.placeables.Token;
+        const isObserverToken =
+          observer?.token instanceof foundry.canvas.placeables.Token;
         const observerToken = observer?.token ?? observer;
         const observerActor = observerToken.actor;
 
@@ -222,8 +218,7 @@ Hooks.once("init", () => {
 
       const unrevealedIds = encounter.combatants.contents
         .map((c) =>
-          (!beforeV13 && c.token instanceof foundry.canvas.placeables.Token) ||
-          (beforeV13 && c.token instanceof Token)
+          c.token instanceof foundry.canvas.placeables.Token
             ? c.token.document
             : c.token,
         )
@@ -252,7 +247,7 @@ Hooks.once("init", () => {
       canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
     }
 
-    if (!beforeV13) zoomToCombat(encounter, observations);
+    zoomToCombat(encounter, observations);
     refreshPerception();
   });
 

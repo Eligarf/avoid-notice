@@ -1,5 +1,6 @@
 # 14.1.0
 
+- Foundry v12 is no longer supported.
 - Deprecate support for _Perceptive_ and _PF2e Perception_ visibility modules
 - Add visibility handling for hide/sneak/seek rolls directly in _PF2e Avoid Notice_.
   - This is *NOT* a general visibility solution - if you need more comprehensive visibility handling, use _PF2e Visioner_ and its AVS mode.
