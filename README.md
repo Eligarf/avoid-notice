@@ -44,9 +44,7 @@ Initiative sometimes comes from a previous roll like a sneak check or the use of
 
 ## Visibility modules
 
-- [PF2e Visioner](https://foundryvtt.com/packages/pf2e-visioner): recommended for V13.
-- [PF2e Perception](https://github.com/reonZ/pf2e-perception): recommended for v12. Note that the module is unlisted and not actively maintained.
-- [Perceptive](https://foundryvtt.com/packages/perceptive): works in both V12 and V13, but I don't currently support this in _PF2e Avoid Notice_ because it has limitations in handling concurrent stealth conditions, and I haven't worked out how to properly use its API.
+- [PF2e Visioner](https://foundryvtt.com/packages/pf2e-visioner): recommended if you need a more comprehensive vision solution.
 
 ## Visibility Handling
 
@@ -57,8 +55,6 @@ This module provides the GM a number of options in the game settings for automat
 - _worst_: in the absence of target-relative visiblity tracking, use the worst degree-of-success to apply a condition to the avoider (favors the seekers), or;
 - _best_: use the best degree-of-success (favors the sneakers).
 - _visioner_: The _PF2e Visioner_ module is handles things. V13 only.
-- _perception_: the _PF2e Perception_ module handles things. V12 only.
-- _perceptive_: the _Perceptive_ module handles things. Currently Disabled.
 
 # Misfit features
 
