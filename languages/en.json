@@ -49,7 +49,7 @@
     },
     "visibilityHandler": {
       "name": "Visibility Handler",
-      "auto": "Auto",
+      "native": "Use system conditions with per-token visibility exceptions",
       "disabled": "Don't set the status conditions",
       "best": "Use the worst degree-of-success (favor the seekers)",
       "worst": "Use the best degree-of-success (favor the sneakers)",
@@ -72,10 +72,6 @@
     "clearPartyStealthAfterCombat": {
       "name": "Clear Stealth from Party after combat",
       "hint": "Will remove stealth conditions from party tokens on the current scene when combat is ended"
-    },
-    "clearMovement": {
-      "name": "Clear movement history at turn end",
-      "hint": "Foundry v13 only. Automatically clears the movement history from the active token when a turn is ended"
     },
     "useBulkApi": {
       "name": "Use experimental Visioner APIs",

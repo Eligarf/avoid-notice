@@ -37,21 +37,19 @@ export const SETTINGS = {
 };
 
 export function setupSettings() {
-  const beforeV13 = Number(game.version.split()[0]) < 13;
-
   game.settings.register(MODULE_ID, SETTINGS.panZoomToCombat, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.name`),
     hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.hint`),
     scope: "client",
-    config: !beforeV13,
+    config: true,
     type: Boolean,
-    default: !beforeV13,
+    default: true,
   });
 
   const visioner = isVisionerActive();
 
   let choices = {
-    auto: `${MODULE_ID}.${SETTINGS.visibilityHandler}.auto`,
+    native: `${MODULE_ID}.${SETTINGS.visibilityHandler}.native`,
     disabled: `${MODULE_ID}.${SETTINGS.visibilityHandler}.disabled`,
     best: `${MODULE_ID}.${SETTINGS.visibilityHandler}.best`,
     worst: `${MODULE_ID}.${SETTINGS.visibilityHandler}.worst`,
@@ -65,7 +63,7 @@ export function setupSettings() {
     config: true,
     type: String,
     choices,
-    default: "auto",
+    default: "disabled",
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
@@ -246,16 +244,19 @@ export function setupKeybindings() {
     },
   });
 
-  game.keybindings.register(MODULE_ID, SETTINGS.hideLoot, {
-    name: `${MODULE_ID}.${SETTINGS.hideLoot}.name`,
-    hint: `${MODULE_ID}.${SETTINGS.hideLoot}.hint`,
-    editable: [],
-    restricted: true,
-    onDown: async () => {
-      if (getVisibilityHandler() !== "visioner") return;
-      await hideLoot();
-    },
-  });
+  const visioner = isVisionerActive();
+  if (visioner) {
+    game.keybindings.register(MODULE_ID, SETTINGS.hideLoot, {
+      name: `${MODULE_ID}.${SETTINGS.hideLoot}.name`,
+      hint: `${MODULE_ID}.${SETTINGS.hideLoot}.hint`,
+      editable: [],
+      restricted: true,
+      onDown: async () => {
+        if (getVisibilityHandler() !== "visioner") return;
+        await hideLoot();
+      },
+    });
+  }
 }
 
 const SETTING_GROUPS = [

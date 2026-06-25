@@ -49,7 +49,7 @@
     },
     "visibilityHandler": {
       "name": "Obsługa widoczności",
-      "auto": "Auto",
+      "native": "Use system conditions with per-token visibility exceptions",
       "disabled": "Nie ustawiaj statusu stanu",
       "best": "Użyj najgorszego stopnia sukcesu (preferuj osoby szukające)",
       "worst": "Użyj najlepszego stopnia sukcesu (preferuj osoby skradające się)",
@@ -72,10 +72,6 @@
     "clearPartyStealthAfterCombat": {
       "name": "Usuń Ukrycie z drużyny po walce",
       "hint": "Usuwa stan Ukrycie z tokenów drużyny w bieżącej scenie po zakończeniu walki."
-    },
-    "clearMovement": {
-      "name": "Wyczyść historię ruchu po zakończeniu tury",
-      "hint": "Tylko Foundry v13. Automatycznie czyści historię ruchu z aktywnego tokena po zakończeniu tury."
     },
     "useBulkApi": {
       "name": "Korzystaj z eksperymentalnych interfejsów API Visioner",
