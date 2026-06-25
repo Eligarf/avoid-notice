@@ -43,7 +43,11 @@
       }
     ]
   },
-  "esmodules": ["esmodules/main.js", "esmodules/combat.js"],
+  "esmodules": [
+    "esmodules/main.js",
+    "esmodules/combat.js",
+    "esmodules/test.js"
+  ],
   "styles": ["styles/style.css"],
   "languages": [
     {
