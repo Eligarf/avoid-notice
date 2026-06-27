@@ -1,6 +1,6 @@
 # 14.0.1
 
-- Check all party minions (not just familiars) for visibility against stealthing enemies at combat start
+- Better minion handling
     
 # 14.0.0
 

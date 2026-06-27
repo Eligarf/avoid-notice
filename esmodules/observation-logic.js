@@ -83,7 +83,7 @@ export function makeObservation({
 export function evaluateObservation({
   observation,
   options,
-  familiarTokens,
+  minionTokens,
   eidolonTokens,
 }) {
   const delta = observation.delta;
@@ -100,9 +100,9 @@ export function evaluateObservation({
 
     if (options.useUnnoticed && observation.visibility === "undetected") {
       const observerId = observation.observerId;
-      const familiar = familiarTokens.some((t) => t.id === observerId);
+      const minion = minionTokens.some((t) => t.id === observerId);
       const eidolon = eidolonTokens.some((t) => t.id === observerId);
-      if (familiar || eidolon) observation.deltaStr += "?";
+      if (minion || eidolon) observation.deltaStr += "?";
     }
   }
 }
