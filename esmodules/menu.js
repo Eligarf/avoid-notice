@@ -7,6 +7,7 @@ import {
 } from "./const.js";
 import { log } from "./main.js";
 import { invokeNoTokensMenu } from "./no-tokens-menu.js";
+import { invokeTokensMenu } from "./tokens-menu.js";
 import { SETTINGS } from "./settings.js";
 
 export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
@@ -35,6 +36,7 @@ export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
   async _prepareContext() {
     const context = await super._prepareContext();
     context.options = this.options;
+    log("popup menu context", context);
     return context;
   }
 
@@ -110,13 +112,6 @@ export function isAvoider(token, combatState) {
   );
 }
 
-function invokeTokenMenu({ selection, combatState }) {
-  log(`invoked the token menu for ${selection.type}`, {
-    selection,
-    combatState,
-  });
-}
-
 function invokePairedTokensMenu({ selected, targeted, combatState }) {
   log("invoked the paired tokens menu", {
     selected,
@@ -177,5 +172,5 @@ export function invokeMenu() {
 
   // Otherwise, no need to distiguish between selected and targeted, we can just use whichever one is present.
   const selection = selected || targeted;
-  invokeTokenMenu({ selection, combatState });
+  invokeTokensMenu({ selection, combatState });
 }
