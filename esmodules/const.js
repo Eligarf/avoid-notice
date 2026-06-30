@@ -17,3 +17,17 @@ export const SKILL_ACTIONS = [
   "action:create-a-diversion",
   "action:sneak",
 ];
+
+export const SLUGS = {
+  stealth: "stealth",
+  perception: "perception",
+  avoidNotice: "avoid-notice",
+};
+
+export const AVOIDER_CONDITION_SLUGS = ["hidden", "undetected", "unnoticed"];
+
+export const COMBAT_STATES = {
+  inactive: "inactive",
+  active: "active",
+  started: "started",
+};

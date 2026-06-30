@@ -1,0 +1,7 @@
+<form class="popup-menu-form">
+  <div class="popup-menu">
+    {{#each options.choices as |choice|}}
+      <p><a data-action="popupClick" data-key="{{choice.key}}">{{choice.label}}</a></p>
+    {{/each}}
+  </div>
+</form>
