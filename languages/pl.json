@@ -59,15 +59,9 @@
       "name": "Oblicz osłony na początku walki",
       "hint": "Użyj modułu widoczności, aby automatycznie obliczyć osłonę między tokenami przy użyciu skradania się dla inicjatywy i tokenów niebędących sojusznikami. Jest to używane wyłącznie do tego celu."
     },
-    "clearStealth": {
-      "name": "Usuń ukrycie z wybranych tokenów",
-      "hint": "Usuwanie statusów ukryty, niewykryty i niezauważony z wybranych tokenów.",
-      "banner": "Usuwanie danych Ukrycia z {name}"
-    },
-    "clearPartyStealth": {
-      "name": "Usuń Ukrycie z drużyny",
-      "hint": "Usuwanie statusów ukryty, niewykryty i niezauważony z drużyny.",
-      "banner": "Usunięcie Ukrycia z drużyny"
+    "menu": {
+      "name": "PF2e Avoid Notice popup menu",
+      "hint": "Main interface for PF2e Avoid Notice"
     },
     "clearPartyStealthAfterCombat": {
       "name": "Usuń Ukrycie z drużyny po walce",
@@ -76,14 +70,6 @@
     "useBulkApi": {
       "name": "Korzystaj z eksperymentalnych interfejsów API Visioner",
       "hint": "Te interfejsy API są w trakcie opracowywania. Korzystaj z nich na własne ryzyko."
-    },
-    "hideTokens": {
-      "name": "Ukryj wybrane tokeny",
-      "hint": "Wyłącz widoczność i ustaw inicjatywę na Ukrycie dla wybranych tokenów."
-    },
-    "hideLoot": {
-      "name": "Ukryj wszystkie znalezione ukryte łupy i tokeny zagrożeń",
-      "hint": "Tylko PF2e Visioner. Użyj menedżera widoczności, aby ustawić wszystkie ukryte przez Foundry tokeny łupów i zagrożeń jako ukryte dla aktualnej drużyny."
     },
     "panZoomToCombat": {
       "name": "Przesunięcie / Powiększenie w walce",

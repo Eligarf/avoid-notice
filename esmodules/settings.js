@@ -1,9 +1,7 @@
 import { MODULE_ID } from "./const.js";
-import { log, getVisibilityHandler } from "./main.js";
+import { log } from "./main.js";
 import { isVisionerActive } from "./visioner.js";
-import { clearPartyStealth, clearTokenStealth } from "./stealth.js";
-import { hideTokens } from "./stealth.js";
-import { hideLoot } from "./visioner.js";
+import { invokeMenu } from "./menu.js";
 
 export const SETTINGS = {
   // General settings
@@ -30,10 +28,7 @@ export const SETTINGS = {
   useNewApis: "useBulkApi",
 
   // keybindings
-  clearPartyStealth: "clearPartyStealth",
-  clearStealth: "clearStealth",
-  hideTokens: "hideTokens",
-  hideLoot: "hideLoot",
+  menu: "menu",
 };
 
 export function setupSettings() {
@@ -211,52 +206,15 @@ export function setupSettings() {
 }
 
 export function setupKeybindings() {
-  game.keybindings.register(MODULE_ID, SETTINGS.clearStealth, {
-    name: `${MODULE_ID}.${SETTINGS.clearStealth}.name`,
-    hint: `${MODULE_ID}.${SETTINGS.clearStealth}.hint`,
+  game.keybindings.register(MODULE_ID, SETTINGS.menu, {
+    name: `${MODULE_ID}.${SETTINGS.menu}.name`,
+    hint: `${MODULE_ID}.${SETTINGS.menu}.hint`,
     editable: [],
     onDown: async () => {
-      const selectedTokens = canvas.tokens.controlled;
-      for (const token of selectedTokens) {
-        await clearTokenStealth({ token, showBanner: true });
-      }
+      if (!game.user.isGM) return;
+      invokeMenu();
     },
   });
-
-  game.keybindings.register(MODULE_ID, SETTINGS.clearPartyStealth, {
-    name: `${MODULE_ID}.${SETTINGS.clearPartyStealth}.name`,
-    hint: `${MODULE_ID}.${SETTINGS.clearPartyStealth}.hint`,
-    editable: [],
-    restricted: true,
-    onDown: async () => {
-      await clearPartyStealth({ showBanner: true });
-    },
-  });
-
-  game.keybindings.register(MODULE_ID, SETTINGS.hideTokens, {
-    name: `${MODULE_ID}.${SETTINGS.hideTokens}.name`,
-    hint: `${MODULE_ID}.${SETTINGS.hideTokens}.hint`,
-    editable: [],
-    restricted: true,
-    onDown: async () => {
-      const selectedTokens = canvas.tokens.controlled;
-      await hideTokens(selectedTokens);
-    },
-  });
-
-  const visioner = isVisionerActive();
-  if (visioner) {
-    game.keybindings.register(MODULE_ID, SETTINGS.hideLoot, {
-      name: `${MODULE_ID}.${SETTINGS.hideLoot}.name`,
-      hint: `${MODULE_ID}.${SETTINGS.hideLoot}.hint`,
-      editable: [],
-      restricted: true,
-      onDown: async () => {
-        if (getVisibilityHandler() !== "visioner") return;
-        await hideLoot();
-      },
-    });
-  }
 }
 
 const SETTING_GROUPS = [
