@@ -86,6 +86,23 @@
       "general": "General Options",
       "misfits": "Misfit Features",
       "debug": "Debug Options"
+    },
+    "menu": {
+      "noTokensSelected": "No tokens selected",
+      "tokensSelected": "Tokens {type}",
+      "tokensConnected": "Connected Tokens",
+      "type": {
+        "targeted": "Targeted",
+        "selected": "Selected"
+      },
+      "clearPartyStealth": {
+        "label": "Clear Party Stealth",
+        "hint": "Clear stealth conditions from all party members"
+      },
+      "prepareAmbush": {
+        "label": "Prepare Ambush",
+        "hint": "Set all selected tokens to 'Avoid Notice' exploration activity and roll stealth for initiative"
+      }
     }
   }
 }

@@ -30,6 +30,10 @@ export function interpolateString(str, interpolations) {
   );
 }
 
+export function localizeString(str, interpolations) {
+  return interpolateString(game.i18n.localize(str), interpolations);
+}
+
 export function getVisibilityHandler() {
   let visibilityHandler = game.settings.get(
     MODULE_ID,
