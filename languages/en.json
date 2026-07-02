@@ -93,7 +93,7 @@
       "tokensConnected": "Connected Tokens",
       "type": {
         "targeted": "Targeted",
-        "selected": "Selected"
+        "controlled": "Controlled"
       },
       "clearPartyStealth": {
         "label": "Clear Party Stealth",
