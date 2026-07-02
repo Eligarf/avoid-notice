@@ -129,14 +129,14 @@ export function invokeMenu() {
       ? COMBAT_STATES.active
       : COMBAT_STATES.started;
 
-  const selectedTokens = canvas.tokens.controlled;
+  const controlledTokens = canvas.tokens.controlled;
   let selected = null;
-  if (selectedTokens.length !== 0) {
+  if (controlledTokens.length !== 0) {
     selected = {
-      type: "selected",
-      tokens: selectedTokens,
-      dispositions: summarizeDispositions(selectedTokens),
-      hasAvoider: selectedTokens.some(isAvoider, combatState),
+      type: "controlled",
+      tokens: controlledTokens,
+      dispositions: summarizeDispositions(controlledTokens),
+      hasAvoider: controlledTokens.some(isAvoider, combatState),
     };
   }
 
