@@ -1,5 +1,5 @@
 import { interpolateString } from "./main.js";
-import { MODULE_ID, COMPENDIUM_IDS } from "./const.js";
+import { MODULE_ID, CONDITIONS, CONDITION_PACK } from "./const.js";
 import { findInitiativeCard, renderInitiativeDice } from "./initiative.js";
 
 export async function renderStatus(observations) {
@@ -14,13 +14,12 @@ export async function renderStatus(observations) {
       const observation = observers[observerId].observation;
 
       if (!(observation.visibility in messageData)) {
-        const id = COMPENDIUM_IDS[observation.visibility];
-        const pack = "pf2e.conditionitems";
+        const id = CONDITIONS[observation.visibility];
         const text = game.i18n.localize(
           `PF2E.condition.${observation.visibility}.name`,
         );
         const title = `
-        <a class="content-link" draggable="true" data-link data-uuid="Compendium.${pack}.Item.${id}" data-id="${id}" data-type="Item" data-pack="${pack}">
+        <a class="content-link" draggable="true" data-link data-uuid="Compendium.${CONDITION_PACK}.Item.${id}" data-id="${id}" data-type="Item" data-pack="${CONDITION_PACK}">
           <i class="fa-solid fa-face-zany"></i>
           ${text}
         </a>`;

@@ -5,12 +5,14 @@ export const CONSOLE_COLORS = [
   "color: #fff",
 ];
 
-export const COMPENDIUM_IDS = {
+export const CONDITION_IDS = {
   observed: "1wQY3JYyhMYeeV2G",
   hidden: "iU0fEDdBp3rXpTMC",
   undetected: "VRSef5y1LmL2Hkjf",
   unnoticed: "9evPzg9E6muFcoSk",
 };
+
+export const CONDITION_PACK = "pf2e.conditionitems";
 
 export const SKILL_ACTIONS = [
   "action:hide",
