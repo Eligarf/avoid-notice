@@ -17,11 +17,6 @@
       "hint": "Tokeny bojowników, których widoczność została wyłączona za pomocą HUD-u tokenów, zostaną włączone. Wszelkie wyniki testów ukrycia przeciwko percepcji dla tych tokenów będą miały zastosowane odpowiednie stany."
     },
     "activity": "Aktywność eksploracyjna: {activity}",
-    "raiseShields": {
-      "name": "Podnosi tarcze Postaci podczas Obrony",
-      "hint": "Wymaga, aby Postacie trzymali tarcze i mieli aktywną akcję eksploracji Obrona.",
-      "needsHeldShield": "{actor} musi mieć wyposażoną tarczę, aby użyć {activity}."
-    },
     "autorollSpellDamage": {
       "name": "Automatyczny rzut na obrażenia od zaklęć",
       "hint": "Tylko dla zaklęć nieatakujących, które mają przycisk Rzuć obrażenia podczas początkowego tworzenia karty."
