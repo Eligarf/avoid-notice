@@ -21,10 +21,6 @@
       "name": "Autoroll spell damage",
       "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
     },
-    "rage": {
-      "name": "Enrage Barbarians at combat start",
-      "hint": "Requires the 'Quick-Tempered' feat and 'Rage' action. 'Rage' action also needs a Self-Applied Effect in order to be automated"
-    },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",

@@ -21,10 +21,6 @@
       "name": "Automatyczny rzut na obrażenia od zaklęć",
       "hint": "Tylko dla zaklęć nieatakujących, które mają przycisk Rzuć obrażenia podczas początkowego tworzenia karty."
     },
-    "rage": {
-      "name": "Wchodzenie w Szał barbarzyńców na początku walki",
-      "hint": "Wymaga atutów „Porywczy” i „Szał”.Akcja „Szał” również wymaga zastosowania samoaplikującego się efektu, aby mogła zostać zautomatyzowana."
-    },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
