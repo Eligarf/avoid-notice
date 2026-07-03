@@ -17,10 +17,6 @@
       "hint": "Tokeny bojowników, których widoczność została wyłączona za pomocą HUD-u tokenów, zostaną włączone. Wszelkie wyniki testów ukrycia przeciwko percepcji dla tych tokenów będą miały zastosowane odpowiednie stany."
     },
     "activity": "Aktywność eksploracyjna: {activity}",
-    "autorollSpellDamage": {
-      "name": "Automatyczny rzut na obrażenia od zaklęć",
-      "hint": "Tylko dla zaklęć nieatakujących, które mają przycisk Rzuć obrażenia podczas początkowego tworzenia karty."
-    },
     "requireActivity": {
       "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",

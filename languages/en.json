@@ -17,10 +17,6 @@
       "hint": "Combatant tokens whose visibility as been toggled off with token HUD will be toggled on. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
     },
     "activity": "Exploration Activity: {activity}",
-    "autorollSpellDamage": {
-      "name": "Autoroll spell damage",
-      "hint": "Only for non-attack spells that have a Roll Damage button when the card is initially created."
-    },
     "requireActivity": {
       "name": "Require 'Avoid Notice' exploration activity",
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
