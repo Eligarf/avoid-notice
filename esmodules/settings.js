@@ -17,7 +17,6 @@ export const SETTINGS = {
   panZoomToCombat: "panZoomToCombat",
 
   // Misfit settings
-  autorollSpellDamage: "autorollSpellDamage",
   clearMovement: "clearMovement",
 
   // Advanced settings
@@ -135,19 +134,6 @@ export function setupSettings() {
     default: false,
   });
 
-  game.settings.register(MODULE_ID, SETTINGS.autorollSpellDamage, {
-    name: game.i18n.localize(
-      `${MODULE_ID}.${SETTINGS.autorollSpellDamage}.name`,
-    ),
-    hint: game.i18n.localize(
-      `${MODULE_ID}.${SETTINGS.autorollSpellDamage}.hint`,
-    ),
-    scope: "client",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
   const splitVersion = game.version.split();
   const clearMovement =
     Number(splitVersion[0]) === 13 && Number(splitVersion[1]) < 347;
@@ -199,7 +185,6 @@ export function setupKeybindings() {
 
 const SETTING_GROUPS = [
   { label: "general", before: SETTINGS.panZoomToCombat },
-  { label: "misfits", before: SETTINGS.autorollSpellDamage },
   { label: "debug", before: SETTINGS.logLevel },
 ];
 
