@@ -42,6 +42,9 @@ export function getVisibilityHandler() {
   if (visibilityHandler === "auto") {
     visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
   }
+  if (visibilityHandler === "best" || visibilityHandler === "worst") {
+    visibilityHandler = disabled;
+  }
   return visibilityHandler;
 }
 
@@ -91,7 +94,9 @@ Hooks.once("ready", () => {
   );
   if (
     visibilityHandler === "perception" ||
-    visibilityHandler === "perceptive"
+    visibilityHandler === "perceptive" ||
+    visibilityHandler === "best" ||
+    visibilityHandler === "worst"
   ) {
     game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "disabled");
   } else if (visibilityHandler === "auto") {

@@ -2,10 +2,6 @@ import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
 import { log, getVisibilityHandler, refreshPerception } from "./main.js";
 import { getVisionerApi, processObservationsForVisioner } from "./visioner.js";
-import {
-  processObservationsForBestDc,
-  processObservationsForWorstDc,
-} from "./vanilla.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
@@ -186,11 +182,8 @@ Hooks.once("init", () => {
 
     // Adjust the avoider's condition
     switch (visibilityHandler) {
-      case "best":
-        await processObservationsForBestDc(observations);
-        break;
-      case "worst":
-        await processObservationsForWorstDc(observations);
+      case "effects":
+        ui.notifications.warn("Not implemented yet");
         break;
       case "visioner":
         await processObservationsForVisioner(observations);

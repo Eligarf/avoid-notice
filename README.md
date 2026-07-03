@@ -50,8 +50,6 @@ Initiative sometimes comes from a previous roll like a sneak check or the use of
 
 This module provides the GM a number of options in the game settings for automating the application of status results at combat start. Note that an avoider might end up with `undetected`, `hidden`, and `observed` on the same roll vs different observers, and target-relative conditions aren't handled by the base system - you'll need to use one of the above additional modules for that.
 
-- _auto_: this default mode will pick _PF2e Visioner_ if active, otherwise it picks _PF2e Perception_ if active.
 - _disabled_: let the GM handle everything.
-- _worst_: in the absence of target-relative visiblity tracking, use the worst degree-of-success to apply a condition to the avoider (favors the seekers), or;
-- _best_: use the best degree-of-success (favors the sneakers).
-- _visioner_: The _PF2e Visioner_ module is handles things. V13 only.
+- _effects_: this mode will use effects to apply the `undetected`, `hidden`, and `observed` conditions to avoiders, allowing the module to handle per-observer exceptions.
+- _visioner_: The _PF2e Visioner_ module is handles things.

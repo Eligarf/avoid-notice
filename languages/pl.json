@@ -36,10 +36,8 @@
     },
     "visibilityHandler": {
       "name": "Obsługa widoczności",
-      "native": "Use system conditions with per-token visibility exceptions",
       "disabled": "Nie ustawiaj statusu stanu",
-      "best": "Użyj najgorszego stopnia sukcesu (preferuj osoby szukające)",
-      "worst": "Użyj najlepszego stopnia sukcesu (preferuj osoby skradające się)",
+      "effects": "Use PF2e Avoid Notice effects to handle per-token visibility exceptions",
       "visioner": "Niech PF2e Visioner się tym zajmie"
     },
     "computeCover": {
