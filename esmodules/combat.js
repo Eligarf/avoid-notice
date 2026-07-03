@@ -177,7 +177,7 @@ Hooks.once("init", () => {
 
     // Adjust the avoider's condition
     if (options.useEffects) {
-      ui.notifications.warn("Not implemented yet");
+      ui.notifications.warn("Condition application not implemented yet");
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
