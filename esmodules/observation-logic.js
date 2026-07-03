@@ -1,6 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { log } from "./main.js";
-import { getCoverFrom, isConcealedFrom } from "./cover.js";
+import { getCoverFrom } from "./cover.js";
 
 export function makeObservation({
   avoiderApi,
@@ -16,7 +16,6 @@ export function makeObservation({
     observer,
     observerId: observerToken.id,
     tokenDoc: observerTokenDoc,
-    validAvoidance: !options.strict,
   };
 
   let coverBonus = getCoverFrom({
@@ -26,17 +25,6 @@ export function makeObservation({
   });
 
   if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
-  if (!observation.validAvoidance) {
-    observation.validAvoidance =
-      coverBonus > 1
-        ? true
-        : isConcealedFrom({
-            api: avoiderApi,
-            options,
-            observerToken,
-          });
-  }
-
   if (coverBonus > 0) {
     observation.coverBonus = coverBonus;
     const oldDelta = avoiderApi.avoider.initiative - observation.dc;
@@ -89,20 +77,14 @@ export function evaluateObservation({
   const delta = observation.delta;
   observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
 
-  if (!observation.validAvoidance) {
-    observation.visibility = "observed";
-    observation.success = false;
-    observation.deltaStr += "!";
-  } else {
-    observation.success =
-      observation.visibility !== "observed" &&
-      observation.visibility !== "hidden";
+  observation.success =
+    observation.visibility !== "observed" &&
+    observation.visibility !== "hidden";
 
-    if (options.useUnnoticed && observation.visibility === "undetected") {
-      const observerId = observation.observerId;
-      const minion = minionTokens.some((t) => t.id === observerId);
-      const eidolon = eidolonTokens.some((t) => t.id === observerId);
-      if (minion || eidolon) observation.deltaStr += "?";
-    }
+  if (options.useUnnoticed && observation.visibility === "undetected") {
+    const observerId = observation.observerId;
+    const minion = minionTokens.some((t) => t.id === observerId);
+    const eidolon = eidolonTokens.some((t) => t.id === observerId);
+    if (minion || eidolon) observation.deltaStr += "?";
   }
 }

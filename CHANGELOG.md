@@ -1,9 +1,11 @@
 # 14.1.0
 
-- Foundry v12 is no longer supported.
+- A near total rewrite of the module to provide limited visibility handling for hide/sneak/seek rolls directly in _PF2e Avoid Notice_.
+  - This is *NOT* a general visibility solution - if you need more comprehensive visibility handling, use _PF2e Visioner_ and its AVS mode.
+- Removed all the misfit features as there are now other better solutions for them is modules such as _Trigger Engine_ and _PF2e Assistant_.
+- Foundry v14 is the minimum supported version
 - Deprecate support for _Perceptive_ and _PF2e Perception_ visibility modules
 - Add visibility handling for hide/sneak/seek rolls directly in _PF2e Avoid Notice_.
-  - This is *NOT* a general visibility solution - if you need more comprehensive visibility handling, use _PF2e Visioner_ and its AVS mode.
   - Uses the system undetected/hidden conditions to track visibility but allows certain tokens to ignore those conditions when the canvas is rendered.
 
 # 14.0.2

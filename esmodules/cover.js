@@ -19,15 +19,6 @@ export function findBaseCoverBonus(avoider) {
 
 export function getCoverFrom({ api, options, observerToken }) {
   let cover = "na";
-  if (api.visionerApi) {
-    cover = options.computeCover
-      ? api.visionerApi.getAutoCoverState(
-          observerToken.id,
-          api.avoider.token.id,
-          { forceRecalculate: true },
-        )
-      : api.visionerApi.getCover(observerToken.id, api.avoider.token.id);
-  }
 
   let coverBonus = -1;
   switch (cover) {
@@ -44,15 +35,4 @@ export function getCoverFrom({ api, options, observerToken }) {
       break;
   }
   return coverBonus;
-}
-
-export function isConcealedFrom({ api, options, observerToken }) {
-  if (api.visionerApi) {
-    const visibility = api.visionerApi.getVisibility(
-      observerToken.id,
-      api.avoider.token.id,
-    );
-    return visibility === "concealed";
-  }
-  return false;
 }
