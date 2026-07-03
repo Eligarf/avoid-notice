@@ -7,7 +7,6 @@ import {
   processObservationsForWorstDc,
 } from "./vanilla.js";
 import { enrageBarbarians } from "./barbarian.js";
-import { raiseDefendingShields } from "./defender.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
@@ -26,7 +25,6 @@ Hooks.once("init", () => {
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
       revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
       strict: game.settings.get(MODULE_ID, SETTINGS.strict),
-      raiseShields: game.settings.get(MODULE_ID, SETTINGS.raiseShields),
       requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
       hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
       rage: game.settings.get(MODULE_ID, SETTINGS.rage),
@@ -171,11 +169,6 @@ Hooks.once("init", () => {
     //
     if (!game.settings.get(MODULE_ID, SETTINGS.noSummary))
       await renderStatus(observations);
-
-    // Raise the shields
-    if (options.raiseShields) {
-      await raiseDefendingShields(pcs);
-    }
 
     // Enrage the barbarians
     if (options.rage) {

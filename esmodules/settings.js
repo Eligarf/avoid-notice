@@ -20,7 +20,6 @@ export const SETTINGS = {
   autorollSpellDamage: "autorollSpellDamage",
   clearMovement: "clearMovement",
   rage: "rage",
-  raiseShields: "raiseShields",
 
   // Advanced settings
   logLevel: "logLevel",
@@ -148,15 +147,6 @@ export function setupSettings() {
     config: true,
     type: Boolean,
     default: false,
-  });
-
-  game.settings.register(MODULE_ID, SETTINGS.raiseShields, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.raiseShields}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.rage, {
