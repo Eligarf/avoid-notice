@@ -38,10 +38,8 @@ export function setupSettings() {
   const visioner = isVisionerActive();
 
   let choices = {
-    native: `${MODULE_ID}.${SETTINGS.visibilityHandler}.native`,
+    effects: `${MODULE_ID}.${SETTINGS.visibilityHandler}.effects`,
     disabled: `${MODULE_ID}.${SETTINGS.visibilityHandler}.disabled`,
-    best: `${MODULE_ID}.${SETTINGS.visibilityHandler}.best`,
-    worst: `${MODULE_ID}.${SETTINGS.visibilityHandler}.worst`,
   };
   if (visioner)
     choices.visioner = `${MODULE_ID}.${SETTINGS.visibilityHandler}.visioner`;
