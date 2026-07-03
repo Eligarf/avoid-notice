@@ -16,9 +16,6 @@ export const SETTINGS = {
   visibilityHandler: "visibilityHandler",
   panZoomToCombat: "panZoomToCombat",
 
-  // Misfit settings
-  clearMovement: "clearMovement",
-
   // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
@@ -133,20 +130,6 @@ export function setupSettings() {
     type: Boolean,
     default: false,
   });
-
-  const splitVersion = game.version.split();
-  const clearMovement =
-    Number(splitVersion[0]) === 13 && Number(splitVersion[1]) < 347;
-  if (clearMovement) {
-    game.settings.register(MODULE_ID, SETTINGS.clearMovement, {
-      name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.clearMovement}.name`),
-      hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.clearMovement}.hint`),
-      scope: "world",
-      config: true,
-      type: Boolean,
-      default: false,
-    });
-  }
 
   game.settings.register(MODULE_ID, SETTINGS.logLevel, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.name`),
