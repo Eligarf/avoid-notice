@@ -1,5 +1,5 @@
 import { interpolateString } from "./main.js";
-import { MODULE_ID, CONDITIONS, CONDITION_PACK } from "./const.js";
+import { MODULE_ID, CONDITION_IDS, CONDITION_PACK } from "./const.js";
 import { findInitiativeCard, renderInitiativeDice } from "./initiative.js";
 
 export async function renderStatus(observations) {
@@ -14,7 +14,7 @@ export async function renderStatus(observations) {
       const observation = observers[observerId].observation;
 
       if (!(observation.visibility in messageData)) {
-        const id = CONDITIONS[observation.visibility];
+        const id = CONDITION_IDS[observation.visibility];
         const text = game.i18n.localize(
           `PF2E.condition.${observation.visibility}.name`,
         );
