@@ -10,7 +10,6 @@ import {
   getVisionerApi,
   refreshVisionerPerception,
 } from "./visioner.js";
-import { registerHooksForClearMovementHistory } from "./clear-movement.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
