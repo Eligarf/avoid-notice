@@ -1,7 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
-import { log, getVisibilityHandler, refreshPerception } from "./main.js";
-import { getVisionerApi, processObservationsForVisioner } from "./visioner.js";
+import { log, isVisionerActive, refreshPerception } from "./main.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
@@ -11,15 +10,12 @@ import { zoomToCombat } from "./socket.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter) => {
-    const visibilityHandler = getVisibilityHandler();
-    const visionerApi =
-      visibilityHandler === "visioner" ? getVisionerApi() : null;
-
+    if (isVisionerActive()) return;
     const options = {
+      useEffects: game.settings.get(MODULE_ID, SETTINGS.useEffects),
       useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
       revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
-      strict: game.settings.get(MODULE_ID, SETTINGS.strict),
       requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
       hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
     };
@@ -107,7 +103,6 @@ Hooks.once("init", () => {
         : avoider.token;
 
       const avoiderApi = {
-        visionerApi,
         avoider,
         avoiderTokenDoc,
         baseCoverBonus: findBaseCoverBonus(avoiderTokenDoc),
@@ -181,13 +176,8 @@ Hooks.once("init", () => {
     let tokenUpdates = [];
 
     // Adjust the avoider's condition
-    switch (visibilityHandler) {
-      case "effects":
-        ui.notifications.warn("Not implemented yet");
-        break;
-      case "visioner":
-        await processObservationsForVisioner(observations);
-        break;
+    if (options.useEffects) {
+      ui.notifications.warn("Not implemented yet");
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
@@ -231,6 +221,7 @@ Hooks.once("init", () => {
   });
 
   Hooks.on("deleteCombat", async () => {
+    if (isVisionerActive()) return;
     if (!game.user?.isActiveGM) return;
     const cleanUp = game.settings.get(
       MODULE_ID,

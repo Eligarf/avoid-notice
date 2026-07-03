@@ -5,6 +5,13 @@ export const CONSOLE_COLORS = [
   "color: #fff",
 ];
 
+export const REFRESH_OPTIONS = {
+  refreshLighting: true,
+  refreshVision: true,
+  refreshSounds: true,
+  refreshOcclusion: true,
+};
+
 export const CONDITION_IDS = {
   observed: "1wQY3JYyhMYeeV2G",
   hidden: "iU0fEDdBp3rXpTMC",

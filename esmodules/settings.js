@@ -1,25 +1,22 @@
 import { MODULE_ID } from "./const.js";
 import { log } from "./main.js";
-import { isVisionerActive } from "./visioner.js";
 import { invokeMenu } from "./menu.js";
 
 export const SETTINGS = {
   // General settings
+  useEffects: "useEffects",
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
   computeCover: "computeCover",
   hideFromAllies: "hideFromAllies",
   noSummary: "noSummary",
   removeGmHidden: "removeGmHidden",
   requireActivity: "requireActivity",
-  strict: "strict",
   useUnnoticed: "useUnnoticed",
-  visibilityHandler: "visibilityHandler",
   panZoomToCombat: "panZoomToCombat",
 
   // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
-  useNewApis: "useBulkApi",
 
   // keybindings
   menu: "menu",
@@ -35,22 +32,13 @@ export function setupSettings() {
     default: true,
   });
 
-  const visioner = isVisionerActive();
-
-  let choices = {
-    effects: `${MODULE_ID}.${SETTINGS.visibilityHandler}.effects`,
-    disabled: `${MODULE_ID}.${SETTINGS.visibilityHandler}.disabled`,
-  };
-  if (visioner)
-    choices.visioner = `${MODULE_ID}.${SETTINGS.visibilityHandler}.visioner`;
-
-  game.settings.register(MODULE_ID, SETTINGS.visibilityHandler, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.name`),
+  game.settings.register(MODULE_ID, SETTINGS.useEffects, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.hint`),
     scope: "world",
     config: true,
-    type: String,
-    choices,
-    default: "disabled",
+    type: Boolean,
+    default: false,
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
@@ -120,15 +108,6 @@ export function setupSettings() {
     default: false,
   });
 
-  game.settings.register(MODULE_ID, SETTINGS.strict, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.strict}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.strict}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register(MODULE_ID, SETTINGS.logLevel, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.name`),
     scope: "client",
@@ -140,15 +119,6 @@ export function setupSettings() {
       log: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.log`),
     },
     default: "none",
-  });
-
-  game.settings.register(MODULE_ID, SETTINGS.useNewApis, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
   });
 }
 

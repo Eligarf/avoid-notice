@@ -10,7 +10,7 @@
     },
     "useUnnoticed": {
       "name": "Użyj stanu Niezauważony",
-      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy ukrycia przewyższa współczynnik ST i inicjatywę celu. Walczący, którzy nie zostali zauważeni przez żadnego z bohaterów, nie zostaną automatycznie wykryci po użyciu tej opcji. W przypadku konwersacji z PF2e Visioner należy traktować to jako „Niewykryty”."
+      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy ukrycia przewyższa współczynnik ST i inicjatywę celu. Walczący, którzy nie zostali zauważeni przez żadnego z bohaterów, nie zostaną automatycznie wykryci po użyciu tej opcji."
     },
     "removeGmHidden": {
       "name": "Włącz opcję „MG – ukryci przeciwnicy” na początku walki.",
@@ -22,10 +22,6 @@
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
-    "strict": {
-      "name": "Tryb ścisły",
-      "hint": "Nie zalecane, prawdopodobnie nie będziemy reagować na zgłoszenia błędów związane z pojawieniem się czegoś, co nie powinno się pojawić. Wymagaj, aby tokeny unikające miały wyraźne stany zakrycia lub przysłonięcia przed tokenami obserwującymi, aby stały się niewidoczne lub niewykrywalne dla nich."
-    },
     "noSummary": {
       "name": "Wyłącz podsumowania kart czatu",
       "hint": "Pominie aktualizację karty inicjatywy o wyniki ukrycia"
@@ -33,12 +29,6 @@
     "hideFromAllies": {
       "name": "Zastosuj efekty ukrycia do sojuszników",
       "hint": "Jeśli opcja jest włączona, ukrycie zostanie zastosowane zarówno wobec tokenów sojuszniczych, jak i nie sojuszniczych"
-    },
-    "visibilityHandler": {
-      "name": "Obsługa widoczności",
-      "disabled": "Nie ustawiaj statusu stanu",
-      "effects": "Use PF2e Avoid Notice effects to handle per-token visibility exceptions",
-      "visioner": "Niech PF2e Visioner się tym zajmie"
     },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",
@@ -51,10 +41,6 @@
     "clearPartyStealthAfterCombat": {
       "name": "Usuń Ukrycie z drużyny po walce",
       "hint": "Usuwa stan Ukrycie z tokenów drużyny w bieżącej scenie po zakończeniu walki."
-    },
-    "useBulkApi": {
-      "name": "Korzystaj z eksperymentalnych interfejsów API Visioner",
-      "hint": "Te interfejsy API są w trakcie opracowywania. Korzystaj z nich na własne ryzyko."
     },
     "panZoomToCombat": {
       "name": "Przesunięcie / Powiększenie w walce",

@@ -1,15 +1,10 @@
-import { MODULE_ID, CONSOLE_COLORS } from "./const.js";
+import { MODULE_ID, CONSOLE_COLORS, REFRESH_OPTIONS } from "./const.js";
 import {
   SETTINGS,
   setupSettings,
   setupKeybindings,
   groupSettings,
 } from "./settings.js";
-import {
-  isVisionerActive,
-  getVisionerApi,
-  refreshVisionerPerception,
-} from "./visioner.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
@@ -33,27 +28,13 @@ export function localizeString(str, interpolations) {
   return interpolateString(game.i18n.localize(str), interpolations);
 }
 
-export function getVisibilityHandler() {
-  let visibilityHandler = game.settings.get(
-    MODULE_ID,
-    SETTINGS.visibilityHandler,
-  );
-  if (visibilityHandler === "auto") {
-    visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
-  }
-  if (visibilityHandler === "best" || visibilityHandler === "worst") {
-    visibilityHandler = disabled;
-  }
-  return visibilityHandler;
-}
-
 export function refreshPerception() {
-  const handler = getVisibilityHandler();
-  if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
+  canvas.perception.update(REFRESH_OPTIONS);
 }
 
 // Hooks.once("init", () => {
 //   Hooks.on("createChatMessage", async (message, options, id) => {
+//     if (isVisionerActive()) return;
 //     if (game.userId != id) return;
 //     // const systemFlags = message?.flags?.[game.system.id];
 //     //
@@ -85,32 +66,23 @@ function migrate(moduleVersion, oldVersion) {
   return moduleVersion;
 }
 
-Hooks.once("ready", () => {
-  // Handle perceptive or perception module getting yoinked
-  const visibilityHandler = game.settings.get(
-    MODULE_ID,
-    SETTINGS.visibilityHandler,
-  );
-  if (
-    visibilityHandler === "perception" ||
-    visibilityHandler === "perceptive" ||
-    visibilityHandler === "best" ||
-    visibilityHandler === "worst"
-  ) {
-    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "disabled");
-  } else if (visibilityHandler === "auto") {
-    game.settings.set(
-      MODULE_ID,
-      SETTINGS.visibilityHandler,
-      isVisionerActive() ? "visioner" : "disabled",
-    );
-  }
+export function isVisionerActive() {
+  return game.modules.get("pf2e-visioner")?.active;
+}
 
+Hooks.once("ready", () => {
   if (
     game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat) &&
     typeof socketlib === "undefined"
   ) {
-    showNotification(`{MODULE_ID}.notifications.noSocketLib`, "warn");
+    ui.notifications.warn(
+      game.i18n.localize(`${MODULE_ID}.notifications.noSocketLib`),
+    );
+  }
+  if (isVisionerActive()) {
+    ui.notifications.warn(
+      game.i18n.localize(`${MODULE_ID}.notifications.visionerActive`),
+    );
   }
 });
 

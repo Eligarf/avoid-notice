@@ -1,10 +1,4 @@
-import {
-  interpolateString,
-  getVisibilityHandler,
-  log,
-  refreshPerception,
-} from "./main.js";
-import { getVisionerApi, clearVisionerData } from "./visioner.js";
+import { interpolateString, refreshPerception, log } from "./main.js";
 import { SETTINGS } from "./settings.js";
 import { MODULE_ID } from "./const.js";
 
@@ -13,12 +7,6 @@ export async function clearTokenStealth({
   refresh = true,
   showBanner = false,
 } = {}) {
-  const visibilityHandler = getVisibilityHandler();
-
-  const visionerApi =
-    visibilityHandler === "visioner" ? getVisionerApi() : null;
-  if (visionerApi) await clearVisionerData({ token, visionerApi, refresh });
-
   const conditions = token.actor.items
     .filter((i) =>
       ["hidden", "undetected", "unnoticed"].includes(i.system.slug),
@@ -45,24 +33,8 @@ export async function clearPartyStealth({ showBanner = false }) {
     game.actors.party.members.some((a) => a.id === t?.actor?.id),
   );
 
-  // If using visioner and new APIs, do a bulk update
-  const visibilityHandler = getVisibilityHandler();
-  const visionerApi =
-    visibilityHandler === "visioner" ? getVisionerApi() : null;
-  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
-  if (
-    visionerApi &&
-    useNewApis &&
-    "clearAllDataForSelectedTokens" in visionerApi
-  ) {
-    await visionerApi.clearAllDataForSelectedTokens(party);
-  }
-
-  // Otherwise, clear one by one
-  else {
-    for (const token of party) {
-      await clearTokenStealth({ token, refresh: false });
-    }
+  for (const token of party) {
+    await clearTokenStealth({ token, refresh: false });
   }
 
   // Refresh everyone and maybe show banner
