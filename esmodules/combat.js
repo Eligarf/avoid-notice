@@ -6,7 +6,6 @@ import {
   processObservationsForBestDc,
   processObservationsForWorstDc,
 } from "./vanilla.js";
-import { enrageBarbarians } from "./barbarian.js";
 import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
@@ -27,7 +26,6 @@ Hooks.once("init", () => {
       strict: game.settings.get(MODULE_ID, SETTINGS.strict),
       requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
       hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
-      rage: game.settings.get(MODULE_ID, SETTINGS.rage),
     };
 
     // Build out the various lists of combatant types
@@ -169,11 +167,6 @@ Hooks.once("init", () => {
     //
     if (!game.settings.get(MODULE_ID, SETTINGS.noSummary))
       await renderStatus(observations);
-
-    // Enrage the barbarians
-    if (options.rage) {
-      await enrageBarbarians(pcs);
-    }
 
     // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {

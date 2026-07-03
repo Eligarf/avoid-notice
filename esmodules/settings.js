@@ -19,7 +19,6 @@ export const SETTINGS = {
   // Misfit settings
   autorollSpellDamage: "autorollSpellDamage",
   clearMovement: "clearMovement",
-  rage: "rage",
 
   // Advanced settings
   logLevel: "logLevel",
@@ -144,15 +143,6 @@ export function setupSettings() {
       `${MODULE_ID}.${SETTINGS.autorollSpellDamage}.hint`,
     ),
     scope: "client",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
-  game.settings.register(MODULE_ID, SETTINGS.rage, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.rage}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.rage}.hint`),
-    scope: "world",
     config: true,
     type: Boolean,
     default: false,
