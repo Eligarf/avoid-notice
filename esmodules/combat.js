@@ -1,7 +1,11 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
 import { log, isVisionerActive, refreshPerception } from "./main.js";
-import { findInitiativeCard, modifyInitiativeCard } from "./initiative.js";
+import {
+  findInitiativeCard,
+  modifyInitiativeCard,
+  applyInitiativeConditions,
+} from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
 import { makeObservation, evaluateObservation } from "./observation-logic.js";
@@ -177,7 +181,7 @@ Hooks.once("init", () => {
 
     // Adjust the avoider's condition
     if (options.useEffects) {
-      ui.notifications.warn("Condition application not implemented yet");
+      await applyInitiativeConditions(observations, tokenUpdates);
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility

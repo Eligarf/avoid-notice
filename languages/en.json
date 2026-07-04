@@ -79,6 +79,12 @@
         "label": "Prepare Ambush",
         "hint": "Set all selected tokens to 'Avoid Notice' exploration activity and roll stealth for initiative"
       }
+    },
+    "effects": {
+      "stealth": {
+        "name": "Stealth",
+        "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
+      }
     }
   }
 }
