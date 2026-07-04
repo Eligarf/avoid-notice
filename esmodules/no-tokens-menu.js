@@ -1,22 +1,24 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { log } from "./main.js";
+import { debuglog } from "./main.js";
 import { clearPartyStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 
 export async function invokeNoTokensMenu({ combatState }) {
-  const choice = await AvoidNoticePopupMenu.show(
-    `${MODULE_ID}.menu.noTokensSelected`,
-    [
-      {
-        key: "clear-party-stealth",
-        label: `${MODULE_ID}.menu.clearPartyStealth.label`,
-        hint: `${MODULE_ID}.menu.clearPartyStealth.hint`,
-      },
-    ],
-  );
+  debuglog("invokeNoTokensMenu", combatState);
+
+  let choices = [
+    {
+      key: "remove-party-stealth",
+      label: game.i18n.localize(`${MODULE_ID}.menu.clearPartyStealth.label`),
+      hint: `${MODULE_ID}.menu.clearPartyStealth.hint`,
+    },
+  ];
+
+  choices.sort((a, b) => a.label.localeCompare(b.label));
+  const choice = await AvoidNoticePopupMenu.show(choices);
 
   switch (choice) {
-    case "clear-party-stealth":
+    case "remove-party-stealth":
       clearPartyStealth({});
       break;
   }
