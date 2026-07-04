@@ -1,4 +1,4 @@
-import { MODULE_ID, CONDITION_IDS, CONDITION_PACK } from "./const.js";
+import { MODULE_ID, CONDITION_IDS, CONDITION_PACK, SLUGS } from "./const.js";
 import { SETTINGS } from "./settings.js";
 import { log } from "./main.js";
 
@@ -12,6 +12,7 @@ export async function createStealthEffect(actor, rules, flags) {
       description: {
         value: game.i18n.localize(`${MODULE_ID}.effects.stealth.description`),
       },
+      slug: SLUGS.stealthEffect,
       slug: "pf2e-avoid-notice-stealth",
       duration: {
         value: -1,

@@ -31,6 +31,7 @@ export const SLUGS = {
   stealth: "stealth",
   perception: "perception",
   avoidNotice: "avoid-notice",
+  stealthEffect: "pf2e-avoid-notice-stealth",
 };
 
 export const AVOIDER_CONDITION_SLUGS = ["hidden", "undetected", "unnoticed"];
