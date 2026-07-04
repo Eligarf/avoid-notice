@@ -4,7 +4,7 @@ import { MODULE_ID } from "./const.js";
 import { localizeString, debuglog } from "./main.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
-  debuglog("invokeTokensMenu", selection, combatState);
+  debuglog("invokeTokensMenu", { selection, combatState });
   const title = localizeString(`${MODULE_ID}.menu.tokensSelected`, {
     type: selection.type,
   });
