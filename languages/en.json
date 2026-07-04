@@ -65,23 +65,23 @@
     },
     "menu": {
       "noTokensSelected": "No tokens selected",
-      "tokensSelected": "Tokens {type}",
+      "tokensSelected": "{type} Tokens",
       "tokensConnected": "Connected Tokens",
       "type": {
         "targeted": "Targeted",
         "controlled": "Controlled"
       },
       "clearPartyStealth": {
-        "label": "Clear Party Stealth",
-        "hint": "Clear stealth conditions from all party members"
+        "label": "Remove Party Stealth",
+        "hint": "Remove stealth effects from all party members"
       },
       "prepareAmbush": {
         "label": "Prepare Ambush",
-        "hint": "Set all {type} tokens to 'Avoid Notice' exploration activity and roll stealth for initiative"
+        "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
       "removeStealth": {
-        "label": "Remove Token Stealth",
-        "hint": "Remove stealth effect from {type} tokens"
+        "label": "Remove Stealth Effects",
+        "hint": "Remove stealth effects from {type} tokens"
       }
     },
     "effects": {
