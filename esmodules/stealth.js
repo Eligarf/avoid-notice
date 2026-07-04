@@ -1,6 +1,6 @@
 import { interpolateString, refreshPerception, log } from "./main.js";
 import { SETTINGS } from "./settings.js";
-import { MODULE_ID } from "./const.js";
+import { MODULE_ID, SLUGS } from "./const.js";
 
 export async function clearTokenStealth({
   token,
@@ -8,9 +8,7 @@ export async function clearTokenStealth({
   showBanner = false,
 } = {}) {
   const conditions = token.actor.items
-    .filter((i) =>
-      ["hidden", "undetected", "unnoticed"].includes(i.system.slug),
-    )
+    .filter((i) => i.system.slug === SLUGS.stealthEffect)
     .map((i) => i.id);
   if (conditions.length > 0) {
     await token.actor.deleteEmbeddedDocuments("Item", conditions);
