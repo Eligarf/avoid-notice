@@ -32,30 +32,30 @@ export function refreshPerception() {
   canvas.perception.update(REFRESH_OPTIONS);
 }
 
-// Hooks.once("init", () => {
-//   Hooks.on("createChatMessage", async (message, options, id) => {
-//     if (isVisionerActive()) return;
-//     if (game.userId != id) return;
-//     // const systemFlags = message?.flags?.[game.system.id];
-//     //
-//     // // Accept only spell casting of non-attack damaging spells
-//     // if (!systemFlags?.casting) return;
-//     // const originUuid = systemFlags?.origin?.uuid;
-//     // const origin = originUuid ? await fromUuid(originUuid) : null;
-//     // if (origin?.traits?.has("attack")) return;
-//     // if (
-//     //   !message.content.includes(
-//     //     '<button type="button" data-action="spell-damage" data-visibility="owner">',
-//     //   )
-//     // )
-//     //   return;
-//     //
-//     // // Roll the damage!
-//     // origin?.rollDamage({ target: message.token });
-//   });
-//
-//   setupKeybindings();
-// });
+Hooks.once("init", () => {
+  // Hooks.on("createChatMessage", async (message, options, id) => {
+  //   if (isVisionerActive()) return;
+  //   if (game.userId != id) return;
+  //   const systemFlags = message?.flags?.[game.system.id];
+  //
+  //   // Accept only spell casting of non-attack damaging spells
+  //   if (!systemFlags?.casting) return;
+  //   const originUuid = systemFlags?.origin?.uuid;
+  //   const origin = originUuid ? await fromUuid(originUuid) : null;
+  //   if (origin?.traits?.has("attack")) return;
+  //   if (
+  //     !message.content.includes(
+  //       '<button type="button" data-action="spell-damage" data-visibility="owner">',
+  //     )
+  //   )
+  //     return;
+  //
+  //   // Roll the damage!
+  //   origin?.rollDamage({ target: message.token });
+  // });
+
+  setupKeybindings();
+});
 
 function migrate(moduleVersion, oldVersion) {
   if (oldVersion !== moduleVersion) {
