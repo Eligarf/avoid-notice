@@ -1,4 +1,4 @@
-import { interpolateString, refreshPerception, log } from "./main.js";
+import { interpolateString, refreshPerception, debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 
@@ -7,11 +7,13 @@ export async function clearTokenStealth({
   refresh = true,
   showBanner = false,
 } = {}) {
-  const conditions = token.actor.items
-    .filter((i) => i.system.slug === SLUGS.stealthEffect)
-    .map((i) => i.id);
+  const actor = token?.actor;
+  const conditions =
+    actor?.items
+      .filter((i) => i.system.slug === SLUGS.stealthEffect)
+      .map((i) => i.id) || [];
   if (conditions.length > 0) {
-    await token.actor.deleteEmbeddedDocuments("Item", conditions);
+    await actor.deleteEmbeddedDocuments("Item", conditions);
   }
 
   if (showBanner) {

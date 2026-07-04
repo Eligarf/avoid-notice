@@ -1,5 +1,5 @@
 import { CONDITION_IDS, CONDITION_PACK, MODULE_ID } from "./const.js";
-import { log, interpolateString } from "./main.js";
+import { debuglog, interpolateString } from "./main.js";
 import { createStealthEffect } from "./effects.js";
 
 export function renderInitiativeDice(roll) {
@@ -71,7 +71,7 @@ const EXCEPTIONS = {
 };
 
 export async function applyInitiativeConditions(observations, tokenUpdates) {
-  log("applyInitiativeConditions", { observations, tokenUpdates });
+  debuglog("applyInitiativeConditions", { observations, tokenUpdates });
   let results = {};
   for (const avoiderId in observations) {
     const { avoiderApi, observers } = observations[avoiderId];
@@ -117,6 +117,10 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
 
     // If no rules to apply, nothing to do for this avoider
     if (!rules.length) continue;
+    debuglog(`Applying initiative conditions for ${avoider.name}`, {
+      rules,
+      flags,
+    });
 
     // Now we need to create an effect and apply the flags and rules to it.
     await createStealthEffect(avoider.actor, rules, flags);

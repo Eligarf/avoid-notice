@@ -18,6 +18,11 @@ export function log(format, ...args) {
   }
 }
 
+export function debuglog(format, ...args) {
+  const level = game.settings.get(MODULE_ID, SETTINGS.logLevel);
+  if (level === "debug") console.debug(...colorizeOutput(format, ...args));
+}
+
 export function interpolateString(str, interpolations) {
   return str.replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) =>
     interpolations.hasOwnProperty(key) ? interpolations[key] : match,

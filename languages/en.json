@@ -77,7 +77,11 @@
       },
       "prepareAmbush": {
         "label": "Prepare Ambush",
-        "hint": "Set all selected tokens to 'Avoid Notice' exploration activity and roll stealth for initiative"
+        "hint": "Set all {type} tokens to 'Avoid Notice' exploration activity and roll stealth for initiative"
+      },
+      "removeStealth": {
+        "label": "Remove Token Stealth",
+        "hint": "Remove stealth effect from {type} tokens"
       }
     },
     "effects": {
