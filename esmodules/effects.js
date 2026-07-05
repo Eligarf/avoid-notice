@@ -7,7 +7,9 @@ export async function createStealthEffect(actor, rules, flags) {
     type: "effect",
     name: game.i18n.localize(`${MODULE_ID}.effects.stealth.name`),
     img: "systems/pf2e/icons/conditions/unnoticed.webp",
-    flags: {},
+    flags: {
+      [MODULE_ID]: flags,
+    },
     system: {
       description: {
         value: game.i18n.localize(`${MODULE_ID}.effects.stealth.description`),
@@ -28,9 +30,6 @@ export async function createStealthEffect(actor, rules, flags) {
       badge: null,
     },
   };
-  if (flags) {
-    effectData.flags[MODULE_ID] = flags;
-  }
 
   // log(`Creating stealth effect for actor ${actor.name}`, effectData);
   await actor.createEmbeddedDocuments("Item", [effectData]);

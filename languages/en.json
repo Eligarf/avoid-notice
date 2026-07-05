@@ -84,7 +84,7 @@
         "hint": "Remove stealth effects from {type} tokens"
       },
       "encounterTest": {
-        "label": "Encounter Test",
+        "label": "Do they notice?",
         "hint": "Run a stealth vs perception test for all stealthing {type} tokens"
       }
     },
@@ -93,6 +93,10 @@
         "name": "Stealth",
         "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
       }
+    },
+    "encounter": {
+      "name": "Encounter Test",
+      "npcs": "Roll stealth for NPCs"
     }
   }
 }
