@@ -72,7 +72,6 @@ const EXCEPTIONS = {
 
 export async function applyInitiativeConditions(observations, tokenUpdates) {
   debuglog("applyInitiativeConditions", { observations, tokenUpdates });
-  let results = {};
   for (const avoiderId in observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
