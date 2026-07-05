@@ -6,7 +6,7 @@ export async function encounterTest(tokens) {
   const avoiders = [];
   await iterateTokensAndParties(tokens, async (token) => {
     if (isAvoider(token)) {
-      avoiders.push(token);
+      if (!avoiders.includes(token)) avoiders.push(token);
     }
   });
 
@@ -14,10 +14,13 @@ export async function encounterTest(tokens) {
     (token) => token.document.disposition === 1,
   );
   const enemies = tokens.filter((token) => token.document.disposition === -1);
-  debuglog("friendly avoiders vs enemies", { friendlyAvoiders, enemies });
 
+  let content = `<div><h3>${localizeString(`${MODULE_ID}.encounter.name`)}</h3></div>`;
+  let actions = { party: {} };
   for (const token of friendlyAvoiders) {
-    debuglog(`encounterTest: friendly avoider ${token.name} (${token.id})`);
+    const actionId = foundry.utils.randomID();
+    actions.party[actionId] = { tokenId: token.id };
+    content += `<button class="avoid-notice-pc" data-action-id="${actionId}" data-module="${MODULE_ID}">${token.name}</button></br>`;
   }
 
   const enemyAvoiders = avoiders.filter(
@@ -26,12 +29,32 @@ export async function encounterTest(tokens) {
   let friendlies = [];
   await iterateTokensAndParties(tokens, async (token) => {
     if (token.document.disposition === 1) {
-      friendlies.push(token);
+      if (!friendlies.includes(token)) friendlies.push(token);
     }
   });
-  debuglog("enemy avoiders vs friendlies", { enemyAvoiders, friendlies });
 
+  content += `<div data-visibility="gm">`;
+  const actionId = foundry.utils.randomID();
+  actions[actionId] = [];
   for (const token of enemyAvoiders) {
-    debuglog(`encounterTest: enemy avoider ${token.name} (${token.id})`);
+    actions[actionId].push(token.id);
+    content += `${token.name}</br>`;
   }
+  content += `<button class="avoid-notice-npcs" data-action-id="${actionId}" data-module="${MODULE_ID}">${localizeString(`${MODULE_ID}.encounter.npcs`)}</button>`;
+
+  const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
+  await ChatMessage.create({
+    content,
+    whisper: gmIds,
+    rollmode: "gmroll",
+    flags: {
+      [MODULE_ID]: {
+        actions,
+        enemyIds: enemyAvoiders.map((token) => token.id),
+        partyIds: friendlies.map((token) => token.id),
+      },
+    },
+  });
 }
+
+Hooks.on("renderChatMessage", (message, html, data) => {});

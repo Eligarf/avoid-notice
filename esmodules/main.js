@@ -55,8 +55,8 @@ export async function iterateTokensAndParties(tokens, callback) {
   }
 }
 
-Hooks.once("init", () => {
-  // Hooks.on("createChatMessage", async (message, options, id) => {
+function hookMessages(message, options, id) {
+  debuglog("createChatMessage", { message, options, id });
   //   if (isVisionerActive()) return;
   //   if (game.userId != id) return;
   //   const systemFlags = message?.flags?.[game.system.id];
@@ -75,7 +75,12 @@ Hooks.once("init", () => {
   //
   //   // Roll the damage!
   //   origin?.rollDamage({ target: message.token });
-  // });
+}
+
+Hooks.once("init", () => {
+  Hooks.on("createChatMessage", async (message, options, id) => {
+    hookMessages(message, options, id);
+  });
 
   setupKeybindings();
 });
