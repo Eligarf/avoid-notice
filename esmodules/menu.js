@@ -1,10 +1,5 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-import {
-  MODULE_ID,
-  AVOIDER_CONDITION_SLUGS,
-  COMBAT_STATES,
-  SLUGS,
-} from "./const.js";
+import { MODULE_ID, COMBAT_STATES, SLUGS } from "./const.js";
 import { log, isVisionerActive } from "./main.js";
 import { invokeNoTokensMenu } from "./no-tokens-menu.js";
 import { invokeTokensMenu } from "./tokens-menu.js";
@@ -75,15 +70,11 @@ export function isAvoider(token, combatState) {
   const actor = token?.actor;
   if (!actor) return false;
 
-  // If you have one of the conditions you are an avoider
-  if (
-    actor?.items?.some((item) =>
-      AVOIDER_CONDITION_SLUGS.includes(item.system.slug),
-    )
-  )
+  // If you have a stealth effect you are an avoider
+  if (actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect))
     return true;
 
-  // once combat starts, a combantant has to have an avoiding condition to be an avoider
+  // once combat starts, a combantant has to have the stealth effect
   const combatant = game.combats?.active?.combatants?.contents?.some(
     (c) => c.token?.id === token.id,
   );

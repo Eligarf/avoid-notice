@@ -82,6 +82,10 @@
       "removeStealth": {
         "label": "Remove Stealth Effects",
         "hint": "Remove stealth effects from {type} tokens"
+      },
+      "encounterTest": {
+        "label": "Encounter Test",
+        "hint": "Run a stealth vs perception test for all stealthing {type} tokens"
       }
     },
     "effects": {

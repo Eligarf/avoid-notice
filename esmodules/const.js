@@ -34,8 +34,6 @@ export const SLUGS = {
   stealthEffect: "pf2e-avoid-notice-stealth",
 };
 
-export const AVOIDER_CONDITION_SLUGS = ["hidden", "undetected", "unnoticed"];
-
 export const COMBAT_STATES = {
   inactive: "inactive",
   active: "active",
