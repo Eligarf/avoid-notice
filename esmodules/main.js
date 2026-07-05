@@ -37,6 +37,24 @@ export function refreshPerception() {
   canvas.perception.update(REFRESH_OPTIONS);
 }
 
+export async function iterateTokensAndParties(tokens, callback) {
+  for (const token of tokens) {
+    const actor = token.actor;
+    if (!actor) continue;
+    if (actor?.type !== "party") {
+      await callback(token);
+      continue;
+    }
+
+    for (const member of actor.members) {
+      const token = canvas.tokens.placeables.find(
+        (t) => t.actor?.id === member.id,
+      );
+      if (token) await callback(token);
+    }
+  }
+}
+
 Hooks.once("init", () => {
   // Hooks.on("createChatMessage", async (message, options, id) => {
   //   if (isVisionerActive()) return;

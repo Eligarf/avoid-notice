@@ -1,7 +1,8 @@
-import { AvoidNoticePopupMenu, isAvoider } from "./menu.js";
+import { AvoidNoticePopupMenu } from "./menu.js";
 import { hideTokens, clearTokenStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
-import { localizeString, debuglog } from "./main.js";
+import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
+import { encounterTest } from "./encounter-test.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
   debuglog("invokeTokensMenu", { selection, combatState });
@@ -30,33 +31,18 @@ export async function invokeTokensMenu({ selection, combatState }) {
     });
   }
 
-  // If we have a mixed bag, look to see if we could do an encounter test
-  let friendlyAvoiders = [];
-  let unfriendlyAvoiders = [];
-
   if (
     combatState === "inactive" &&
     selection.dispositions.has(1) &&
     selection.dispositions.has(-1)
   ) {
-    const avoiders = selection.tokens.filter((token) => isAvoider(token));
-    if (avoiders.length > 0) {
-      friendlyAvoiders = avoiders.filter(
-        (token) => token.document.disposition === 1,
-      );
-      unfriendlyAvoiders = avoiders.filter(
-        (token) => token.document.disposition === -1,
-      );
-      if (friendlyAvoiders.length > 0 && unfriendlyAvoiders.length > 0) {
-        choices.push({
-          key: "encounter-test",
-          label: game.i18n.localize(`${MODULE_ID}.menu.encounterTest.label`),
-          hint: localizeString(`${MODULE_ID}.menu.encounterTest.hint`, {
-            type: selection.type,
-          }),
-        });
-      }
-    }
+    choices.push({
+      key: "encounter-test",
+      label: game.i18n.localize(`${MODULE_ID}.menu.encounterTest.label`),
+      hint: localizeString(`${MODULE_ID}.menu.encounterTest.hint`, {
+        type: selection.type,
+      }),
+    });
   }
 
   choices.sort((a, b) => a.label.localeCompare(b.label));
@@ -69,16 +55,13 @@ export async function invokeTokensMenu({ selection, combatState }) {
       break;
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
-      for (const token of selection.tokens) {
+      await iterateTokensAndParties(selection.tokens, async (token) => {
         await clearTokenStealth({ token });
-      }
+      });
       break;
     case "encounter-test":
-      debuglog("encounter-test", {
-        tokens: selection.tokens,
-        friendlyAvoiders,
-        unfriendlyAvoiders,
-      });
+      debuglog("encounter-test", selection.tokens);
+      await encounterTest(selection.tokens);
       break;
   }
 }
