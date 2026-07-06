@@ -83,8 +83,8 @@
         "label": "Remove Stealth Effects",
         "hint": "Remove stealth effects from {type} tokens"
       },
-      "encounterTest": {
-        "label": "Do they notice?",
+      "checkAvoidance": {
+        "label": "Check Avoidance",
         "hint": "Run a stealth vs perception test for all stealthing {type} tokens"
       }
     },
@@ -94,8 +94,8 @@
         "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
       }
     },
-    "encounter": {
-      "title": "Avoiding Notice"
+    "avoidanceCheck": {
+      "title": "Avoidance Check"
     }
   }
 }

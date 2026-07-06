@@ -2,7 +2,7 @@ import { AvoidNoticePopupMenu } from "./menu.js";
 import { hideTokens, clearTokenStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
-import { encounterTest } from "./encounter-test.js";
+import { checkAvoidance } from "./encounter-test.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
   debuglog("invokeTokensMenu", { selection, combatState });
@@ -34,12 +34,12 @@ export async function invokeTokensMenu({ selection, combatState }) {
   if (
     combatState === "inactive" &&
     selection.dispositions.has(1) &&
-    selection.dispositions.has(-1)
+    selection.dispositions.size > 1
   ) {
     choices.push({
-      key: "encounter-test",
-      label: game.i18n.localize(`${MODULE_ID}.menu.encounterTest.label`),
-      hint: localizeString(`${MODULE_ID}.menu.encounterTest.hint`, {
+      key: "check-avoidance",
+      label: game.i18n.localize(`${MODULE_ID}.menu.checkAvoidance.label`),
+      hint: localizeString(`${MODULE_ID}.menu.checkAvoidance.hint`, {
         type: selection.type,
       }),
     });
@@ -59,9 +59,9 @@ export async function invokeTokensMenu({ selection, combatState }) {
         await clearTokenStealth({ token });
       });
       break;
-    case "encounter-test":
-      debuglog("encounter-test", selection.tokens);
-      await encounterTest(selection.tokens);
+    case "check-avoidance":
+      debuglog("check-avoidance", selection.tokens);
+      await checkAvoidance(selection.tokens);
       break;
   }
 }
