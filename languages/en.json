@@ -95,8 +95,7 @@
       }
     },
     "encounter": {
-      "name": "Encounter Test",
-      "npcs": "Roll stealth for NPCs"
+      "title": "Avoiding Notice"
     }
   }
 }
