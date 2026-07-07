@@ -2,7 +2,7 @@ import { AvoidNoticePopupMenu } from "./menu.js";
 import { hideTokens, clearTokenStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
-import { checkAvoidance } from "./encounter-test.js";
+import { checkAvoidance } from "./avoidance-check.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
   debuglog("invokeTokensMenu", { selection, combatState });
