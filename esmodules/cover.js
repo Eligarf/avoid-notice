@@ -1,7 +1,7 @@
 import { log } from "./main.js";
 
 export function findBaseCoverBonus(avoider) {
-  const coverEffect = avoider.actor.items.find(
+  const coverEffect = avoider.items.find(
     (i) => i.system.slug === "effect-cover",
   );
   const systemFlags =

@@ -1,7 +1,11 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
 import { hideTokens, clearTokenStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
-import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
+import {
+  localizeString,
+  debuglog,
+  iterateActorsForTokensAndParties,
+} from "./main.js";
 import { checkAvoidance } from "./avoidance-check.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
@@ -55,9 +59,12 @@ export async function invokeTokensMenu({ selection, combatState }) {
       break;
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
-      await iterateTokensAndParties(selection.tokens, async (token) => {
-        await clearTokenStealth({ token });
-      });
+      await iterateActorsForTokensAndParties(
+        selection.tokens,
+        async (token) => {
+          await clearTokenStealth({ token });
+        },
+      );
       break;
     case "check-avoidance":
       debuglog("check-avoidance", selection.tokens);

@@ -1,10 +1,13 @@
 import { isAvoider } from "./menu.js";
 import { MODULE_ID } from "./const.js";
-import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
+import {
+  localizeString,
+  debuglog,
+  iterateActorsForTokensAndParties,
+} from "./main.js";
 import { findBaseCoverBonus } from "./cover.js";
 
-async function rollStealth(token, options = { skipDialog: true }) {
-  const actor = token.actor;
+async function rollStealth(actor, options = { skipDialog: true }) {
   const skill = actor?.skills?.stealth;
   const roll = skill.roll({
     rollMode: "selfroll",
@@ -12,7 +15,7 @@ async function rollStealth(token, options = { skipDialog: true }) {
     createMessage: false,
     traits: ["secret", "exploration"],
   });
-  debuglog("rollStealth", { token, actor, skill, roll });
+  debuglog("rollStealth", { actor, skill, roll });
   return roll;
 }
 
@@ -35,11 +38,11 @@ function testAvoiderAgainstObservers(avoider, roll, observers) {
   const dosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
   const cover = findBaseCoverBonus(avoider);
   const observations = observers
-    .filter((observer) => observer.actor?.system?.perception?.dc)
+    .filter((observer) => observer?.system?.perception?.dc)
     .map((observer) => {
       return testAvoidance({
         stealth,
-        dc: observer.actor.system.perception.dc,
+        dc: observer.system.perception.dc,
         observer,
         dosDelta,
         cover,
@@ -50,17 +53,23 @@ function testAvoiderAgainstObservers(avoider, roll, observers) {
 
 export async function checkAvoidance(tokens) {
   // Get our list of friendly and enemy tokens, walking through the party token if necessary
-  let friendlies = [];
-  await iterateTokensAndParties(tokens, async (token) => {
-    if (token.document.disposition === 1) {
-      if (!friendlies.includes(token)) friendlies.push(token);
-    }
+  const friendlyTokens = tokens.filter(
+    (token) => token.document.disposition === 1,
+  );
+  const enemyTokens = tokens.filter(
+    (token) => token.document.disposition !== 1,
+  );
+
+  // Grab the actors these represent, walking through the party token if necessary
+  let friendlyActors = [];
+  await iterateActorsForTokensAndParties(friendlyTokens, async (actor) => {
+    if (!friendlyActors.includes(actor)) friendlyActors.push(actor);
   });
-  const enemies = tokens.filter((token) => token.document.disposition !== 1);
+  const enemyActors = enemyTokens.map((token) => token?.actor);
 
   // Find the friendly avoiders and enemies
-  const friendlyAvoiders = friendlies.filter((token) => isAvoider(token));
-  const enemyAvoiders = enemies.filter((token) => isAvoider(token));
+  const friendlyAvoiders = friendlyActors.filter((actor) => isAvoider(actor));
+  const enemyAvoiders = enemyActors.filter((actor) => isAvoider(actor));
 
   // Find the enemy avoiders and friendly observers
   let content = `<div class="${MODULE_ID}-avoidance-check"><h3>${localizeString(`${MODULE_ID}.avoidanceCheck.title`)}</h3>`;
@@ -72,17 +81,20 @@ export async function checkAvoidance(tokens) {
   };
   let hovers = {};
   let enemyStealth = {};
-  for (const token of enemyAvoiders) {
-    const roll = await rollStealth(token);
-    const observations = testAvoiderAgainstObservers(token, roll, enemies);
-    enemyStealth[token.id] = { total: roll.total };
+  for (const avoider of enemyAvoiders) {
+    const roll = await rollStealth(avoider);
+    const observations = testAvoiderAgainstObservers(
+      avoider,
+      roll,
+      enemyActors,
+    );
+    enemyStealth[avoider.id] = { total: roll.total };
     debuglog("observations", observations);
     const hoverId = foundry.utils.randomID();
-    const uuid = `Scene.${canvas.scene.id}.Token.${token.id}`;
-    hovers[hoverId] = { uuid };
+    hovers[hoverId] = { id: avoider.id };
     content += `
-      <div class="enemy">
-        <span class="name" data-hover-id="${hoverId}" data-token-id="${uuid}">${token.name}</span>
+      <div class="enemy" data-actor-id="${avoider.id}">
+        <span class="name" data-hover-id="${hoverId}">${avoider.name}</span>
         <span class="roll">${roll.total}</span>
       </div>`;
   }
@@ -97,20 +109,23 @@ export async function checkAvoidance(tokens) {
   // Build interaction buttons for friendly avoiders
   content += `<div class="friendlies">`;
   let friendlyStealth = {};
-  for (const token of friendlyAvoiders) {
-    const roll = await rollStealth(token);
-    const observations = testAvoiderAgainstObservers(token, roll, enemies);
-    friendlyStealth[token.id] = { total: roll.total };
+  for (const avoider of friendlyAvoiders) {
+    const roll = await rollStealth(avoider);
+    const observations = testAvoiderAgainstObservers(
+      avoider,
+      roll,
+      enemyActors,
+    );
+    friendlyStealth[avoider.id] = { total: roll.total };
     debuglog("observations", observations);
     const hoverId = foundry.utils.randomID();
     const actionId = foundry.utils.randomID();
-    const uuid = `Scene.${canvas.scene.id}.Token.${token.id}`;
-    actions.friendlies[actionId] = { uuid };
-    hovers[hoverId] = { uuid };
+    actions.friendlies[actionId] = { id: avoider.id };
+    hovers[hoverId] = { id: avoider.id };
     content += `
-      <div class="friendly">
-        <span class="name" data-hover-id="${hoverId}" data-token-id="${uuid}">${token.name}</span>
-        <span class="roll" data-action-id="${actionId}" data-token-id="${uuid}">${roll.total}</span>
+      <div class="friendly" data-actor-id="${avoider.id}">
+        <span class="name" data-hover-id="${hoverId}">${avoider.name}</span>
+        <span class="roll" data-action-id="${actionId}">${roll.total}</span>
       </div>`;
     // <div class=${MODULE_ID}-pc>
     //   <span class="name">${token.name}</span>
@@ -125,12 +140,8 @@ export async function checkAvoidance(tokens) {
       [MODULE_ID]: {
         checkAvoidance: {
           actions,
-          enemyUuids: enemies.map(
-            (token) => `Scene.${canvas.scene.id}.Token.${token.id}`,
-          ),
-          partyUuids: friendlies.map(
-            (token) => `Scene.${canvas.scene.id}.Token.${token.id}`,
-          ),
+          enemyIds: enemyActors.map((actor) => actor.id),
+          partyIds: friendlyActors.map((actor) => actor.id),
           enemyStealth,
           friendlyStealth,
           hovers,

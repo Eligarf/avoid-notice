@@ -66,17 +66,14 @@ function summarizeDispositions(tokens) {
   return uniqueDispositions;
 }
 
-export function isAvoider(token, combatState) {
-  const actor = token?.actor;
-  if (!actor) return false;
-
+export function isAvoider(actor, combatState) {
   // If you have a stealth effect you are an avoider
   if (actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect))
     return true;
 
   // once combat starts, a combantant has to have the stealth effect
   const combatant = game.combats?.active?.combatants?.contents?.some(
-    (c) => c.token?.id === token.id,
+    (c) => c.token?.actor?.id === actor.id,
   );
   if (
     combatState === COMBAT_STATES.started &&
