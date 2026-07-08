@@ -86,12 +86,12 @@ export async function checkAvoidance(tokens) {
     const observations = testAvoiderAgainstObservers(
       avoider,
       roll,
-      enemyActors,
+      friendlyActors,
     );
     enemyStealth[avoider.id] = { total: roll.total };
     debuglog("observations", observations);
     const hoverId = foundry.utils.randomID();
-    hovers[hoverId] = { id: avoider.id };
+    hovers[hoverId] = { actor: avoider.id };
     content += `
       <div class="enemy" data-actor-id="${avoider.id}">
         <span class="name" data-hover-id="${hoverId}">${avoider.name}</span>
@@ -121,7 +121,7 @@ export async function checkAvoidance(tokens) {
     const hoverId = foundry.utils.randomID();
     const actionId = foundry.utils.randomID();
     actions.friendlies[actionId] = { id: avoider.id };
-    hovers[hoverId] = { id: avoider.id };
+    hovers[hoverId] = { actor: avoider.id };
     content += `
       <div class="friendly" data-actor-id="${avoider.id}">
         <span class="name" data-hover-id="${hoverId}">${avoider.name}</span>
@@ -141,8 +141,8 @@ export async function checkAvoidance(tokens) {
         checkAvoidance: {
           actions,
           enemyIds: enemyActors.map((actor) => actor.id),
-          partyIds: friendlyActors.map((actor) => actor.id),
           enemyStealth,
+          friendlyIds: friendlyActors.map((actor) => actor.id),
           friendlyStealth,
           hovers,
         },
