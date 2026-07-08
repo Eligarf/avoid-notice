@@ -175,9 +175,27 @@ export async function checkAvoidance(tokens) {
   content += `</div>`;
 
   content += `
-    <button class="${MODULE_ID}-create-encounter">
-      ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
-    </button> `;
+    <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
+  const missing = friendlyActors.filter(
+    (actor) =>
+      !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
+  );
+  if (missing.length > 0) {
+    content += `<div class="${MODULE_ID}-missing">${localizeString(
+      `${MODULE_ID}.avoidanceCheck.missingActors`,
+      {
+        clownCar: localizeString("PF2E.Actor.Party.ClownCar.Deposit"),
+        createEncounter: localizeString(
+          `${MODULE_ID}.avoidanceCheck.createEncounter`,
+        ),
+      },
+    )}</div>`;
+  }
+  content += `
+    <button class="${MODULE_ID}-create">
+        ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
+      </button>`;
+  content += `</div>`;
   content += `</div>`;
 
   await ChatMessage.create({
