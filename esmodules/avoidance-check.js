@@ -138,7 +138,6 @@ export async function checkAvoidance(tokens) {
       roll,
       friendlyActors,
     );
-    debuglog("observations", observations);
     enemyStealth[avoider.id] = { total: roll.total };
     const hoverId = foundry.utils.randomID();
     hovers[hoverId] = { actor: avoider.id };
@@ -150,12 +149,6 @@ export async function checkAvoidance(tokens) {
     content += `</div>`;
   }
   content += `</div>`;
-  // content += `
-  //   <div class="${MODULE_ID}-npc-roll">
-  //     <button class="avoid-notice-npcs" data-action-id="${actions.createEncounter}" data-module="${MODULE_ID}">
-  //       ${localizeString(`${MODULE_ID}.er.npcs`)}
-  //     </button>
-  //   </div>`;
 
   // Build interaction buttons for friendly avoiders
   content += `<div class="${MODULE_ID}-friendlies">`;
@@ -168,7 +161,6 @@ export async function checkAvoidance(tokens) {
       enemyActors,
     );
     friendlyStealth[avoider.id] = { total: roll.total };
-    debuglog("observations", observations);
     const hoverId = foundry.utils.randomID();
     const actionId = foundry.utils.randomID();
     actions.friendlies[actionId] = { id: avoider.id };
@@ -180,7 +172,13 @@ export async function checkAvoidance(tokens) {
     content += analyzeObservations(observations, hovers);
     content += `</div>`;
   }
-  content += `</div></div>`;
+  content += `</div>`;
+
+  content += `
+    <button class="${MODULE_ID}-create-encounter">
+      ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
+    </button> `;
+  content += `</div>`;
 
   await ChatMessage.create({
     content,
