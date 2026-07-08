@@ -99,7 +99,8 @@
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
       "unnoticed": "unnoticed by {unnoticed}",
-      "createEncounter": "Create Encounter"
+      "createEncounter": "Create Encounter",
+      "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:"
     }
   }
 }
