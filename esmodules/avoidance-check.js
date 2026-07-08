@@ -88,7 +88,7 @@ function analyzeObservations(observations, hovers) {
     return acc;
   }, []);
   if (spotters.length > 0) {
-    content += `<div class="${MODULE_ID}-spotters">`;
+    content += `<div class="${MODULE_ID}-spotters" data-visibility="gm">`;
     for (const spotter of spotters) {
       const hoverId = foundry.utils.randomID();
       hovers[hoverId] = { actor: spotter.observer.id };
