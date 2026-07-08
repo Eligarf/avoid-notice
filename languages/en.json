@@ -95,7 +95,10 @@
       }
     },
     "avoidanceCheck": {
-      "title": "Avoidance Check"
+      "title": "Avoidance Check",
+      "observed": "observed by {observed}",
+      "hidden": "hidden to {hidden}",
+      "unnoticed": "unnoticed by {unnoticed}"
     }
   }
 }
