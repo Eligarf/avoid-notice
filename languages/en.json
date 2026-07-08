@@ -98,7 +98,8 @@
       "title": "Avoidance Check",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
-      "unnoticed": "unnoticed by {unnoticed}"
+      "unnoticed": "unnoticed by {unnoticed}",
+      "createEncounter": "Create Encounter"
     }
   }
 }
