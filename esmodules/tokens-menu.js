@@ -36,9 +36,9 @@ export async function invokeTokensMenu({ selection, combatState }) {
   }
 
   if (
-    combatState === "inactive" &&
-    selection.dispositions.has(1) &&
-    selection.dispositions.size > 1
+    combatState === "inactive" // &&
+    // selection.dispositions.has(1) &&
+    // selection.dispositions.size > 1
   ) {
     choices.push({
       key: "check-avoidance",
