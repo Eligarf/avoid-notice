@@ -206,9 +206,9 @@ export async function checkAvoidance(tokens) {
     )}</div>`;
   }
   content += `
-    <button class="${MODULE_ID}-create">
-        ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
-      </button>`;
+    <button class="${MODULE_ID}-create" data-action-id="${actions.createEncounter}" data-visibility="gm">
+      ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
+    </button>`;
   content += `</div>`;
   content += `</div>`;
 
@@ -235,8 +235,53 @@ export async function checkAvoidance(tokens) {
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
   if (!checkAvoidance) return;
-  // debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
+  debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
 
+  html.addEventListener("click", async (event) => {
+    const button = event.target.closest(`button[data-action-id]`);
+    if (!button) return;
+    debuglog("button click", { button });
+    if (!game.user.isGM) return;
+    event.preventDefault();
+    const actionId = button.dataset.actionId;
+    debuglog("actionId", actionId);
+    if (actionId === checkAvoidance.actions.createEncounter) {
+      debuglog("createEncounter");
+      const combat = !game.combat
+        ? await Combat.create({ scene: canvas.scene.id, active: true })
+        : game.combat;
+      const combatants = checkAvoidance.enemyIds
+        .map((id) => {
+          const token = canvas.tokens.placeables.find(
+            (t) => t?.actor?.id === id,
+          );
+          return {
+            actorId: id,
+            tokenId: token?.id,
+            initiative: checkAvoidance.enemyStealth[id]?.total || null,
+            hidden: token?.hidden,
+          };
+        })
+        .concat(
+          checkAvoidance.friendlyIds.map((id) => {
+            const token = canvas.tokens.placeables.find(
+              (t) => t?.actor?.id === id,
+            );
+            return {
+              actorId: id,
+              tokenId: token?.id,
+              initiative: checkAvoidance.friendlyStealth[id]?.total || null,
+              hidden: token?.hidden,
+            };
+          }),
+        )
+        .filter((c) => c.tokenId && c.actorId);
+      await combat.createEmbeddedDocuments("Combatant", combatants);
+      ui.combat.render(true);
+    }
+  });
+
+  // Deal with the hover elements
   const selected = html.querySelectorAll(
     `.${MODULE_ID}-avoidance-check [data-hover-id]`,
   );
