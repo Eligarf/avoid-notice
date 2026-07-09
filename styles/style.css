@@ -8,4 +8,6 @@
   .pf2e-avoid-notice-enemy,
   .pf2e-avoid-notice-friendly {
   }
+  [data-hover-id] {
+  }
 }

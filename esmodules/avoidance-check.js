@@ -58,7 +58,7 @@ function analyzeObservations(observations, hovers) {
     return acc;
   }, {});
 
-  let content = `<div class="${MODULE_ID}-summary" data-visibility="gm">`;
+  let content = `<li class="${MODULE_ID}-summary">`;
   if (summary[0]) {
     const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
       observed: summary[0],
@@ -80,7 +80,7 @@ function analyzeObservations(observations, hovers) {
     );
     content += `<span class="${MODULE_ID}-unnoticed">${observation}</span>`;
   }
-  content += `</div>`;
+  content += `</li>`;
   const spotters = observations.reduce((acc, obs) => {
     if (obs.dos > 1) return acc;
     if (acc.length > 1) return acc;
@@ -88,15 +88,20 @@ function analyzeObservations(observations, hovers) {
     return acc;
   }, []);
   if (spotters.length > 0) {
-    content += `<div class="${MODULE_ID}-spotters" data-visibility="gm">`;
+    content += `<li class="${MODULE_ID}-spotters">
+      <ul>`;
     for (const spotter of spotters) {
       const hoverId = foundry.utils.randomID();
       hovers[hoverId] = { actor: spotter.observer.id };
       content += `
-        <span class="${MODULE_ID}-spotter" data-hover-id="${hoverId}">${spotter.observer.name}</span>
-        <span class="${MODULE_ID}-spotter-delta">${spotter.delta}</span>`;
+        <li>
+          <span class="${MODULE_ID}-spotter-delta">${spotter.delta}</span>
+          <span class="${MODULE_ID}-spotter" data-hover-id="${hoverId}">${spotter.observer.name}</span>
+        </li>`;
     }
-    content += `</div>`;
+    content += `
+      </ul>
+    </li>`;
   }
   return content;
 }
@@ -123,7 +128,6 @@ export async function checkAvoidance(tokens) {
 
   // Find the enemy avoiders and friendly observers
   let content = `<div class="${MODULE_ID}-avoidance-check"><h3>${localizeString(`${MODULE_ID}.avoidanceCheck.title`)}</h3>`;
-  content += `<div class="${MODULE_ID}-enemies" data-visibility="gm">`;
   let actions = {
     friendlies: {},
     enemies: {},
@@ -131,48 +135,58 @@ export async function checkAvoidance(tokens) {
   };
   let hovers = {};
   let enemyStealth = {};
-  for (const avoider of enemyAvoiders) {
-    const roll = await rollStealth(avoider);
-    const observations = testAvoiderAgainstObservers(
-      avoider,
-      roll,
-      friendlyActors,
-    );
-    enemyStealth[avoider.id] = { total: roll.total };
-    const hoverId = foundry.utils.randomID();
-    hovers[hoverId] = { actor: avoider.id };
-    content += `
+  if (enemyAvoiders.length > 0) {
+    content += `<div class="${MODULE_ID}-enemies" data-visibility="gm">`;
+    for (const avoider of enemyAvoiders) {
+      const roll = await rollStealth(avoider);
+      const observations = testAvoiderAgainstObservers(
+        avoider,
+        roll,
+        friendlyActors,
+      );
+      enemyStealth[avoider.id] = { total: roll.total };
+      const hoverId = foundry.utils.randomID();
+      hovers[hoverId] = { actor: avoider.id };
+      content += `
+      <hr>
       <div class="${MODULE_ID}-enemy" data-actor-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
-        <span class="${MODULE_ID}-roll">${roll.total}</span>`;
-    content += analyzeObservations(observations, hovers);
+        <span class="${MODULE_ID}-roll">${roll.total}</span>
+        <ul class="${MODULE_ID}-observations">`;
+      content += analyzeObservations(observations, hovers);
+      content += `</ul></div>`;
+    }
     content += `</div>`;
   }
-  content += `</div>`;
 
   // Build interaction buttons for friendly avoiders
-  content += `<div class="${MODULE_ID}-friendlies">`;
   let friendlyStealth = {};
-  for (const avoider of friendlyAvoiders) {
-    const roll = await rollStealth(avoider);
-    const observations = testAvoiderAgainstObservers(
-      avoider,
-      roll,
-      enemyActors,
-    );
-    friendlyStealth[avoider.id] = { total: roll.total };
-    const hoverId = foundry.utils.randomID();
-    const actionId = foundry.utils.randomID();
-    actions.friendlies[actionId] = { id: avoider.id };
-    hovers[hoverId] = { actor: avoider.id };
-    content += `
+  if (friendlyAvoiders.length > 0) {
+    content += `<div class="${MODULE_ID}-friendlies">`;
+    for (const avoider of friendlyAvoiders) {
+      const roll = await rollStealth(avoider);
+      const observations = testAvoiderAgainstObservers(
+        avoider,
+        roll,
+        enemyActors,
+      );
+      friendlyStealth[avoider.id] = { total: roll.total };
+      const hoverId = foundry.utils.randomID();
+      const actionId = foundry.utils.randomID();
+      actions.friendlies[actionId] = { id: avoider.id };
+      hovers[hoverId] = { actor: avoider.id };
+      content += `
+      <hr>
       <div class="${MODULE_ID}-friendly" data-actor-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
-        <span class="${MODULE_ID}-roll" data-visibility="gm" data-action-id="${actionId}">${roll.total}</span>`;
-    content += analyzeObservations(observations, hovers);
+        <i class="fa-solid fa-dice-d20"></i>
+        <span class="${MODULE_ID}-roll" data-visibility="gm" data-action-id="${actionId}">${roll.total}</span>
+        <ul class="${MODULE_ID}-observations" data-visibility="gm">`;
+      content += analyzeObservations(observations, hovers);
+      content += `</ul></div>`;
+    }
     content += `</div>`;
   }
-  content += `</div>`;
 
   content += `
     <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
@@ -180,7 +194,7 @@ export async function checkAvoidance(tokens) {
     (actor) =>
       !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
   );
-  if (missing.length > 0) {
+  if (friendlyActors.length > 0 && missing.length > 0) {
     content += `<div class="${MODULE_ID}-missing">${localizeString(
       `${MODULE_ID}.avoidanceCheck.missingActors`,
       {
@@ -198,17 +212,19 @@ export async function checkAvoidance(tokens) {
   content += `</div>`;
   content += `</div>`;
 
+  const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
   await ChatMessage.create({
     content,
     rollmode: "gmroll",
+    ...(!friendlyAvoiders.length ? { whisper: gmIds } : {}),
     flags: {
       [MODULE_ID]: {
         checkAvoidance: {
           actions,
           enemyIds: enemyActors.map((actor) => actor.id),
-          enemyStealth,
+          enemyStealth: enemyStealth ?? {},
           friendlyIds: friendlyActors.map((actor) => actor.id),
-          friendlyStealth,
+          friendlyStealth: friendlyStealth ?? {},
           hovers,
         },
       },
@@ -220,7 +236,10 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
   if (!checkAvoidance) return;
   debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
-  // const selected = html.querySelectorAll(
-  //   `.${MODULE_ID}-button, .avoid-notice-npcs`,
-  // );
+
+  const selected = html.querySelectorAll(
+    `.${MODULE_ID}-avoidance-check [data-hover-id]`,
+  );
+  if (selected.length === 0) return;
+  debuglog("data-hover-id", { selected });
 });
