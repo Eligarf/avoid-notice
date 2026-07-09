@@ -179,8 +179,8 @@ export async function checkAvoidance(tokens) {
       <hr>
       <div class="${MODULE_ID}-friendly" data-actor-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
-        <i class="fa-solid fa-dice-d20"></i>
-        <span class="${MODULE_ID}-roll" data-visibility="gm" data-action-id="${actionId}">${roll.total}</span>
+        <i class="fa-solid fa-dice-d20" data-action-id="${actionId}"></i>
+        <span class="${MODULE_ID}-roll" data-visibility="gm">${roll.total}</span>
         <ul class="${MODULE_ID}-observations" data-visibility="gm">`;
       content += analyzeObservations(observations, hovers);
       content += `</ul></div>`;
@@ -232,127 +232,134 @@ export async function checkAvoidance(tokens) {
   });
 }
 
+async function createEncounter(checkAvoidance) {
+  debuglog("createEncounter", { checkAvoidance });
+  const combat = !game.combat
+    ? await Combat.create({ scene: canvas.scene.id, active: true })
+    : game.combat;
+  const combatants = checkAvoidance.enemyIds
+    .map((id) => {
+      const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
+      return {
+        actorId: id,
+        tokenId: token?.id,
+        initiative: checkAvoidance.enemyStealth[id]?.total || null,
+        hidden: token?.hidden,
+      };
+    })
+    .concat(
+      checkAvoidance.friendlyIds.map((id) => {
+        const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
+        return {
+          actorId: id,
+          tokenId: token?.id,
+          initiative: checkAvoidance.friendlyStealth[id]?.total || null,
+          hidden: token?.hidden,
+        };
+      }),
+    )
+    .filter((c) => c.tokenId && c.actorId);
+  await combat.createEmbeddedDocuments("Combatant", combatants);
+  await ui.combat.render(true);
+}
+
+async function clickHandler(event, checkAvoidance) {
+  const button = event.target.closest(`button[data-action-id]`);
+  if (button) {
+    event.preventDefault();
+    const actionId = button.dataset.actionId;
+    debuglog("button click", { button, actionId });
+    if (actionId === checkAvoidance.actions.createEncounter) {
+      if (game.user.isGM) await createEncounter(checkAvoidance);
+    }
+    return;
+  }
+}
+
+function attachHover(html, el, checkAvoidance) {
+  const hoverId = el.dataset.hoverId;
+  const hover = checkAvoidance.hovers[hoverId];
+  if (!hover) return;
+  const actorId = hover.actor;
+
+  let pendingEnter = false;
+  let canvasReadyCb = null;
+
+  const doHoverIn = () => {
+    const token = canvas.tokens.placeables.find(
+      (t) => t?.actor?.id === actorId,
+    );
+    if (token && typeof token._onHoverIn === "function") {
+      token._onHoverIn(new MouseEvent("mouseenter"));
+    }
+  };
+
+  const onEnter = () => {
+    if (canvas?.ready) {
+      doHoverIn();
+      return;
+    }
+    pendingEnter = true;
+    canvasReadyCb = () => {
+      if (pendingEnter) doHoverIn();
+      pendingEnter = false;
+      canvasReadyCb = null;
+    };
+    Hooks.once("canvasReady", canvasReadyCb);
+  };
+
+  const onLeave = () => {
+    pendingEnter = false;
+    if (canvasReadyCb) {
+      Hooks.off("canvasReady", canvasReadyCb);
+      canvasReadyCb = null;
+    }
+    if (canvas?.ready) {
+      const token = canvas.tokens.placeables.find(
+        (t) => t?.actor?.id === actorId,
+      );
+      if (token && typeof token._onHoverOut === "function")
+        token._onHoverOut(new MouseEvent("mouseleave"));
+    }
+  };
+
+  el.addEventListener("mouseenter", onEnter);
+  el.addEventListener("mouseleave", onLeave);
+
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const removed of m.removedNodes) {
+        if (removed === el) {
+          el.removeEventListener("mouseenter", onEnter);
+          el.removeEventListener("mouseleave", onLeave);
+          if (canvasReadyCb) {
+            Hooks.off("canvasReady", canvasReadyCb);
+            canvasReadyCb = null;
+          }
+          observer.disconnect();
+          return;
+        }
+      }
+    }
+  });
+  observer.observe(html, { childList: true, subtree: true });
+}
+
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
   if (!checkAvoidance) return;
   debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
 
-  html.addEventListener("click", async (event) => {
-    const button = event.target.closest(`button[data-action-id]`);
-    if (!button) return;
-    debuglog("button click", { button });
-    if (!game.user.isGM) return;
-    event.preventDefault();
-    const actionId = button.dataset.actionId;
-    debuglog("actionId", actionId);
-    if (actionId === checkAvoidance.actions.createEncounter) {
-      debuglog("createEncounter");
-      const combat = !game.combat
-        ? await Combat.create({ scene: canvas.scene.id, active: true })
-        : game.combat;
-      const combatants = checkAvoidance.enemyIds
-        .map((id) => {
-          const token = canvas.tokens.placeables.find(
-            (t) => t?.actor?.id === id,
-          );
-          return {
-            actorId: id,
-            tokenId: token?.id,
-            initiative: checkAvoidance.enemyStealth[id]?.total || null,
-            hidden: token?.hidden,
-          };
-        })
-        .concat(
-          checkAvoidance.friendlyIds.map((id) => {
-            const token = canvas.tokens.placeables.find(
-              (t) => t?.actor?.id === id,
-            );
-            return {
-              actorId: id,
-              tokenId: token?.id,
-              initiative: checkAvoidance.friendlyStealth[id]?.total || null,
-              hidden: token?.hidden,
-            };
-          }),
-        )
-        .filter((c) => c.tokenId && c.actorId);
-      await combat.createEmbeddedDocuments("Combatant", combatants);
-      ui.combat.render(true);
-    }
-  });
+  html.addEventListener(
+    "click",
+    async (event) => await clickHandler(event, checkAvoidance),
+  );
 
   // Deal with the hover elements
   const selected = html.querySelectorAll(
     `.${MODULE_ID}-avoidance-check [data-hover-id]`,
   );
-  if (selected.length === 0) return;
-
   for (const el of selected) {
-    const hoverId = el.dataset.hoverId;
-    const hover = checkAvoidance.hovers[hoverId];
-    if (!hover) continue;
-    const actorId = hover.actor;
-
-    let pendingEnter = false;
-    let canvasReadyCb = null;
-
-    const doHoverIn = () => {
-      const token = canvas.tokens.placeables.find(
-        (t) => t?.actor?.id === actorId,
-      );
-      if (token && typeof token._onHoverIn === "function") {
-        token._onHoverIn(new MouseEvent("mouseenter"));
-      }
-    };
-
-    const onEnter = () => {
-      if (canvas?.ready) {
-        doHoverIn();
-        return;
-      }
-      pendingEnter = true;
-      canvasReadyCb = () => {
-        if (pendingEnter) doHoverIn();
-        pendingEnter = false;
-        canvasReadyCb = null;
-      };
-      Hooks.once("canvasReady", canvasReadyCb);
-    };
-
-    const onLeave = () => {
-      pendingEnter = false;
-      if (canvasReadyCb) {
-        Hooks.off("canvasReady", canvasReadyCb);
-        canvasReadyCb = null;
-      }
-      if (canvas?.ready) {
-        const token = canvas.tokens.placeables.find(
-          (t) => t?.actor?.id === actorId,
-        );
-        if (token && typeof token._onHoverOut === "function")
-          token._onHoverOut(new MouseEvent("mouseleave"));
-      }
-    };
-
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
-
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        for (const removed of m.removedNodes) {
-          if (removed === el) {
-            el.removeEventListener("mouseenter", onEnter);
-            el.removeEventListener("mouseleave", onLeave);
-            if (canvasReadyCb) {
-              Hooks.off("canvasReady", canvasReadyCb);
-              canvasReadyCb = null;
-            }
-            observer.disconnect();
-            return;
-          }
-        }
-      }
-    });
-    observer.observe(html, { childList: true, subtree: true });
+    attachHover(html, el, checkAvoidance);
   }
 });
