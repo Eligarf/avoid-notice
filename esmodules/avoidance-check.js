@@ -235,11 +235,79 @@ export async function checkAvoidance(tokens) {
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
   if (!checkAvoidance) return;
-  debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
+  // debuglog("renderChatMessageHTML", { message, html, data, checkAvoidance });
 
   const selected = html.querySelectorAll(
     `.${MODULE_ID}-avoidance-check [data-hover-id]`,
   );
   if (selected.length === 0) return;
-  debuglog("data-hover-id", { selected });
+
+  for (const el of selected) {
+    const hoverId = el.dataset.hoverId;
+    const hover = checkAvoidance.hovers[hoverId];
+    if (!hover) continue;
+    const actorId = hover.actor;
+
+    let pendingEnter = false;
+    let canvasReadyCb = null;
+
+    const doHoverIn = () => {
+      const token = canvas.tokens.placeables.find(
+        (t) => t?.actor?.id === actorId,
+      );
+      if (token && typeof token._onHoverIn === "function") {
+        token._onHoverIn(new MouseEvent("mouseenter"));
+      }
+    };
+
+    const onEnter = () => {
+      if (canvas?.ready) {
+        doHoverIn();
+        return;
+      }
+      pendingEnter = true;
+      canvasReadyCb = () => {
+        if (pendingEnter) doHoverIn();
+        pendingEnter = false;
+        canvasReadyCb = null;
+      };
+      Hooks.once("canvasReady", canvasReadyCb);
+    };
+
+    const onLeave = () => {
+      pendingEnter = false;
+      if (canvasReadyCb) {
+        Hooks.off("canvasReady", canvasReadyCb);
+        canvasReadyCb = null;
+      }
+      if (canvas?.ready) {
+        const token = canvas.tokens.placeables.find(
+          (t) => t?.actor?.id === actorId,
+        );
+        if (token && typeof token._onHoverOut === "function")
+          token._onHoverOut(new MouseEvent("mouseleave"));
+      }
+    };
+
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const removed of m.removedNodes) {
+          if (removed === el) {
+            el.removeEventListener("mouseenter", onEnter);
+            el.removeEventListener("mouseleave", onLeave);
+            if (canvasReadyCb) {
+              Hooks.off("canvasReady", canvasReadyCb);
+              canvasReadyCb = null;
+            }
+            observer.disconnect();
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(html, { childList: true, subtree: true });
+  }
 });
