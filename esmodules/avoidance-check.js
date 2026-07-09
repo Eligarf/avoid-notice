@@ -92,7 +92,7 @@ function analyzeObservations(observations, hovers) {
       <ul>`;
     for (const spotter of spotters) {
       const hoverId = foundry.utils.randomID();
-      hovers[hoverId] = { actor: spotter.observer.id };
+      hovers[hoverId] = { actorId: spotter.observer.id };
       content += `
         <li>
           <span class="${MODULE_ID}-spotter-delta">${spotter.delta}</span>
@@ -164,25 +164,18 @@ export async function checkAvoidance(tokens) {
   if (friendlyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-friendlies">`;
     for (const avoider of friendlyAvoiders) {
-      const roll = await rollStealth(avoider);
-      const observations = testAvoiderAgainstObservers(
-        avoider,
-        roll,
-        enemyActors,
-      );
-      friendlyStealth[avoider.id] = { total: roll.total };
+      friendlyStealth[avoider.id] = { total: null };
       const hoverId = foundry.utils.randomID();
       const actionId = foundry.utils.randomID();
-      actions.friendlies[actionId] = { id: avoider.id };
+      actions.friendlies[actionId] = { actorId: avoider.id };
       hovers[hoverId] = { actor: avoider.id };
       content += `
       <hr>
       <div class="${MODULE_ID}-friendly" data-actor-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
         <i class="fa-solid fa-dice-d20" data-action-id="${actionId}"></i>
-        <span class="${MODULE_ID}-roll" data-visibility="gm">${roll.total}</span>
+        <span class="${MODULE_ID}-roll"></span>
         <ul class="${MODULE_ID}-observations" data-visibility="gm">`;
-      content += analyzeObservations(observations, hovers);
       content += `</ul></div>`;
     }
     content += `</div>`;
@@ -263,15 +256,37 @@ async function createEncounter(checkAvoidance) {
   await ui.combat.render(true);
 }
 
-async function clickHandler(event, checkAvoidance) {
+async function rollClick(message, checkAvoidance, actionId) {
+  debuglog("rollClick", { message, checkAvoidance, actionId });
+  const actorId = checkAvoidance.actions.friendlies[actionId]?.actorId;
+  if (checkAvoidance.friendlyStealth[actorId]?.total !== null) return;
+  const actor = game.actors.get(actorId);
+  if (!actor) return;
+  if (!game.user.isGM && !actor.isOwner) return;
+  const roll = await rollStealth(actor);
+  const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
+  const observations = testAvoiderAgainstObservers(actor, roll, enemyActors);
+  debuglog("rolled", { actor, roll, observations });
+  checkAvoidance.friendlyStealth[actorId] = { total: roll.total };
+  // content += analyzeObservations(observations, hovers);
+  message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
+}
+
+async function clickHandler(message, event, checkAvoidance) {
   const button = event.target.closest(`button[data-action-id]`);
   if (button) {
     event.preventDefault();
     const actionId = button.dataset.actionId;
-    debuglog("button click", { button, actionId });
     if (actionId === checkAvoidance.actions.createEncounter) {
       if (game.user.isGM) await createEncounter(checkAvoidance);
     }
+    return;
+  }
+  const icon = event.target.closest(`i[data-action-id]`);
+  if (icon) {
+    event.preventDefault();
+    const actionId = icon.dataset.actionId;
+    await rollClick(message, checkAvoidance, actionId);
     return;
   }
 }
@@ -280,7 +295,7 @@ function attachHover(html, el, checkAvoidance) {
   const hoverId = el.dataset.hoverId;
   const hover = checkAvoidance.hovers[hoverId];
   if (!hover) return;
-  const actorId = hover.actor;
+  const actorId = hover.actorId;
 
   let pendingEnter = false;
   let canvasReadyCb = null;
@@ -352,7 +367,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
   html.addEventListener(
     "click",
-    async (event) => await clickHandler(event, checkAvoidance),
+    async (event) => await clickHandler(message, event, checkAvoidance),
   );
 
   // Deal with the hover elements
