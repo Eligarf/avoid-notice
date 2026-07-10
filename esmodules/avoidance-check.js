@@ -146,7 +146,7 @@ export async function checkAvoidance(tokens) {
       );
       enemyStealth[avoider.id] = { total: roll.total };
       const hoverId = foundry.utils.randomID();
-      hovers[hoverId] = { actor: avoider.id };
+      hovers[hoverId] = { actorId: avoider.id };
       content += `
       <hr>
       <div class="${MODULE_ID}-enemy" data-actor-id="${avoider.id}">
