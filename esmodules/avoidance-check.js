@@ -188,15 +188,17 @@ export async function checkAvoidance(tokens) {
       !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
   );
   if (friendlyActors.length > 0 && missing.length > 0) {
-    content += `<div class="${MODULE_ID}-missing">${localizeString(
-      `${MODULE_ID}.avoidanceCheck.missingActors`,
-      {
-        clownCar: localizeString("PF2E.Actor.Party.ClownCar.Deposit"),
-        createEncounter: localizeString(
-          `${MODULE_ID}.avoidanceCheck.createEncounter`,
-        ),
-      },
-    )}</div>`;
+    const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
+    const createEncounter = localizeString(
+      `${MODULE_ID}.avoidanceCheck.createEncounter`,
+    );
+    content += `
+      <div class="${MODULE_ID}-missing">
+        ${localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
+          clownCar,
+          createEncounter,
+        })}
+      </div>`;
   }
   content += `
     <button class="${MODULE_ID}-create" data-action-id="${actions.createEncounter}" data-visibility="gm">
