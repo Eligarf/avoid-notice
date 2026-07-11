@@ -165,7 +165,11 @@ export async function checkAvoidance(tokens) {
         roll,
         friendlyActors,
       );
-      enemyStealth[avoider.id] = { total: roll.total };
+      enemyStealth[avoider.id] = {
+        total: roll.total,
+        dosDelta:
+          roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
+      };
       const hoverId = foundry.utils.randomID();
       hovers[hoverId] = { actorId: avoider.id };
       content += `
