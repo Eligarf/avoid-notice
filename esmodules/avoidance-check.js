@@ -175,8 +175,8 @@ export async function checkAvoidance(tokens) {
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
         <i class="fa-solid fa-dice-d20" data-action-id="${actionId}"></i>
         <span class="${MODULE_ID}-roll"></span>
-        <ul class="${MODULE_ID}-observations" data-visibility="gm">`;
-      content += `</ul></div>`;
+        <ul class="${MODULE_ID}-observations" data-visibility="gm"></ul>
+      </div>`;
     }
     content += `</div>`;
   }
@@ -258,23 +258,24 @@ async function createEncounter(checkAvoidance) {
   await ui.combat.render(true);
 }
 
-async function rollClick(message, checkAvoidance, actionId) {
-  debuglog("rollClick", { message, checkAvoidance, actionId });
+async function rollClick({ message, event, checkAvoidance, actionId }) {
   const actorId = checkAvoidance.actions.friendlies[actionId]?.actorId;
   if (checkAvoidance.friendlyStealth[actorId]?.total !== null) return;
   const actor = game.actors.get(actorId);
   if (!actor) return;
   if (!game.user.isGM && !actor.isOwner) return;
-  const roll = await rollStealth(actor);
+  const skipDialog = event.shiftKey === game.user.settings.showCheckDialogs;
+  const roll = await rollStealth(actor, { skipDialog });
   const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
   const observations = testAvoiderAgainstObservers(actor, roll, enemyActors);
-  debuglog("rolled", { actor, roll, observations });
   checkAvoidance.friendlyStealth[actorId] = { total: roll.total };
-  // content += analyzeObservations(observations, hovers);
+  const content = analyzeObservations(observations, checkAvoidance.hovers);
+  debuglog("content", { content });
   message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
 }
 
 async function clickHandler(message, event, checkAvoidance) {
+  // debuglog("clickHandler", { message, event, checkAvoidance });
   const button = event.target.closest(`button[data-action-id]`);
   if (button) {
     event.preventDefault();
@@ -288,7 +289,7 @@ async function clickHandler(message, event, checkAvoidance) {
   if (icon) {
     event.preventDefault();
     const actionId = icon.dataset.actionId;
-    await rollClick(message, checkAvoidance, actionId);
+    await rollClick({ message, event, checkAvoidance, actionId });
     return;
   }
 }
