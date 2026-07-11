@@ -6,12 +6,13 @@ import {
   iterateActorsForTokensAndParties,
 } from "./main.js";
 import { findBaseCoverBonus } from "./cover.js";
+import { sendStealthRollToGM } from "./socket.js";
 
 async function rollStealth(actor, options = { skipDialog: true }) {
   const skill = actor?.skills?.stealth;
   if (!skill) return null;
   const roll = skill.roll({
-    rollMode: "selfroll",
+    rollMode: "gmroll",
     skipDialog: options.skipDialog,
     createMessage: false,
     traits: ["secret", "exploration"],
@@ -32,10 +33,18 @@ function testAvoidance({ stealth, dc, observer, dosDelta, cover }) {
   return observation;
 }
 
-function testAvoiderAgainstObservers(avoider, roll, observers) {
-  const stealth = roll.total;
-  const rawRoll = roll.dice[0].total;
-  const dosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
+export function testAvoiderStealthAgainstObservers({
+  avoider,
+  stealth,
+  dosDelta,
+  observers,
+}) {
+  debuglog("testAvoiderStealthAgainstObservers", {
+    avoider,
+    stealth,
+    dosDelta,
+    observers,
+  });
   const cover = findBaseCoverBonus(avoider);
   const observations = observers
     .filter((observer) => observer?.system?.perception?.dc)
@@ -51,7 +60,19 @@ function testAvoiderAgainstObservers(avoider, roll, observers) {
   return observations.sort((a, b) => a.delta - b.delta);
 }
 
-function analyzeObservations(observations, hovers) {
+function testAvoiderAgainstObservers(avoider, roll, observers) {
+  const stealth = roll.total;
+  const rawRoll = roll.dice[0].total;
+  const dosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
+  return testAvoiderStealthAgainstObservers({
+    avoider,
+    stealth,
+    dosDelta,
+    observers,
+  });
+}
+
+export function analyzeObservations(observations, hovers) {
   const summary = observations.reduce((acc, obs) => {
     const dos = obs.dos > 2 ? 2 : obs.dos;
     acc[dos] = (acc[dos] || 0) + 1;
@@ -164,7 +185,7 @@ export async function checkAvoidance(tokens) {
   if (friendlyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-friendlies">`;
     for (const avoider of friendlyAvoiders) {
-      friendlyStealth[avoider.id] = { total: null };
+      friendlyStealth[avoider.id] = { total: null, dosDelta: null };
       const hoverId = foundry.utils.randomID();
       const actionId = foundry.utils.randomID();
       actions.friendlies[actionId] = { actorId: avoider.id };
@@ -266,12 +287,12 @@ async function rollClick({ message, event, checkAvoidance, actionId }) {
   if (!game.user.isGM && !actor.isOwner) return;
   const skipDialog = event.shiftKey === game.user.settings.showCheckDialogs;
   const roll = await rollStealth(actor, { skipDialog });
-  const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
-  const observations = testAvoiderAgainstObservers(actor, roll, enemyActors);
-  checkAvoidance.friendlyStealth[actorId] = { total: roll.total };
-  const content = analyzeObservations(observations, checkAvoidance.hovers);
-  debuglog("content", { content });
-  message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
+  sendStealthRollToGM({
+    messageId: message.id,
+    actionId,
+    stealth: roll.total,
+    dosDelta: roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
+  });
 }
 
 async function clickHandler(message, event, checkAvoidance) {
