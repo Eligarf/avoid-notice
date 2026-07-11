@@ -158,6 +158,14 @@ export async function checkAvoidance(tokens) {
   let enemyStealth = {};
   if (enemyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-enemies" data-visibility="gm">`;
+    const header = localizeString(
+      `${MODULE_ID}.avoidanceCheck.observedEnemies`,
+    );
+    content += `<div class="${MODULE_ID}-observed-enemies">${header}<ul>`;
+    for (const actor of enemyActors) {
+      if (!enemyAvoiders.includes(actor)) content += `<li>${actor.name}</li>`;
+    }
+    content += `</ul></div>`;
     for (const avoider of enemyAvoiders) {
       const roll = await rollStealth(avoider);
       const observations = testAvoiderAgainstObservers(
@@ -188,6 +196,15 @@ export async function checkAvoidance(tokens) {
   let friendlyStealth = {};
   if (friendlyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-friendlies">`;
+    const friendlyHeader = localizeString(
+      `${MODULE_ID}.avoidanceCheck.observedFriendlies`,
+    );
+    content += `<div class="${MODULE_ID}-observed-friendlies">${friendlyHeader}<ul>`;
+    for (const actor of friendlyActors) {
+      if (!friendlyAvoiders.includes(actor))
+        content += `<li>${actor.name}</li>`;
+    }
+    content += `</ul></div>`;
     for (const avoider of friendlyAvoiders) {
       friendlyStealth[avoider.id] = { total: null, dosDelta: null };
       const hoverId = foundry.utils.randomID();
@@ -199,7 +216,7 @@ export async function checkAvoidance(tokens) {
       <div class="${MODULE_ID}-friendly" data-actor-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
         <i class="fa-solid fa-dice-d20" data-action-id="${actionId}"></i>
-        <span class="${MODULE_ID}-roll"></span>
+        <span class="${MODULE_ID}-roll" data-visibility="gm"></span>
         <ul class="${MODULE_ID}-observations" data-visibility="gm"></ul>
       </div>`;
     }
@@ -305,15 +322,16 @@ export async function onStealthReply({
   stealth,
   dosDelta,
 }) {
-  debuglog("onStealthReply", { messageId, actionId, stealth, dosDelta });
+  // debuglog("onStealthReply", { messageId, actionId, stealth, dosDelta });
   const message = game.messages.get(messageId);
   if (!message) return;
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
   if (!checkAvoidance) return;
-  debuglog("checkAvoidance", checkAvoidance);
+  // debuglog("message,checkAvoidance", { message, checkAvoidance });
   const friendly = checkAvoidance.actions.friendlies[actionId];
   if (!friendly) return;
-  const avoider = game.actors.get(friendly.actorId);
+  const avoiderId = friendly.actorId;
+  const avoider = game.actors.get(avoiderId);
   if (!avoider) return;
   const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
   const observations = testAvoiderStealthAgainstObservers({
@@ -326,9 +344,26 @@ export async function onStealthReply({
     total: stealth,
     dosDelta,
   };
-  const content = analyzeObservations(observations, checkAvoidance.hovers);
-  debuglog("content", { content });
-  message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
+  const analysis = analyzeObservations(observations, checkAvoidance.hovers);
+  const parser = new DOMParser();
+  const html = parser.parseFromString(message.content, "text/html");
+  const friendlyEl = html.querySelector(
+    `.${MODULE_ID}-friendly[data-actor-id="${avoiderId}"]`,
+  );
+  if (!friendlyEl) return;
+  const ul = friendlyEl.querySelector("ul");
+  if (ul) ul.insertAdjacentHTML("beforeend", analysis);
+  const rollSpan = friendlyEl.querySelector(`.${MODULE_ID}-roll`);
+  if (rollSpan) rollSpan.textContent = stealth;
+  const icon = friendlyEl.querySelector(`i[data-action-id="${actionId}"]`);
+  if (icon) icon.remove();
+  const content = html.body.innerHTML;
+  await message.update({
+    content: content,
+    flags: {
+      [MODULE_ID]: { checkAvoidance },
+    },
+  });
 }
 
 async function clickHandler(message, event, checkAvoidance) {

@@ -100,7 +100,9 @@
       "hidden": "hidden to {hidden}",
       "unnoticed": "unnoticed by {unnoticed}",
       "createEncounter": "Create Encounter",
-      "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:"
+      "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
+      "observedEnemies": "Observed Enemies",
+      "observedFriendlies": "Observed Friendlies"
     }
   }
 }
