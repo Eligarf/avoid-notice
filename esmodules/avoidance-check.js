@@ -33,7 +33,7 @@ function testAvoidance({ stealth, dc, observer, dosDelta, cover }) {
   return observation;
 }
 
-export function testAvoiderStealthAgainstObservers({
+function testAvoiderStealthAgainstObservers({
   avoider,
   stealth,
   dosDelta,
@@ -72,7 +72,7 @@ function testAvoiderAgainstObservers(avoider, roll, observers) {
   });
 }
 
-export function analyzeObservations(observations, hovers) {
+function analyzeObservations(observations, hovers) {
   const summary = observations.reduce((acc, obs) => {
     const dos = obs.dos > 2 ? 2 : obs.dos;
     acc[dos] = (acc[dos] || 0) + 1;
@@ -293,6 +293,38 @@ async function rollClick({ message, event, checkAvoidance, actionId }) {
     stealth: roll.total,
     dosDelta: roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
   });
+}
+
+export async function onStealthReply({
+  messageId,
+  actionId,
+  stealth,
+  dosDelta,
+}) {
+  debuglog("onStealthReply", { messageId, actionId, stealth, dosDelta });
+  const message = game.messages.get(messageId);
+  if (!message) return;
+  const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
+  if (!checkAvoidance) return;
+  debuglog("checkAvoidance", checkAvoidance);
+  const friendly = checkAvoidance.actions.friendlies[actionId];
+  if (!friendly) return;
+  const avoider = game.actors.get(friendly.actorId);
+  if (!avoider) return;
+  const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
+  const observations = testAvoiderStealthAgainstObservers({
+    avoider,
+    stealth,
+    dosDelta,
+    observers: enemyActors,
+  });
+  checkAvoidance.friendlyStealth[friendly.actorId] = {
+    total: stealth,
+    dosDelta,
+  };
+  const content = analyzeObservations(observations, checkAvoidance.hovers);
+  debuglog("content", { content });
+  message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
 }
 
 async function clickHandler(message, event, checkAvoidance) {
