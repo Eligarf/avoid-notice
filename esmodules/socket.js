@@ -1,6 +1,10 @@
 import { MODULE_ID } from "./const.js";
-import { log } from "./main.js";
+import { debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
+import {
+  analyzeObservations,
+  testAvoiderStealthAgainstObservers,
+} from "./avoidance-check.js";
 
 let socket = null;
 
@@ -11,6 +15,7 @@ Hooks.once("socketlib.ready", () => {
   }
   socket = socketlib.registerModule(MODULE_ID);
   socket.register("ZoomToCombat", onZoomToCombat);
+  socket.register("StealthReply", onStealthReply);
 });
 
 async function onZoomToCombat(targetList) {
@@ -145,4 +150,46 @@ async function zoomToTokens(tokens) {
 
   // Animate pan and zoom
   await canvas.animatePan({ x: centerX, y: centerY, scale: targetScale });
+}
+
+async function onStealthReply({ messageId, actionId, stealth, dosDelta }) {
+  debuglog("onStealthReply", { messageId, actionId, stealth, dosDelta });
+  const message = game.messages.get(messageId);
+  if (!message) return;
+  const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
+  if (!checkAvoidance) return;
+  debuglog("checkAvoidance", checkAvoidance);
+  const friendly = checkAvoidance.actions.friendlies[actionId];
+  if (!friendly) return;
+  const avoider = game.actors.get(friendly.actorId);
+  if (!avoider) return;
+  const enemyActors = checkAvoidance.enemyIds.map((id) => game.actors.get(id));
+  const observations = testAvoiderStealthAgainstObservers({
+    avoider,
+    stealth,
+    dosDelta,
+    observers: enemyActors,
+  });
+  checkAvoidance.friendlyStealth[friendly.actorId] = {
+    total: stealth,
+    dosDelta,
+  };
+  const content = analyzeObservations(observations, checkAvoidance.hovers);
+  debuglog("content", { content });
+  message.setFlag(MODULE_ID, "checkAvoidance", checkAvoidance);
+}
+
+export function sendStealthRollToGM({
+  messageId,
+  actionId,
+  stealth,
+  dosDelta,
+}) {
+  if (!socket) return;
+  socket.executeAsGM("StealthReply", {
+    messageId,
+    actionId,
+    stealth,
+    dosDelta,
+  });
 }
