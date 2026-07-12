@@ -39,12 +39,6 @@ function testAvoiderStealthAgainstObservers({
   dosDelta,
   observers,
 }) {
-  debuglog("testAvoiderStealthAgainstObservers", {
-    avoider,
-    stealth,
-    dosDelta,
-    observers,
-  });
   const cover = findBaseCoverBonus(avoider);
   const observations = observers
     .filter((observer) => observer?.system?.perception?.dc)
@@ -124,6 +118,34 @@ function analyzeObservations(observations, hovers) {
       </ul>
     </li>`;
   }
+  return content;
+}
+
+function buildEncounterSection({ friendlyActors, actions }) {
+  let content = `
+    <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
+  const missing = friendlyActors.filter(
+    (actor) =>
+      !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
+  );
+  if (friendlyActors.length > 0 && missing.length > 0) {
+    const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
+    const createEncounter = localizeString(
+      `${MODULE_ID}.avoidanceCheck.createEncounter`,
+    );
+    content += `
+      <div class="${MODULE_ID}-missing">
+        ${localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
+          clownCar,
+          createEncounter,
+        })}
+      </div>`;
+  }
+  content += `
+      <button class="${MODULE_ID}-create" data-action-id="${actions.createEncounter}" data-visibility="gm">
+        ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
+      </button>
+    </div>`;
   return content;
 }
 
@@ -221,33 +243,9 @@ export async function checkAvoidance(tokens) {
       </div>`;
     }
     content += `</div>`;
+  } else {
+    content += buildEncounterSection({ friendlyActors, actions });
   }
-
-  content += `
-    <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
-  const missing = friendlyActors.filter(
-    (actor) =>
-      !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
-  );
-  if (friendlyActors.length > 0 && missing.length > 0) {
-    const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
-    const createEncounter = localizeString(
-      `${MODULE_ID}.avoidanceCheck.createEncounter`,
-    );
-    content += `
-      <div class="${MODULE_ID}-missing">
-        ${localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
-          clownCar,
-          createEncounter,
-        })}
-      </div>`;
-  }
-  content += `
-    <button class="${MODULE_ID}-create" data-action-id="${actions.createEncounter}" data-visibility="gm">
-      ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
-    </button>`;
-  content += `</div>`;
-  content += `</div>`;
 
   const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
   await ChatMessage.create({
@@ -357,6 +355,21 @@ export async function onStealthReply({
   if (rollSpan) rollSpan.textContent = stealth;
   const icon = friendlyEl.querySelector(`i[data-action-id="${actionId}"]`);
   if (icon) icon.remove();
+
+  // If this is the last player, then we need to add the encounter section
+  // Check if all friendly avoiders have rolled
+  const allRolled = Object.values(checkAvoidance.friendlyStealth).every(
+    (s) => s.total !== null,
+  );
+  if (allRolled) {
+    const encounterSection = buildEncounterSection({
+      friendlyActors: checkAvoidance.friendlyIds.map((id) =>
+        game.actors.get(id),
+      ),
+      actions: checkAvoidance.actions,
+    });
+    html.body.insertAdjacentHTML("beforeend", encounterSection);
+  }
   const content = html.body.innerHTML;
   await message.update({
     content: content,
