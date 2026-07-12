@@ -150,7 +150,7 @@ function buildEncounterSection({ friendlyActors, actions }) {
   return content;
 }
 
-export async function checkAvoidance(tokens) {
+export async function checkAvoidance(tokens, secret = false) {
   // Get our list of friendly and enemy tokens, walking through the party token if necessary
   const friendlyTokens = tokens.filter(
     (token) => token.document.disposition === 1,
@@ -252,7 +252,7 @@ export async function checkAvoidance(tokens) {
   await ChatMessage.create({
     content,
     rollmode: "gmroll",
-    ...(!friendlyAvoiders.length ? { whisper: gmIds } : {}),
+    ...(secret || !friendlyAvoiders.length ? { whisper: gmIds } : {}),
     flags: {
       [MODULE_ID]: {
         checkAvoidance: {
