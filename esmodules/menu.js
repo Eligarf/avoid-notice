@@ -31,7 +31,7 @@ export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
   async _prepareContext() {
     const context = await super._prepareContext();
     context.options = this.options;
-    log("popup menu context", context);
+    debuglog("popup menu context", context);
     return context;
   }
 
@@ -53,6 +53,11 @@ export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
 
   static async show(title = "Choose an option", choices = null) {
     return new Promise((resolve) => {
+      if (!choices) choices = [];
+      choices.push({
+        key: "cancel",
+        label: game.i18n.localize(`${MODULE_ID}.menu.cancel`),
+      });
       const app = new AvoidNoticePopupMenu({ title, choices });
       app._resolve = resolve;
       app.render(true);
