@@ -5,12 +5,17 @@
   min-width: 25px;
 }
 .pf2e-avoid-notice-avoidance-check {
-  .pf2e-avoid-notice-enemy,
-  .pf2e-avoid-notice-friendly {
+  .pf2e-avoid-notice-observation + .pf2e-avoid-notice-observation {
+    margin-left: 6px;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
   }
   [data-hover-id] {
   }
 }
+
 #pf2e-avoid-notice-popup-menu .window-header {
   display: none;
 }
