@@ -109,7 +109,7 @@ Hooks.once("init", () => {
       const avoiderApi = {
         avoider,
         avoiderTokenDoc,
-        baseCoverBonus: findBaseCoverBonus(avoiderTokenDoc),
+        baseCoverBonus: findBaseCoverBonus({ actor: avoider.actor }),
         initiativeDosDelta,
       };
 

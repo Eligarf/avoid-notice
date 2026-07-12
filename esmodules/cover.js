@@ -1,9 +1,7 @@
 import { log } from "./main.js";
 
-export function findBaseCoverBonus(avoider) {
-  const coverEffect = avoider.items.find(
-    (i) => i.system.slug === "effect-cover",
-  );
+export function findBaseCoverBonus({ actor }) {
+  const coverEffect = actor.items.find((i) => i.system.slug === "effect-cover");
   const systemFlags =
     coverEffect?.flags?.system || coverEffect?.flags?.pf2e || {};
   const bonusElement = systemFlags?.rulesSelections?.cover?.bonus;
