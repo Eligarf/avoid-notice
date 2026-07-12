@@ -121,6 +121,17 @@ function analyzeObservations(observations, hovers) {
   return content;
 }
 
+function makeMissingActorsString() {
+  const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
+  const createEncounter = localizeString(
+    `${MODULE_ID}.avoidanceCheck.createEncounter`,
+  );
+  return localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
+    clownCar,
+    createEncounter,
+  });
+}
+
 function buildEncounterSection({ friendlyActors, actions }) {
   let content = `
     <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
@@ -129,17 +140,7 @@ function buildEncounterSection({ friendlyActors, actions }) {
       !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
   );
   if (friendlyActors.length > 0 && missing.length > 0) {
-    const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
-    const createEncounter = localizeString(
-      `${MODULE_ID}.avoidanceCheck.createEncounter`,
-    );
-    content += `
-      <div class="${MODULE_ID}-missing">
-        ${localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
-          clownCar,
-          createEncounter,
-        })}
-      </div>`;
+    content += `<div class="${MODULE_ID}-missing">${makeMissingActorsString()}</div>`;
   }
   content += `
       <button class="${MODULE_ID}-create" data-action-id="${actions.createEncounter}" data-visibility="gm">
@@ -272,6 +273,13 @@ async function createEncounter(checkAvoidance) {
   const combat = !game.combat
     ? await Combat.create({ scene: canvas.scene.id, active: true })
     : game.combat;
+  if (
+    checkAvoidance.friendlyIds.some(
+      (id) => !canvas.tokens.placeables.find((t) => t?.actor?.id === id),
+    )
+  ) {
+    ui.notifications.warn(makeMissingActorsString());
+  }
   const combatants = checkAvoidance.enemyIds
     .map((id) => {
       const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
