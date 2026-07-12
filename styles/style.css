@@ -11,3 +11,6 @@
   [data-hover-id] {
   }
 }
+#pf2e-avoid-notice-popup-menu .window-header {
+  display: none;
+}
