@@ -20,14 +20,14 @@ async function rollStealth(actor, options = { skipDialog: true }) {
   return roll;
 }
 
-function testAvoidance({ stealth, dc, observer, dosDelta, cover }) {
+function testAvoidance({ stealth, dc, observer, dosAdjust, cover }) {
   const delta = stealth + cover - dc;
-  const dos = dosDelta + (delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2);
+  const baseDos = delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2;
   let observation = {
     dc,
     observer,
     delta,
-    dos: dos < 0 ? 0 : dos > 3 ? 3 : dos,
+    dos: dosAdjust[baseDos],
     cover,
   };
   return observation;
@@ -36,7 +36,7 @@ function testAvoidance({ stealth, dc, observer, dosDelta, cover }) {
 function testAvoiderStealthAgainstObservers({
   avoider,
   stealth,
-  dosDelta,
+  dosAdjust,
   observers,
 }) {
   const cover = findBaseCoverBonus({ actor: avoider });
@@ -47,21 +47,34 @@ function testAvoiderStealthAgainstObservers({
         stealth,
         dc: observer.system.perception.dc,
         observer,
-        dosDelta,
+        dosAdjust,
         cover,
       });
     });
   return observations.sort((a, b) => a.delta - b.delta);
 }
 
+const CRIT_FAIL_DOS_ADJUST = [0, 0, 1, 2];
+const NO_DOS_ADJUST = [0, 1, 2, 3];
+const CRIT_SUCCESS_DOS_ADJUST = [1, 2, 3, 3];
+
+function findDosAdjust(rawRoll) {
+  const dosAdjust =
+    rawRoll === 1
+      ? CRIT_FAIL_DOS_ADJUST
+      : rawRoll === 20
+        ? CRIT_SUCCESS_DOS_ADJUST
+        : NO_DOS_ADJUST;
+  return dosAdjust;
+}
+
 function testAvoiderAgainstObservers(avoider, roll, observers) {
   const stealth = roll.total;
   const rawRoll = roll.dice[0].total;
-  const dosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
   return testAvoiderStealthAgainstObservers({
     avoider,
     stealth,
-    dosDelta,
+    dosAdjust: findDosAdjust(rawRoll),
     observers,
   });
 }
@@ -198,7 +211,7 @@ export async function checkAvoidance(tokens, secret = false) {
       );
       enemyStealth[avoider.id] = {
         total: roll.total,
-        dosDelta:
+        dosAdjust:
           roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
       };
       const hoverId = foundry.utils.randomID();
@@ -229,7 +242,7 @@ export async function checkAvoidance(tokens, secret = false) {
     }
     content += `</ul></div>`;
     for (const avoider of friendlyAvoiders) {
-      friendlyStealth[avoider.id] = { total: null, dosDelta: null };
+      friendlyStealth[avoider.id] = { total: null, dosAdjust: null };
       const hoverId = foundry.utils.randomID();
       const actionId = foundry.utils.randomID();
       actions.friendlies[actionId] = { actorId: avoider.id };
@@ -303,7 +316,7 @@ async function createEncounter(checkAvoidance) {
           hidden: token?.hidden,
         };
         if (checkAvoidance.friendlyStealth[id]?.total !== null) {
-          entry.initiative = checkAvoidance.enemyStealth[id]?.total;
+          entry.initiative = checkAvoidance.friendlyStealth[id]?.total;
           entry.flags = {
             [game.system.id]: { initiativeStatistic: "stealth" },
           };
@@ -332,7 +345,7 @@ async function rollClick({ message, event, checkAvoidance, actionId }) {
     messageId: message.id,
     actionId,
     stealth: roll.total,
-    dosDelta: roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
+    dosAdjust: findDosAdjust(roll.dice[0].total),
   });
 }
 
@@ -340,9 +353,9 @@ export async function onStealthReply({
   messageId,
   actionId,
   stealth,
-  dosDelta,
+  dosAdjust,
 }) {
-  // debuglog("onStealthReply", { messageId, actionId, stealth, dosDelta });
+  // debuglog("onStealthReply", { messageId, actionId, stealth, dosAdjust });
   const message = game.messages.get(messageId);
   if (!message) return;
   const checkAvoidance = message.flags[MODULE_ID]?.checkAvoidance;
@@ -357,12 +370,12 @@ export async function onStealthReply({
   const observations = testAvoiderStealthAgainstObservers({
     avoider,
     stealth,
-    dosDelta,
+    dosAdjust,
     observers: enemyActors,
   });
   checkAvoidance.friendlyStealth[friendly.actorId] = {
     total: stealth,
-    dosDelta,
+    dosAdjust,
   };
   const analysis = analyzeObservations(observations, checkAvoidance.hovers);
   const parser = new DOMParser();
