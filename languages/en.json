@@ -71,6 +71,7 @@
         "targeted": "Targeted",
         "controlled": "Controlled"
       },
+      "cancel": "Cancel",
       "clearPartyStealth": {
         "label": "Remove Party Stealth",
         "hint": "Remove stealth effects from all party members"
