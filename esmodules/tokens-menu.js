@@ -1,5 +1,5 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { hideTokens, clearTokenStealth } from "./stealth.js";
+import { hideTokens, clearActorStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 import {
   localizeString,
@@ -35,11 +35,7 @@ export async function invokeTokensMenu({ selection, combatState }) {
     });
   }
 
-  if (
-    combatState === "inactive" // &&
-    // selection.dispositions.has(1) &&
-    // selection.dispositions.size > 1
-  ) {
+  if (combatState === "inactive") {
     choices.push({
       key: "check-avoidance",
       label: game.i18n.localize(`${MODULE_ID}.menu.checkAvoidance.label`),
@@ -61,8 +57,8 @@ export async function invokeTokensMenu({ selection, combatState }) {
       debuglog("remove-stealth", selection.tokens);
       await iterateActorsForTokensAndParties(
         selection.tokens,
-        async (token) => {
-          await clearTokenStealth({ token });
+        async (actor) => {
+          await clearActorStealth({ actor });
         },
       );
       break;
