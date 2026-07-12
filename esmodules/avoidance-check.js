@@ -39,7 +39,7 @@ function testAvoiderStealthAgainstObservers({
   dosDelta,
   observers,
 }) {
-  const cover = findBaseCoverBonus(avoider);
+  const cover = findBaseCoverBonus({ actor: avoider });
   const observations = observers
     .filter((observer) => observer?.system?.perception?.dc)
     .map((observer) => {
