@@ -91,13 +91,13 @@ function analyzeObservations(observations, hovers) {
     const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
       observed: summary[0],
     });
-    content += `<span class="${MODULE_ID}-observed">${observation}</span>`;
+    content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   if (summary[1]) {
     const observation = localizeString(`${MODULE_ID}.avoidanceCheck.hidden`, {
       hidden: summary[1],
     });
-    content += `<span class="${MODULE_ID}-hidden">${observation}</span>`;
+    content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   if (summary[2]) {
     const observation = localizeString(
@@ -106,7 +106,7 @@ function analyzeObservations(observations, hovers) {
         unnoticed: summary[2],
       },
     );
-    content += `<span class="${MODULE_ID}-unnoticed">${observation}</span>`;
+    content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   content += `</li>`;
   const spotters = observations.reduce((acc, obs) => {
