@@ -1,6 +1,6 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import { MODULE_ID, COMBAT_STATES, SLUGS } from "./const.js";
-import { log, isVisionerActive } from "./main.js";
+import { debuglog, isVisionerActive } from "./main.js";
 import { invokeNoTokensMenu } from "./no-tokens-menu.js";
 import { invokeTokensMenu } from "./tokens-menu.js";
 import { SETTINGS } from "./settings.js";
@@ -101,7 +101,7 @@ export function isAvoider(actor, combatState) {
 }
 
 function invokePairedTokensMenu({ selected, targeted, combatState }) {
-  log("invoked the paired tokens menu", {
+  debuglog("invoked the paired tokens menu", {
     selected,
     targeted,
     combatState,
