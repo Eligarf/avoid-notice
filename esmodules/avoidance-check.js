@@ -283,23 +283,37 @@ async function createEncounter(checkAvoidance) {
   const combatants = checkAvoidance.enemyIds
     .map((id) => {
       const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
-      return {
+      let entry = {
         actorId: id,
         tokenId: token?.id,
-        initiative: checkAvoidance.enemyStealth[id]?.total || null,
         hidden: token?.hidden,
       };
+      if (checkAvoidance.enemyStealth[id]?.total !== null) {
+        entry.initiative = checkAvoidance.enemyStealth[id]?.total;
+        entry.flags = { [game.system.id]: { initiativeStatistic: "stealth" } };
+      }
+      return entry;
     })
     .concat(
       checkAvoidance.friendlyIds.map((id) => {
         const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
-        return {
+        let entry = {
           actorId: id,
           tokenId: token?.id,
-          initiative: checkAvoidance.friendlyStealth[id]?.total || null,
           hidden: token?.hidden,
         };
+        if (checkAvoidance.friendlyStealth[id]?.total !== null) {
+          entry.initiative = checkAvoidance.enemyStealth[id]?.total;
+          entry.flags = {
+            [game.system.id]: { initiativeStatistic: "stealth" },
+          };
+        }
+        return entry;
       }),
+    )
+    .filter(
+      (c) =>
+        !combat.combatants.find((existing) => existing.actorId === c.actorId),
     )
     .filter((c) => c.tokenId && c.actorId);
   await combat.createEmbeddedDocuments("Combatant", combatants);
