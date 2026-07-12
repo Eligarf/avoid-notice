@@ -2,12 +2,11 @@ import { interpolateString, refreshPerception, debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 
-export async function clearTokenStealth({
-  token,
+export async function clearActorStealth({
+  actor,
   refresh = true,
   showBanner = false,
 } = {}) {
-  const actor = token?.actor;
   const conditions =
     actor?.items
       .filter((i) => i.system.slug === SLUGS.stealthEffect)
@@ -34,7 +33,7 @@ export async function clearPartyStealth({ showBanner = false }) {
   );
 
   for (const token of party) {
-    await clearTokenStealth({ token, refresh: false });
+    await clearActorStealth({ actor: token?.actor, refresh: false });
   }
 
   // Refresh everyone and maybe show banner
