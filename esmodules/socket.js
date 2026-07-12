@@ -153,13 +153,13 @@ export function sendStealthRollToGM({
   messageId,
   actionId,
   stealth,
-  dosDelta,
+  dosAdjust,
 }) {
   if (!socket) return;
   socket.executeAsGM("StealthReply", {
     messageId,
     actionId,
     stealth,
-    dosDelta,
+    dosAdjust,
   });
 }
