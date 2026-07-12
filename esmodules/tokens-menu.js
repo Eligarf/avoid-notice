@@ -48,7 +48,7 @@ export async function invokeTokensMenu({ selection, combatState }) {
   choices.sort((a, b) => a.label.localeCompare(b.label));
   const choice = await AvoidNoticePopupMenu.show(title, choices);
 
-  switch (choice) {
+  switch (choice?.key) {
     case "prepare-ambush":
       debuglog("prepare-ambush", selection.tokens);
       await hideTokens(selection.tokens);
@@ -64,7 +64,7 @@ export async function invokeTokensMenu({ selection, combatState }) {
       break;
     case "check-avoidance":
       debuglog("check-avoidance", selection.tokens);
-      await checkAvoidance(selection.tokens);
+      await checkAvoidance(selection.tokens, choice.secret);
       break;
   }
 }

@@ -21,7 +21,7 @@ export async function invokeNoTokensMenu({ combatState }) {
     choices,
   );
 
-  switch (choice) {
+  switch (choice?.key) {
     case "remove-party-stealth":
       clearPartyStealth({});
       break;

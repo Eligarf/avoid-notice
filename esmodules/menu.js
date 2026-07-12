@@ -45,7 +45,7 @@ export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
   static popupClick(event, target) {
     const key = target.getAttribute("data-key");
     if (this._resolve) {
-      this._resolve(key);
+      this._resolve({ key, secret: event.ctrlKey });
       this._resolve = null;
     }
     this.close();
