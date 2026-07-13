@@ -7,7 +7,7 @@ import {
   debuglog,
   iterateActorsForTokensAndParties,
 } from "./main.js";
-import { checkAvoidance } from "./avoidance-check.js";
+import { testAvoidance } from "./avoidance-test.js";
 
 export async function invokeTokensMenu({ selection, combatState }) {
   debuglog("invokeTokensMenu", { selection, combatState });
@@ -38,9 +38,9 @@ export async function invokeTokensMenu({ selection, combatState }) {
 
   if (combatState === "inactive") {
     choices.push({
-      key: "check-avoidance",
-      label: game.i18n.localize(`${MODULE_ID}.menu.checkAvoidance.label`),
-      hint: localizeString(`${MODULE_ID}.menu.checkAvoidance.hint`, {
+      key: "test-avoidance",
+      label: game.i18n.localize(`${MODULE_ID}.menu.testAvoidance.label`),
+      hint: localizeString(`${MODULE_ID}.menu.testAvoidance.hint`, {
         type: selection.type,
       }),
     });
@@ -63,9 +63,9 @@ export async function invokeTokensMenu({ selection, combatState }) {
         },
       );
       break;
-    case "check-avoidance":
-      debuglog("check-avoidance", selection.tokens);
-      await checkAvoidance(selection.tokens, choice.secret);
+    case "test-avoidance":
+      debuglog("test-avoidance", selection.tokens);
+      await testAvoidance(selection.tokens, choice.secret);
       break;
   }
 }

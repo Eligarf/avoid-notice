@@ -4,7 +4,7 @@
 #pf2e-avoid-notice-deltaStr {
   min-width: 25px;
 }
-.pf2e-avoid-notice-avoidance-check {
+.pf2e-avoid-notice-avoidance-test {
   .pf2e-avoid-notice-observation + .pf2e-avoid-notice-observation {
     margin-left: 6px;
   }

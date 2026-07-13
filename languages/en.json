@@ -90,8 +90,8 @@
         "label": "Remove Stealth Effects",
         "hint": "Remove stealth effects from {type} tokens"
       },
-      "checkAvoidance": {
-        "label": "Check Avoidance",
+      "testAvoidance": {
+        "label": "Test Avoidance",
         "hint": "Run a stealth vs perception test for all stealthing {type} tokens"
       }
     },
@@ -102,11 +102,11 @@
       }
     },
     "avoidanceCheck": {
-      "title": "Avoidance Check",
+      "title": "Avoidance Test",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
       "unnoticed": "unnoticed by {unnoticed}",
-      "createEncounter": "Create Encounter",
+      "createEncounter": "Create/Populate Encounter",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
       "observedEnemies": "Observed Enemies",
       "observedFriendlies": "Observed Friendlies"
