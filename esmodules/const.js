@@ -28,9 +28,13 @@ export const SKILL_ACTIONS = [
 ];
 
 export const SLUGS = {
-  stealth: "stealth",
-  perception: "perception",
   avoidNotice: "avoid-notice",
+  circumstanceBonus: "circumstance-bonus",
+  incredibleScout: "incredible-scout",
+  perception: "perception",
+  scout: "scout",
+  scoutDedication: "scout-dedication",
+  stealth: "stealth",
   stealthEffect: "pf2e-avoid-notice-stealth",
 };
 

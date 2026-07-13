@@ -1,5 +1,5 @@
 import { isAvoider } from "./menu.js";
-import { MODULE_ID } from "./const.js";
+import { MODULE_ID, SLUGS } from "./const.js";
 import {
   localizeString,
   debuglog,
@@ -281,6 +281,28 @@ export async function testAvoidance(tokens, secret = false) {
   });
 }
 
+function getScoutBonus() {
+  const scouts = game.actors.party.members.reduce((acc, m) => {
+    if (
+      m.system.exploration.some(
+        (a) => m.items.get(a)?.system?.slug === SLUGS.scout,
+      )
+    ) {
+      acc.push(m);
+    }
+    return acc;
+  }, []);
+  if (!scouts.length) return 0;
+  const bonus = scouts.reduce((acc, scout) => {
+    if (scout.items.find((i) => i.system.slug === SLUGS.incredibleScout))
+      return 2;
+    if (scout.items.find((i) => i.system.slug === SLUGS.scoutDedication))
+      return 2;
+    return acc;
+  }, 1);
+  return bonus;
+}
+
 async function createEncounter(avoidanceTest) {
   debuglog("createEncounter", { avoidanceTest });
   const combat = !game.combat
@@ -293,6 +315,7 @@ async function createEncounter(avoidanceTest) {
   ) {
     ui.notifications.warn(makeMissingActorsString());
   }
+  const scoutBonus = getScoutBonus();
   const combatants = avoidanceTest.enemyIds
     .map((id) => {
       const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
@@ -301,7 +324,10 @@ async function createEncounter(avoidanceTest) {
         tokenId: token?.id,
         hidden: token?.hidden,
       };
-      if (avoidanceTest.enemyStealth[id]?.total !== null) {
+      if (
+        id in avoidanceTest.enemyStealth &&
+        avoidanceTest.enemyStealth[id]?.total !== null
+      ) {
         entry.initiative = avoidanceTest.enemyStealth[id]?.total;
         entry.flags = { [game.system.id]: { initiativeStatistic: "stealth" } };
       }
@@ -315,8 +341,21 @@ async function createEncounter(avoidanceTest) {
           tokenId: token?.id,
           hidden: token?.hidden,
         };
-        if (avoidanceTest.friendlyStealth[id]?.total !== null) {
-          entry.initiative = avoidanceTest.friendlyStealth[id]?.total;
+        if (
+          id in avoidanceTest.friendlyStealth &&
+          avoidanceTest.friendlyStealth[id]?.total !== null
+        ) {
+          const stealthEntry = avoidanceTest.friendlyStealth[id];
+          entry.initiative = stealthEntry?.total;
+          if (scoutBonus) {
+            const message = game.messages.get(stealthEntry?.rollMessageId);
+            const modifiers = message.flags[game.system.id]?.modifiers;
+            const circumstance =
+              modifiers?.find((m) => m.slug === SLUGS.circumstanceBonus)
+                ?.modifier || 0;
+            if (scoutBonus > circumstance)
+              entry.initiative += scoutBonus - circumstance;
+          }
           entry.flags = {
             [game.system.id]: { initiativeStatistic: "stealth" },
           };
@@ -401,6 +440,7 @@ export async function onStealthReply({
   avoidanceTest.friendlyStealth[friendly.actorId] = {
     total: stealth,
     dosAdjust,
+    rollMessageId,
   };
   const analysis = analyzeObservations(observations, avoidanceTest.hovers);
   const parser = new DOMParser();
