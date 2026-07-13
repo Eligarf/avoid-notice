@@ -1,4 +1,10 @@
-import { interpolateString, refreshPerception, debuglog } from "./main.js";
+import {
+  interpolateString,
+  getVisibilityHandler,
+  refreshPerception,
+  debuglog,
+} from "./main.js";
+import { getVisionerApi, clearVisionerData } from "./visioner.js";
 import { SETTINGS } from "./settings.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 
@@ -7,6 +13,9 @@ export async function clearActorStealth({
   refresh = true,
   showBanner = false,
 } = {}) {
+  const visibilityHandler = getVisibilityHandler();
+  if (visibilityHandler === "visioner") return;
+
   const conditions =
     actor?.items
       .filter((i) => i.system.slug === SLUGS.stealthEffect)
@@ -32,6 +41,8 @@ export async function clearPartyStealth({ showBanner = false }) {
     game.actors.party.members.some((a) => a.id === t?.actor?.id),
   );
 
+  const visibilityHandler = getVisibilityHandler();
+  if (visibilityHandler === "visioner") return;
   for (const token of party) {
     await clearActorStealth({ actor: token?.actor, refresh: false });
   }
@@ -45,7 +56,7 @@ export async function clearPartyStealth({ showBanner = false }) {
   }
 }
 
-export async function hideTokens(tokens) {
+export async function setAsAmbushers(tokens) {
   let tokenUpdates = [];
 
   for (const token of tokens) {

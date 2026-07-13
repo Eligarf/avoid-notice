@@ -1,10 +1,10 @@
 import { MODULE_ID } from "./const.js";
 import { log } from "./main.js";
+import { isVisionerActive } from "./visioner.js";
 import { invokeMenu } from "./menu.js";
 
 export const SETTINGS = {
   // General settings
-  useEffects: "useEffects",
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
   computeCover: "computeCover",
   hideFromAllies: "hideFromAllies",
@@ -12,11 +12,13 @@ export const SETTINGS = {
   removeGmHidden: "removeGmHidden",
   requireActivity: "requireActivity",
   useUnnoticed: "useUnnoticed",
+  visibilityHandler: "visibilityHandler",
   panZoomToCombat: "panZoomToCombat",
 
   // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
+  useNewApis: "useBulkApi",
 
   // keybindings
   menu: "menu",
@@ -32,13 +34,23 @@ export function setupSettings() {
     default: true,
   });
 
-  game.settings.register(MODULE_ID, SETTINGS.useEffects, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.hint`),
+  const visioner = isVisionerActive();
+
+  let choices = {
+    effects: `${MODULE_ID}.${SETTINGS.visibilityHandler}.effects`,
+    disabled: `${MODULE_ID}.${SETTINGS.visibilityHandler}.disabled`,
+  };
+  if (visioner)
+    choices.visioner = `${MODULE_ID}.${SETTINGS.visibilityHandler}.visioner`;
+
+  game.settings.register(MODULE_ID, SETTINGS.visibilityHandler, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.hint`),
     scope: "world",
     config: true,
-    type: Boolean,
-    default: false,
+    type: String,
+    choices,
+    default: "effects",
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
@@ -120,12 +132,21 @@ export function setupSettings() {
     },
     default: "none",
   });
+
+  game.settings.register(MODULE_ID, SETTINGS.useNewApis, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
 }
 
 export function setupKeybindings() {
   game.keybindings.register(MODULE_ID, SETTINGS.menu, {
-    name: `${MODULE_ID}.${SETTINGS.menu}.name`,
-    hint: `${MODULE_ID}.${SETTINGS.menu}.hint`,
+    name: `${MODULE_ID}.${SETTINGS.menu}.bindings.name`,
+    hint: `${MODULE_ID}.${SETTINGS.menu}.bindings.hint`,
     editable: [],
     onDown: async () => {
       if (!game.user.isGM) return;

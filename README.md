@@ -44,7 +44,7 @@ Initiative sometimes comes from a previous roll like a sneak check or the use of
 
 ## Visibility modules
 
-- [PF2e Visioner](https://foundryvtt.com/packages/pf2e-visioner): recommended if you need a more comprehensive vision solution.
+- [PF2e Visioner](https://foundryvtt.com/packages/pf2e-visioner): recommended if you need a more comprehensive vision solution and AVS is a fit for your table. If _PF2e Visioner_ is active, _PF2e Avoid Notice_ will automatically disable any features might interfere with AVS. If you don't use AVS, _PF2e Avoid Notice_ can handle the initative checking.
 
 ## Visibility Handling
 

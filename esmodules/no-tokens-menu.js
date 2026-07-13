@@ -1,11 +1,11 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { debuglog } from "./main.js";
+import { debuglog, getVisibilityHandler } from "./main.js";
 import { clearPartyStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 
 export async function invokeNoTokensMenu({ combatState }) {
   debuglog("invokeNoTokensMenu", combatState);
-  debuglog(game.i18n.localize(`${MODULE_ID}.menu.clearPartyStealth.label`));
+  if (getVisibilityHandler() === "visioner") return;
 
   let choices = [
     {
