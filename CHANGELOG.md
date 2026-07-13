@@ -1,3 +1,7 @@
+# 14.0.2
+
+- Fix hacky way of selecting tokens when activating rage
+
 # 14.0.1
 
 - Better minion handling
