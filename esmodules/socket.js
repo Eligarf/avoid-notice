@@ -154,6 +154,7 @@ export function sendStealthRollToGM({
   actionId,
   stealth,
   dosAdjust,
+  rollMessageId,
 }) {
   if (!socket) return;
   socket.executeAsGM("StealthReply", {
@@ -161,5 +162,6 @@ export function sendStealthRollToGM({
     actionId,
     stealth,
     dosAdjust,
+    rollMessageId,
   });
 }
