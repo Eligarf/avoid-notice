@@ -282,24 +282,19 @@ export async function testAvoidance(tokens, secret = false) {
 }
 
 function getScoutBonus() {
-  const scouts = game.actors.party.members.reduce((acc, m) => {
+  const bonus = game.actors.party.members.reduce((acc, m) => {
     if (
-      m.system.exploration.some(
+      !m.system.exploration.some(
         (a) => m.items.get(a)?.system?.slug === SLUGS.scout,
       )
-    ) {
-      acc.push(m);
-    }
-    return acc;
-  }, []);
-  if (!scouts.length) return 0;
-  const bonus = scouts.reduce((acc, scout) => {
-    if (scout.items.find((i) => i.system.slug === SLUGS.incredibleScout))
-      return 2;
-    if (scout.items.find((i) => i.system.slug === SLUGS.scoutDedication))
-      return 2;
-    return acc;
-  }, 1);
+    )
+      return acc;
+    if (m.items.find((i) => i.system.slug === SLUGS.incredibleScout))
+      acc = Math.max(acc, 2);
+    if (m.items.find((i) => i.system.slug === SLUGS.scoutDedication))
+      acc = Math.max(acc, 2);
+    return Math.max(acc, 1);
+  }, 0);
   return bonus;
 }
 
