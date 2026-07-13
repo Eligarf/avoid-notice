@@ -8,19 +8,22 @@ import {
 import { findBaseCoverBonus } from "./cover.js";
 import { sendStealthRollToGM } from "./socket.js";
 
-async function rollStealth(actor, options = { skipDialog: true }) {
+async function rollStealth(
+  actor,
+  options = { skipDialog: true, secret: true },
+) {
   const skill = actor?.skills?.stealth;
   if (!skill) return null;
   const roll = await skill.roll({
     rollMode: "gmroll",
     skipDialog: options.skipDialog,
-    createMessage: false,
+    createMessage: !options.secret,
     traits: ["secret", "exploration"],
   });
   return roll;
 }
 
-function testAvoidance({ stealth, dc, observer, dosAdjust, cover }) {
+function testObserver({ stealth, dc, observer, dosAdjust, cover }) {
   const delta = stealth + cover - dc;
   const baseDos = delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2;
   let observation = {
@@ -43,7 +46,7 @@ function testAvoiderStealthAgainstObservers({
   const observations = observers
     .filter((observer) => observer?.system?.perception?.dc)
     .map((observer) => {
-      return testAvoidance({
+      return testObserver({
         stealth,
         dc: observer.system.perception.dc,
         observer,
@@ -257,13 +260,15 @@ export async function testAvoidance(tokens, secret = false) {
   }
 
   const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
+  const superSecret = secret && !friendlyAvoiders.length;
   await ChatMessage.create({
     content,
     rollmode: "gmroll",
-    ...(secret || !friendlyAvoiders.length ? { whisper: gmIds } : {}),
+    ...(superSecret ? { whisper: gmIds } : {}),
     flags: {
       [MODULE_ID]: {
         avoidanceTest: {
+          secret: superSecret,
           actions,
           enemyIds: enemyActors.map((actor) => actor.id),
           enemyStealth: enemyStealth ?? {},
@@ -329,18 +334,36 @@ async function createEncounter(avoidanceTest) {
 }
 
 async function rollClick({ message, event, avoidanceTest, actionId }) {
+  debuglog("rollClick", { message, event, avoidanceTest, actionId });
   const actorId = avoidanceTest.actions.friendlies[actionId]?.actorId;
   if (avoidanceTest.friendlyStealth[actorId]?.total !== null) return;
   const actor = game.actors.get(actorId);
   if (!actor) return;
   if (!game.user.isGM && !actor.isOwner) return;
   const skipDialog = event.shiftKey === game.user.settings.showCheckDialogs;
-  const roll = await rollStealth(actor, { skipDialog });
+  let roll = null;
+  let rollMessageId = null;
+  if (avoidanceTest.secret) {
+    roll = await rollStealth(actor, {
+      skipDialog,
+      secret: true,
+    });
+  } else {
+    Hooks.once("createChatMessage", (msg) => {
+      if (msg.rolls?.length && msg.speakerActor?.id === actor.id)
+        rollMessageId = msg.id;
+    });
+    roll = await rollStealth(actor, {
+      skipDialog,
+      secret: false,
+    });
+  }
   sendStealthRollToGM({
     messageId: message.id,
     actionId,
     stealth: roll.total,
     dosAdjust: findDosAdjust(roll.dice[0].total),
+    rollMessageId,
   });
 }
 
@@ -349,8 +372,15 @@ export async function onStealthReply({
   actionId,
   stealth,
   dosAdjust,
+  rollMessageId,
 }) {
-  // debuglog("onStealthReply", { messageId, actionId, stealth, dosAdjust });
+  debuglog("onStealthReply", {
+    messageId,
+    actionId,
+    stealth,
+    dosAdjust,
+    rollMessageId,
+  });
   const message = game.messages.get(messageId);
   if (!message) return;
   const avoidanceTest = message.flags[MODULE_ID]?.avoidanceTest;
@@ -410,7 +440,7 @@ export async function onStealthReply({
 }
 
 async function clickHandler(message, event, avoidanceTest) {
-  // debuglog("clickHandler", { message, event, avoidanceTest });
+  debuglog("clickHandler", { message, event, avoidanceTest });
   const button = event.target.closest(`button[data-action-id]`);
   if (button) {
     event.preventDefault();
@@ -499,7 +529,7 @@ function attachHover(html, el, avoidanceTest) {
 }
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
-  const avoidanceTest = message.flags[MODULE_ID]?.testAvoidance;
+  const avoidanceTest = message.flags[MODULE_ID]?.avoidanceTest;
   if (!avoidanceTest) return;
   debuglog("renderChatMessageHTML", { message, html, data, avoidanceTest });
 
