@@ -1,5 +1,4 @@
 import { MODULE_ID } from "./const.js";
-import { log } from "./main.js";
 import { isVisionerActive } from "./visioner.js";
 import { invokeMenu } from "./menu.js";
 
