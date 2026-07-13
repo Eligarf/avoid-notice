@@ -5,6 +5,11 @@ import {
   setupKeybindings,
   groupSettings,
 } from "./settings.js";
+import {
+  isVisionerActive,
+  getVisionerApi,
+  refreshVisionerPerception,
+} from "./visioner.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
@@ -29,12 +34,25 @@ export function interpolateString(str, interpolations) {
   );
 }
 
+export function getVisibilityHandler() {
+  let visibilityHandler = game.settings.get(
+    MODULE_ID,
+    SETTINGS.visibilityHandler,
+  );
+  if (visibilityHandler === "auto") {
+    visibilityHandler = isVisionerActive() ? "visioner" : "effects";
+  }
+  return visibilityHandler;
+}
+
 export function localizeString(str, interpolations) {
   return interpolateString(game.i18n.localize(str), interpolations);
 }
 
 export function refreshPerception() {
-  canvas.perception.update(REFRESH_OPTIONS);
+  const handler = getVisibilityHandler();
+  if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
+  else canvas.perception.update(REFRESH_OPTIONS);
 }
 
 export async function iterateActorsForTokensAndParties(tokens, callback) {
@@ -91,22 +109,28 @@ function migrate(moduleVersion, oldVersion) {
   return moduleVersion;
 }
 
-export function isVisionerActive() {
-  return game.modules.get("pf2e-visioner")?.active;
-}
-
 Hooks.once("ready", () => {
+  // Handle perceptive or perception module getting yoinked
+  const visibilityHandler = game.settings.get(
+    MODULE_ID,
+    SETTINGS.visibilityHandler,
+  );
+  if (
+    visibilityHandler === "perception" ||
+    visibilityHandler === "perceptive" ||
+    visibilityHandler === "best" ||
+    visibilityHandler === "worst" ||
+    (visibilityHandler === "visioner" && !isVisionerActive())
+  ) {
+    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "effects");
+  }
+
   if (
     game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat) &&
     typeof socketlib === "undefined"
   ) {
     ui.notifications.warn(
       game.i18n.localize(`${MODULE_ID}.notifications.noSocketLib`),
-    );
-  }
-  if (isVisionerActive()) {
-    ui.notifications.warn(
-      game.i18n.localize(`${MODULE_ID}.notifications.visionerActive`),
     );
   }
 });

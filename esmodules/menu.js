@@ -1,6 +1,6 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import { MODULE_ID, COMBAT_STATES, SLUGS } from "./const.js";
-import { debuglog, isVisionerActive } from "./main.js";
+import { debuglog } from "./main.js";
 import { invokeNoTokensMenu } from "./no-tokens-menu.js";
 import { invokeTokensMenu } from "./tokens-menu.js";
 import { SETTINGS } from "./settings.js";
@@ -115,7 +115,6 @@ function invokePairedTokensMenu({ selected, targeted, combatState }) {
 
 export function invokeMenu() {
   if (!canvas?.ready) return;
-  if (isVisionerActive()) return;
 
   const combatState = !game.combats?.active
     ? COMBAT_STATES.inactive

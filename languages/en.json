@@ -30,6 +30,13 @@
       "name": "Apply stealth results to allies",
       "hint": "If enabled, stealth will be applied against both allied and non-allied tokens"
     },
+    "visibilityHandler": {
+      "name": "Visibility Handler",
+      "hint": "Some features of PF2e Avoid Notice will be disabled if you choose PF2e Visioner",
+      "disabled": "Don't set the status conditions",
+      "effects": "Let PF2e Avoid Notice handle it",
+      "visioner": "Let PF2e Visioner handle it"
+    },
     "computeCover": {
       "name": "Compute Cover at Combat Start",
       "hint": "Use visibility module to automatically compute cover between tokens using stealth for initiative and non-allied Tokens. It is only used for this check"
@@ -46,13 +53,8 @@
       "name": "Pan/Zoom to combat",
       "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden, undetected, or unnoticed combatants"
     },
-    "useEffects": {
-      "name": "Use PF2e Avoid Notice Effects",
-      "hint": "If enabled, PF2e Avoid Notice will apply action-specific effects to handle pair-wise stealth vs observation results."
-    },
     "notifications": {
-      "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it.",
-      "visionerActive": "Suspending PF2e Avoid Notice because it isn't compatible with PF2e Visioner."
+      "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
     },
     "schema": {
       "name": "Schema Version",
@@ -64,6 +66,10 @@
       "debug": "Debug Options"
     },
     "menu": {
+      "bindings": {
+        "name": "PF2e Avoid Notice Menu",
+        "hint": "Open the PF2e Avoid Notice menu"
+      },
       "noTokensSelected": "No tokens selected",
       "tokensSelected": "{type} Tokens",
       "tokensConnected": "Connected Tokens",

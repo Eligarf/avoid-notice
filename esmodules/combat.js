@@ -1,6 +1,11 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
-import { log, isVisionerActive, refreshPerception } from "./main.js";
+import { log, getVisibilityHandler, refreshPerception } from "./main.js";
+import {
+  getVisionerApi,
+  isVisionerActive,
+  processObservationsForVisioner,
+} from "./visioner.js";
 import {
   findInitiativeCard,
   modifyInitiativeCard,
@@ -14,9 +19,10 @@ import { zoomToCombat } from "./socket.js";
 
 Hooks.once("init", () => {
   Hooks.on("combatStart", async (encounter) => {
-    if (isVisionerActive()) return;
+    const visibilityHandler = getVisibilityHandler();
+    const visionerApi =
+      visibilityHandler === "visioner" ? getVisionerApi() : null;
     const options = {
-      useEffects: game.settings.get(MODULE_ID, SETTINGS.useEffects),
       useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
       computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
       revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
@@ -107,6 +113,7 @@ Hooks.once("init", () => {
         : avoider.token;
 
       const avoiderApi = {
+        visionerApi,
         avoider,
         avoiderTokenDoc,
         baseCoverBonus: findBaseCoverBonus({ actor: avoider.actor }),
@@ -180,8 +187,13 @@ Hooks.once("init", () => {
     let tokenUpdates = [];
 
     // Adjust the avoider's condition
-    if (options.useEffects) {
-      await applyInitiativeConditions(observations, tokenUpdates);
+    switch (visibilityHandler) {
+      case "effects":
+        await applyInitiativeConditions(observations, tokenUpdates);
+        break;
+      case "visioner":
+        await processObservationsForVisioner(observations);
+        break;
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility

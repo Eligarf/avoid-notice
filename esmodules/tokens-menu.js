@@ -1,6 +1,7 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { hideTokens, clearActorStealth } from "./stealth.js";
+import { setAsAmbushers, clearActorStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
+import { getVisibilityHandler } from "./main.js";
 import {
   localizeString,
   debuglog,
@@ -14,17 +15,17 @@ export async function invokeTokensMenu({ selection, combatState }) {
     type: selection.type,
   });
 
-  let choices = [
-    {
+  let choices = [];
+  const visibilityHandler = getVisibilityHandler();
+  if (visibilityHandler !== "visioner")
+    choices.push({
       key: "remove-stealth",
       label: game.i18n.localize(`${MODULE_ID}.menu.removeStealth.label`),
       hint: localizeString(`${MODULE_ID}.menu.removeStealth.hint`, {
         type: selection.type,
       }),
-    },
-  ];
+    });
 
-  // If there aren't any PCs, then we can do the ambush thing.
   if (combatState === "inactive" && !selection.dispositions.has(1)) {
     choices.push({
       key: "prepare-ambush",
@@ -51,7 +52,7 @@ export async function invokeTokensMenu({ selection, combatState }) {
   switch (choice?.key) {
     case "prepare-ambush":
       debuglog("prepare-ambush", selection.tokens);
-      await hideTokens(selection.tokens);
+      await setAsAmbushers(selection.tokens);
       break;
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
