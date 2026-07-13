@@ -1,7 +1,7 @@
 import { MODULE_ID } from "./const.js";
 import { debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
-import { onStealthReply } from "./avoidance-check.js";
+import { onStealthReply } from "./avoidance-test.js";
 
 let socket = null;
 
