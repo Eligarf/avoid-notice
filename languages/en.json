@@ -101,7 +101,7 @@
         "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
       }
     },
-    "avoidanceCheck": {
+    "avoidanceTest": {
       "title": "Avoidance Test",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
