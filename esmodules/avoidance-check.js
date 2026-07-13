@@ -11,7 +11,7 @@ import { sendStealthRollToGM } from "./socket.js";
 async function rollStealth(actor, options = { skipDialog: true }) {
   const skill = actor?.skills?.stealth;
   if (!skill) return null;
-  const roll = skill.roll({
+  const roll = await skill.roll({
     rollMode: "gmroll",
     skipDialog: options.skipDialog,
     createMessage: false,
