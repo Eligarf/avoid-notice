@@ -52,7 +52,10 @@ export function localizeString(str, interpolations) {
 export function refreshPerception() {
   const handler = getVisibilityHandler();
   if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
-  else canvas.perception.update(REFRESH_OPTIONS);
+  else {
+    debuglog("Refreshing perception for all tokens");
+    canvas.perception.update(REFRESH_OPTIONS);
+  }
 }
 
 export async function iterateActorsForTokensAndParties(tokens, callback) {

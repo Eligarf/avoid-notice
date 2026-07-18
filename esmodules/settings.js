@@ -1,6 +1,7 @@
 import { MODULE_ID } from "./const.js";
 import { isVisionerActive } from "./visioner.js";
 import { invokeMenu } from "./menu.js";
+import { setupVisibilityHooks, releaseVisibilityHooks } from "./visibility.js";
 
 export const SETTINGS = {
   // General settings
@@ -50,6 +51,13 @@ export function setupSettings() {
     type: String,
     choices,
     default: "effects",
+    onChange: (newValue) => {
+      if (newValue === "effects") {
+        setupVisibilityHooks();
+      } else {
+        releaseVisibilityHooks();
+      }
+    },
   });
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
@@ -146,7 +154,7 @@ export function setupKeybindings() {
   game.keybindings.register(MODULE_ID, SETTINGS.menu, {
     name: `${MODULE_ID}.${SETTINGS.menu}.bindings.name`,
     hint: `${MODULE_ID}.${SETTINGS.menu}.bindings.hint`,
-    editable: [],
+    editable: [{ key: "KeyA", modifiers: ["Alt"] }],
     onDown: async () => {
       if (!game.user.isGM) return;
       invokeMenu();

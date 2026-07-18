@@ -30,13 +30,16 @@
       "name": "Zastosuj efekty ukrycia do sojuszników",
       "hint": "Jeśli opcja jest włączona, ukrycie zostanie zastosowane zarówno wobec tokenów sojuszniczych, jak i nie sojuszniczych"
     },
+    "visibilityHandler": {
+      "name": "Obsługa widoczności",
+      "hint": "Some features of PF2e Avoid Notice will be disabled if you choose PF2e Visioner",
+      "disabled": "Nie ustawiaj statusu stanu",
+      "effects": "Let PF2e Avoid Notice handle it",
+      "visioner": "Niech PF2e Visioner się tym zajmie"
+    },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",
       "hint": "Użyj modułu widoczności, aby automatycznie obliczyć osłonę między tokenami przy użyciu skradania się dla inicjatywy i tokenów niebędących sojusznikami. Jest to używane wyłącznie do tego celu."
-    },
-    "menu": {
-      "name": "PF2e Avoid Notice popup menu",
-      "hint": "Main interface for PF2e Avoid Notice"
     },
     "clearPartyStealthAfterCombat": {
       "name": "Usuń Ukrycie z drużyny po walce",
@@ -57,6 +60,62 @@
       "general": "Opcje ogólne",
       "misfits": "Cechy niedopasowane",
       "debug": "Opcje debugowania"
+    },
+    "menu": {
+      "name": "PF2e Avoid Notice popup menu",
+      "hint": "Main interface for PF2e Avoid Notice",
+      "bindings": {
+        "name": "PF2e Avoid Notice Menu",
+        "hint": "Open the PF2e Avoid Notice menu"
+      },
+      "noTokensSelected": "No tokens selected",
+      "tokensSelected": "{type} Tokens",
+      "tokensConnected": "Connected Tokens",
+      "type": {
+        "targeted": "Targeted",
+        "controlled": "Controlled"
+      },
+      "cancel": "Cancel",
+      "clearPartyStealth": {
+        "label": "Remove Party Stealth",
+        "hint": "Remove stealth effects from all party members"
+      },
+      "prepareAmbush": {
+        "label": "Prepare Ambush",
+        "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
+      },
+      "removeControlledStealth": {
+        "label": "Remove Stealth Effects from controlled tokens"
+      },
+      "removeTargetedStealth": {
+        "label": "Remove Stealth Effects from targeted tokens"
+      },
+      "testAvoidance": {
+        "label": "Check Avoidance",
+        "hint": "Run a stealth vs perception check for all stealthing {type} tokens"
+      },
+      "makeControlledObservableToTargeted": {
+        "label": "Make controlled tokens observable to targeted tokens"
+      },
+      "makeTargetedObservableToControlled": {
+        "label": "Make targeted tokens observable to controlled tokens"
+      }
+    },
+    "effects": {
+      "stealth": {
+        "name": "Stealth",
+        "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
+      }
+    },
+    "avoidanceTest": {
+      "title": "Avoidance Check",
+      "observed": "observed by {observed}",
+      "hidden": "hidden to {hidden}",
+      "unnoticed": "unnoticed by {unnoticed}",
+      "createEncounter": "Create/Populate Encounter",
+      "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
+      "observedEnemies": "Observed Enemies",
+      "observedFriendlies": "Observed Friendlies"
     }
   }
 }

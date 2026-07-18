@@ -9,8 +9,8 @@ import {
 } from "./main.js";
 import { testAvoidance } from "./avoidance-test.js";
 
-export async function invokeTokensMenu({ selection, combatState }) {
-  debuglog("invokeTokensMenu", { selection, combatState });
+export async function invokeTokensMenu({ selection }) {
+  debuglog("invokeTokensMenu", { selection });
   const title = localizeString(`${MODULE_ID}.menu.tokensSelected`, {
     type: selection.type,
   });
@@ -20,28 +20,31 @@ export async function invokeTokensMenu({ selection, combatState }) {
   if (visibilityHandler !== "visioner")
     choices.push({
       key: "remove-stealth",
-      label: game.i18n.localize(`${MODULE_ID}.menu.removeStealth.label`),
-      hint: localizeString(`${MODULE_ID}.menu.removeStealth.hint`, {
-        type: selection.type,
-      }),
+      label:
+        selection.type === "controlled"
+          ? game.i18n.localize(
+              `${MODULE_ID}.menu.removeControlledStealth.label`,
+            )
+          : game.i18n.localize(`${MODULE_ID}.menu.removeTargetedStealth.label`),
     });
 
-  if (combatState === "inactive" && !selection.dispositions.has(1)) {
+  const combat = game?.combat;
+  if (!combat && !selection.dispositions.has(1)) {
     choices.push({
       key: "prepare-ambush",
       label: game.i18n.localize(`${MODULE_ID}.menu.prepareAmbush.label`),
       hint: localizeString(`${MODULE_ID}.menu.prepareAmbush.hint`, {
-        type: selection.type,
+        type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
       }),
     });
   }
 
-  if (combatState === "inactive") {
+  if (!combat) {
     choices.push({
       key: "test-avoidance",
       label: game.i18n.localize(`${MODULE_ID}.menu.testAvoidance.label`),
       hint: localizeString(`${MODULE_ID}.menu.testAvoidance.hint`, {
-        type: selection.type,
+        type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
       }),
     });
   }

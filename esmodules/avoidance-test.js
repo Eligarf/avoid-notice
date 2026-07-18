@@ -1,4 +1,4 @@
-import { isAvoider } from "./menu.js";
+import { isAvoider } from "./effects.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import {
   localizeString,
@@ -180,8 +180,16 @@ export async function testAvoidance(tokens, secret = false) {
   const enemyActors = enemyTokens.map((token) => token?.actor);
 
   // Find the friendly avoiders and enemies
-  const friendlyAvoiders = friendlyActors.filter((actor) => isAvoider(actor));
-  const enemyAvoiders = enemyActors.filter((actor) => isAvoider(actor));
+  const friendlyAvoiders = friendlyActors.filter((actor) =>
+    isAvoider({ actor }),
+  );
+  const enemyAvoiders = enemyActors.filter((actor) => isAvoider({ actor }));
+  const observedEnemies = enemyActors.filter(
+    (actor) => !enemyAvoiders.includes(actor),
+  );
+  const observedFriendlies = friendlyActors.filter(
+    (actor) => !friendlyAvoiders.includes(actor),
+  );
 
   // Find the enemy avoiders and friendly observers
   let content = `<div class="${MODULE_ID}-avoidance-test"><h3>${localizeString(`${MODULE_ID}.avoidanceTest.title`)}</h3>`;
@@ -194,12 +202,16 @@ export async function testAvoidance(tokens, secret = false) {
   let enemyStealth = {};
   if (enemyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-enemies" data-visibility="gm">`;
-    const header = localizeString(`${MODULE_ID}.avoidanceTest.observedEnemies`);
-    content += `<div class="${MODULE_ID}-observed-enemies">${header}<ul>`;
-    for (const actor of enemyActors) {
-      if (!enemyAvoiders.includes(actor)) content += `<li>${actor.name}</li>`;
+    if (observedEnemies.length > 0) {
+      const header = localizeString(
+        `${MODULE_ID}.avoidanceTest.observedEnemies`,
+      );
+      content += `<div class="${MODULE_ID}-observed-enemies">${header}<ul>`;
+      for (const actor of observedEnemies) {
+        content += `<li>${actor.name}</li>`;
+      }
+      content += `</ul></div>`;
     }
-    content += `</ul></div>`;
     for (const avoider of enemyAvoiders) {
       const roll = await rollStealth(avoider);
       const observations = testAvoiderAgainstObservers(
@@ -230,15 +242,16 @@ export async function testAvoidance(tokens, secret = false) {
   let friendlyStealth = {};
   if (friendlyAvoiders.length > 0) {
     content += `<div class="${MODULE_ID}-friendlies">`;
-    const friendlyHeader = localizeString(
-      `${MODULE_ID}.avoidanceTest.observedFriendlies`,
-    );
-    content += `<div class="${MODULE_ID}-observed-friendlies">${friendlyHeader}<ul>`;
-    for (const actor of friendlyActors) {
-      if (!friendlyAvoiders.includes(actor))
+    if (observedFriendlies.length > 0) {
+      const friendlyHeader = localizeString(
+        `${MODULE_ID}.avoidanceTest.observedFriendlies`,
+      );
+      content += `<div class="${MODULE_ID}-observed-friendlies">${friendlyHeader}<ul>`;
+      for (const actor of observedFriendlies) {
         content += `<li>${actor.name}</li>`;
+      }
+      content += `</ul></div>`;
     }
-    content += `</ul></div>`;
     for (const avoider of friendlyAvoiders) {
       friendlyStealth[avoider.id] = { total: null, dosAdjust: null };
       const hoverId = foundry.utils.randomID();
