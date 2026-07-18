@@ -106,7 +106,11 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
       let flag = [];
       for (const c of EXCEPTIONS[visibility] || []) {
         if (c in result) {
-          flag.push(result[c].observers.map((o) => o.observerId));
+          flag.push(
+            result[c].observers.map(
+              (o) => canvas.tokens.get(o.observerId)?.actor?.id,
+            ),
+          );
         }
       }
       if (flag.length) {
@@ -115,13 +119,6 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
     }
 
     // If no rules to apply, nothing to do for this avoider
-    if (!rules.length) continue;
-    debuglog(`Applying initiative conditions for ${avoider.name}`, {
-      rules,
-      flags,
-    });
-
-    // Now we need to create an effect and apply the flags and rules to it.
-    await createStealthEffect(avoider.actor, rules, flags);
+    if (rules.length) await createStealthEffect(avoider.actor, rules, flags);
   }
 }
