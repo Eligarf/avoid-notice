@@ -43,11 +43,7 @@
       }
     ]
   },
-  "esmodules": [
-    "esmodules/main.js",
-    "esmodules/combat.js",
-    "esmodules/visibility.js"
-  ],
+  "esmodules": ["esmodules/main.js", "esmodules/combat.js"],
   "styles": ["styles/style.css"],
   "languages": [
     {

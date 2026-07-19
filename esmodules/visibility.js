@@ -1,11 +1,12 @@
 import { MODULE_ID, SLUGS, CONDITION_IDS } from "./const.js";
 import { debuglog, getVisibilityHandler } from "./main.js";
 import { SETTINGS } from "./settings.js";
+import { createVisibilityCache } from "./cache.js";
 
 let hooks = {};
 let observingActorIds = new Set();
-let observedTokens = {};
 let gmVisionCopy = undefined;
+const cache = createVisibilityCache();
 
 hooks.canvasReady = Hooks.on("canvasReady", async () => {
   debuglog(`Canvas is ready`);
@@ -18,81 +19,82 @@ Hooks.once("ready", () => {
 });
 
 function removeOverrides(token) {
+  debuglog("BAD BADDDDDDDDDDDDDDDDDDDDDDDDD");
   const override = observedTokens[token?.id];
-  delete observedTokens[token.id];
-  debuglog(`'${token.name}' mutations need to be destroyed`, {
-    override,
-  });
+  delete observedTokens.add(token.id);
 }
 
-function removeObservationsOf(actor) {
-  for (const tokenId in observedTokens) {
-    const override = observedTokens[tokenId];
-    for (const type in override) {
-      const state = override[type];
-      if (state.exceptFor.has(actor?.id)) {
-        state.exceptFor.delete(actor?.id);
-        if (state?.mutation && state.exceptFor.size === 0) {
-          debuglog(`'${tokenId}' mutations for '${type}' need to be destroyed`);
-          delete state.mutation;
+function handleMutations(token, record, mutations) {
+  debuglog("handleMutations", { token, record, mutations });
+  for (const type of mutations?.adds) {
+    const mutation = {};
+    switch (type) {
+      case "hidden":
+        debuglog(`state = ${token.detectionFilter.enabled}`);
+        if (token.detectionFilter) {
+          mutation.visible = token.detectionFilter.enabled;
+          token.detectionFilter.enabled = false;
+          debuglog("poked");
         }
-      }
+        break;
     }
+    record.mutations[type] = mutation;
+    debuglog(`'${token.name}' adds '${type}' mutation`, {
+      token,
+      record,
+      mutation,
+    });
+  }
+  for (const type of mutations?.removes) {
+    const mutation = record.mutations[type];
+    switch (type) {
+      case "hidden":
+        if (token.detectionFilter && mutation?.visible !== undefined) {
+          token.detectionFilter.enabled = mutation.visible;
+        }
+        break;
+    }
+    delete record.mutations[type];
+    debuglog(`'${token.name}' removes '${type}' mutation`, {
+      token,
+      record,
+    });
   }
 }
 
 function recordObservation(token, key, override) {
-  // debuglog(`'${token.name}' isn't '${key}' to observers`, {
-  //   token,
-  //   override,
-  // });
-  if (!(token?.id in observedTokens)) {
-    observedTokens[token.id] = {};
-  }
-  const record = observedTokens[token.id];
-  if (!(key in record)) {
-    record[key] = { exceptFor: new Set() };
-  }
-  const state = record[key];
+  const record = cache.getOrCreate(token);
+  const snapshot = cache.duplicate(record.snapshot);
+  if (!(key in snapshot)) snapshot[key] = { exceptFor: new Set() };
+  const state = snapshot[key];
   const observers = new Set(override.exceptFor);
   const detectors = observers.intersection(observingActorIds);
-  const exceptFor = state.exceptFor.union(detectors);
-  if (exceptFor.size === state.exceptFor.size) return;
-  debuglog("old, new", { old: duplicate(state.exceptFor), new: exceptFor });
-  state.exceptFor = exceptFor;
-  if (!state?.mutation && exceptFor.size > 0) {
-    debuglog(`'${token.name}' mutations for '${key}' need to be created`);
-    state.mutation = "mutation";
-  }
+  state.exceptFor = state.exceptFor.union(detectors);
+  const mutations = cache.update(record, snapshot);
+  if (!mutations) return;
+  handleMutations(token, record, mutations);
 }
 
 function controlTokenHook(token, controlled) {
+  debuglog(`'${token.name}' controlled: ${controlled}`, { token, controlled });
   if (!controlled) {
     const actor = token?.actor;
-    removeObservationsOf(actor);
     observingActorIds.delete(actor?.id);
+    cache.removeObserver(actor, handleMutations);
     return;
   }
 
-  if (token?.id in observedTokens) {
-    removeOverrides(token);
-  }
   observingActorIds.add(token.actor?.id);
+  if (cache.has(token)) {
+    cache.removeAvoider(token, handleMutations);
+  }
 }
 
 function refreshTokenHook(token, options) {
-  // debuglog(`'${token.name}' refreshed`, { token, options });
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
-    const tokenCount = Object.keys(observedTokens).length;
-    if (tokenCount > 0) {
-      for (const tokenId in observedTokens) {
-        const token = canvas.tokens.get(tokenId);
-        if (token) removeOverrides(token);
-      }
-      observedTokens = {};
-    }
+    cache.clear(handleMutations);
     return;
   }
   gmVisionCopy = false;
@@ -101,9 +103,7 @@ function refreshTokenHook(token, options) {
   if (!actor) return;
   // debuglog(`'${token.name}' refreshed`, { token, observingActorIds });
   if (observingActorIds.has(actor.id)) {
-    if (token?.id in observedTokens) {
-      removeOverrides(token);
-    }
+    if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
   }
 
@@ -130,8 +130,7 @@ function createItemHook(item, options, userId) {
 
 function deleteItemHook(item, options, userId) {
   if (item?.system?.slug !== SLUGS.stealthEffect) return;
-  const actor = options.parent;
-  debuglog(`'${actor?.name}' stealth effect deleted`, {
+  debuglog(`stealth effect deleted`, {
     item,
     options,
     userId,
