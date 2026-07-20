@@ -7,11 +7,11 @@ let observingActorIds = new Set();
 let gmVisionCopy = undefined;
 const cache = createVisibilityCache();
 
-hooks.canvasReady = Hooks.on("canvasReady", async () => {
+hooks.canvasReady = globalThis.Hooks.on("canvasReady", async () => {
   debuglog(`Canvas is ready`);
 });
 
-Hooks.once("ready", () => {
+globalThis.Hooks.once("ready", () => {
   debuglog(`appstate is ready`);
   if (getVisibilityHandler() === "effects") setupVisibilityHooks();
   gmVisionCopy = game.pf2e.settings.gmVision;
@@ -147,29 +147,29 @@ function deleteTokenHook(tokenDoc, options, userId) {
 
 export function setupVisibilityHooks() {
   if (!hooks?.controlToken)
-    hooks.controlToken = Hooks.on("controlToken", controlTokenHook);
+    hooks.controlToken = globalThis.Hooks.on("controlToken", controlTokenHook);
   if (!hooks?.refreshToken)
-    hooks.refreshToken = Hooks.on("refreshToken", refreshTokenHook);
+    hooks.refreshToken = globalThis.Hooks.on("refreshToken", refreshTokenHook);
   if (!hooks?.createItem)
-    hooks.createItem = Hooks.on("createItem", createItemHook);
+    hooks.createItem = globalThis.Hooks.on("createItem", createItemHook);
   if (!hooks?.deleteItem)
-    hooks.deleteItem = Hooks.on("deleteItem", deleteItemHook);
+    hooks.deleteItem = globalThis.Hooks.on("deleteItem", deleteItemHook);
   if (!hooks?.updateToken)
-    hooks.updateToken = Hooks.on("updateToken", updateTokenHook);
+    hooks.updateToken = globalThis.Hooks.on("updateToken", updateTokenHook);
   if (!hooks?.createToken)
-    hooks.createToken = Hooks.on("createToken", createTokenHook);
+    hooks.createToken = globalThis.Hooks.on("createToken", createTokenHook);
   if (!hooks?.deleteToken)
-    hooks.deleteToken = Hooks.on("deleteToken", deleteTokenHook);
+    hooks.deleteToken = globalThis.Hooks.on("deleteToken", deleteTokenHook);
 }
 
 export function releaseVisibilityHooks() {
-  Hooks.off("deleteToken", deleteTokenHook);
-  Hooks.off("createToken", createTokenHook);
-  Hooks.off("updateToken", updateTokenHook);
-  Hooks.off("deleteItem", deleteItemHook);
-  Hooks.off("createItem", createItemHook);
-  Hooks.off("refreshToken", refreshTokenHook);
-  Hooks.off("controlToken", controlTokenHook);
+  globalThis.Hooks.off("deleteToken", deleteTokenHook);
+  globalThis.Hooks.off("createToken", createTokenHook);
+  globalThis.Hooks.off("updateToken", updateTokenHook);
+  globalThis.Hooks.off("deleteItem", deleteItemHook);
+  globalThis.Hooks.off("createItem", createItemHook);
+  globalThis.Hooks.off("refreshToken", refreshTokenHook);
+  globalThis.Hooks.off("controlToken", controlTokenHook);
   hooks = {};
 }
 

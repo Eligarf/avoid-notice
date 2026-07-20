@@ -17,8 +17,8 @@ import { makeObservation, evaluateObservation } from "./observation-logic.js";
 import { renderStatus } from "./render-status.js";
 import { zoomToCombat } from "./socket.js";
 
-Hooks.once("init", () => {
-  Hooks.on("combatStart", async (encounter) => {
+globalThis.Hooks.once("init", () => {
+  globalThis.Hooks.on("combatStart", async (encounter) => {
     const visibilityHandler = getVisibilityHandler();
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
@@ -236,7 +236,7 @@ Hooks.once("init", () => {
     refreshPerception();
   });
 
-  Hooks.on("deleteCombat", async () => {
+  globalThis.Hooks.on("deleteCombat", async () => {
     if (isVisionerActive()) return;
     if (!game.user?.isActiveGM) return;
     const cleanUp = game.settings.get(

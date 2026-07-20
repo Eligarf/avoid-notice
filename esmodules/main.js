@@ -95,8 +95,8 @@ function hookMessages(message, options, id) {
   //   origin?.rollDamage({ target: message.token });
 }
 
-Hooks.once("init", () => {
-  Hooks.on("createChatMessage", async (message, options, id) => {
+globalThis.Hooks.once("init", () => {
+  globalThis.Hooks.on("createChatMessage", async (message, options, id) => {
     hookMessages(message, options, id);
   });
 
@@ -112,7 +112,7 @@ function migrate(moduleVersion, oldVersion) {
   return moduleVersion;
 }
 
-Hooks.once("ready", () => {
+globalThis.Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
   const visibilityHandler = game.settings.get(
     MODULE_ID,
@@ -138,7 +138,7 @@ Hooks.once("ready", () => {
   }
 });
 
-Hooks.once("setup", () => {
+globalThis.Hooks.once("setup", () => {
   const module = game.modules.get(MODULE_ID);
   const moduleVersion = module.version;
 
@@ -161,7 +161,7 @@ Hooks.once("setup", () => {
 
   const schemaVersion = game.settings.get(MODULE_ID, SETTINGS.schema);
   if (schemaVersion !== moduleVersion) {
-    Hooks.once("ready", () => {
+    globalThis.Hooks.once("ready", () => {
       game.settings.set(
         MODULE_ID,
         SETTINGS.schema,
@@ -173,6 +173,6 @@ Hooks.once("setup", () => {
   log(`Setup ${moduleVersion}`);
 });
 
-Hooks.on("renderSettingsConfig", (_app, _html, _data) => {
+globalThis.Hooks.on("renderSettingsConfig", (_app, _html, _data) => {
   groupSettings();
 });
