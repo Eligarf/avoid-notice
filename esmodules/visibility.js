@@ -18,23 +18,15 @@ Hooks.once("ready", () => {
   gmVisionCopy = game.pf2e.settings.gmVision;
 });
 
-function removeOverrides(token) {
-  debuglog("BAD BADDDDDDDDDDDDDDDDDDDDDDDDD");
-  const override = observedTokens[token?.id];
-  delete observedTokens.add(token.id);
-}
-
 function handleMutations(token, record, mutations) {
-  debuglog("handleMutations", { token, record, mutations });
+  // debuglog("handleMutations", { token, record, mutations });
   for (const type of mutations?.adds) {
     const mutation = {};
     switch (type) {
       case "hidden":
-        debuglog(`state = ${token.detectionFilter.enabled}`);
         if (token.detectionFilter) {
           mutation.visible = token.detectionFilter.enabled;
           token.detectionFilter.enabled = false;
-          debuglog("poked");
         }
         break;
     }
@@ -49,7 +41,7 @@ function handleMutations(token, record, mutations) {
     const mutation = record.mutations[type];
     switch (type) {
       case "hidden":
-        if (token.detectionFilter && mutation?.visible !== undefined) {
+        if (token.detectionFilter) {
           token.detectionFilter.enabled = mutation.visible;
         }
         break;
@@ -147,9 +139,11 @@ function updateTokenHook(tokenDoc, data, options, userId) {
 
 function deleteTokenHook(tokenDoc, options, userId) {
   debuglog(`'${tokenDoc.name}' deleted`, { tokenDoc, options, userId });
-  if (tokenDoc?.id in observedTokens) {
-    delete observedTokens[tokenDoc.id];
-  }
+  const stealth = tokenDoc?.actor?.items.find(
+    (i) => i.slug === SLUGS.stealthEffect,
+  );
+  if (!stealth) return;
+  cache.removeAvoider(tokenDoc, handleMutations);
 }
 
 export function setupVisibilityHooks() {
