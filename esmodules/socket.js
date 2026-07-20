@@ -4,12 +4,12 @@ import { onStealthReply } from "./avoidance-test.js";
 
 let socket = null;
 
-Hooks.once("socketlib.ready", () => {
-  if (typeof window?.socketlib === "undefined") {
+globalThis.Hooks.once("socketlib.ready", () => {
+  if (typeof globalThis?.socketlib === "undefined") {
     showNotification(`{MODULE_ID}.notifications.noSocketLib`, "warn");
     return;
   }
-  socket = window.socketlib.registerModule(MODULE_ID);
+  socket = globalThis.socketlib.registerModule(MODULE_ID);
   socket.register("ZoomToCombat", onZoomToCombat);
   socket.register("StealthReply", onStealthReply);
 });

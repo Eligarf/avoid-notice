@@ -396,7 +396,7 @@ async function rollClick({ message, event, avoidanceTest, actionId }) {
       secret: true,
     });
   } else {
-    Hooks.once("createChatMessage", (msg) => {
+    globalThis.Hooks.once("createChatMessage", (msg) => {
       if (msg.rolls?.length && msg.speakerActor?.id === actor.id)
         rollMessageId = msg.id;
     });
@@ -536,13 +536,13 @@ function attachHover(html, el, avoidanceTest) {
       pendingEnter = false;
       canvasReadyCb = null;
     };
-    Hooks.once("canvasReady", canvasReadyCb);
+    globalThis.Hooks.once("canvasReady", canvasReadyCb);
   };
 
   const onLeave = () => {
     pendingEnter = false;
     if (canvasReadyCb) {
-      Hooks.off("canvasReady", canvasReadyCb);
+      globalThis.Hooks.off("canvasReady", canvasReadyCb);
       canvasReadyCb = null;
     }
     if (canvas?.ready) {
@@ -564,7 +564,7 @@ function attachHover(html, el, avoidanceTest) {
           el.removeEventListener("mouseenter", onEnter);
           el.removeEventListener("mouseleave", onLeave);
           if (canvasReadyCb) {
-            Hooks.off("canvasReady", canvasReadyCb);
+            globalThis.Hooks.off("canvasReady", canvasReadyCb);
             canvasReadyCb = null;
           }
           observer.disconnect();
@@ -576,7 +576,7 @@ function attachHover(html, el, avoidanceTest) {
   observer.observe(html, { childList: true, subtree: true });
 }
 
-Hooks.on("renderChatMessageHTML", (message, html, data) => {
+globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const avoidanceTest = message.flags[MODULE_ID]?.avoidanceTest;
   if (!avoidanceTest) return;
   debuglog("renderChatMessageHTML", { message, html, data, avoidanceTest });
