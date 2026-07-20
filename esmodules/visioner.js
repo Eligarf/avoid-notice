@@ -1,4 +1,3 @@
-import { log } from "./main.js";
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
 
@@ -40,12 +39,7 @@ export function refreshVisionerPerception(visionerApi) {
     visionerApi.refreshEveryonesPerception();
 }
 
-async function clearVisionerDataHardWay({
-  token,
-  visionerApi,
-  refresh = false,
-  batch = null,
-}) {
+async function clearVisionerDataHardWay({ token, visionerApi, batch = null }) {
   const tokens = canvas.scene.tokens.filter((t) => {
     const visibility = t.flags?.[VISIONER_ID]?.visibility;
     if (!visibility) return false;

@@ -130,7 +130,7 @@ Hooks.once("ready", () => {
 
   if (
     game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat) &&
-    typeof socketlib === "undefined"
+    typeof window?.socketlib === "undefined"
   ) {
     ui.notifications.warn(
       game.i18n.localize(`${MODULE_ID}.notifications.noSocketLib`),
@@ -173,6 +173,6 @@ Hooks.once("setup", () => {
   log(`Setup ${moduleVersion}`);
 });
 
-Hooks.on("renderSettingsConfig", (app, html, data) => {
+Hooks.on("renderSettingsConfig", (_app, _html, _data) => {
   groupSettings();
 });

@@ -1,5 +1,4 @@
 import { MODULE_ID } from "./const.js";
-import { log } from "./main.js";
 import { getCoverFrom } from "./cover.js";
 
 export function makeObservation({

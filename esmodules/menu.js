@@ -1,10 +1,8 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import { MODULE_ID, SLUGS } from "./const.js";
-import { debuglog } from "./main.js";
 import { invokeNoTokensMenu } from "./no-tokens-menu.js";
 import { invokeTokensMenu } from "./tokens-menu.js";
 import { invokeConnectedTokensMenu } from "./connected-tokens-menu.js";
-import { isAvoider } from "./effects.js";
 
 export class AvoidNoticePopupMenu extends HandlebarsApplicationMixin(
   ApplicationV2,

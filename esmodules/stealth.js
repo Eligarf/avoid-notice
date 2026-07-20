@@ -2,17 +2,10 @@ import {
   interpolateString,
   getVisibilityHandler,
   refreshPerception,
-  debuglog,
 } from "./main.js";
-import { getVisionerApi, clearVisionerData } from "./visioner.js";
-import { SETTINGS } from "./settings.js";
-import { MODULE_ID, SLUGS } from "./const.js";
+import { SLUGS } from "./const.js";
 
-export async function clearActorStealth({
-  actor,
-  refresh = true,
-  showBanner = false,
-} = {}) {
+export async function clearActorStealth({ actor, showBanner = false } = {}) {
   const visibilityHandler = getVisibilityHandler();
   if (visibilityHandler === "visioner") return;
 
@@ -29,7 +22,7 @@ export async function clearActorStealth({
       interpolateString(
         game.i18n.localize("pf2e-avoid-notice.clearStealth.banner"),
         {
-          name: token.name,
+          name: actor.name,
         },
       ),
     );

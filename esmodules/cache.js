@@ -1,6 +1,4 @@
-import { MODULE_ID, SLUGS, CONDITION_IDS } from "./const.js";
-import { debuglog, getVisibilityHandler } from "./main.js";
-import { SETTINGS } from "./settings.js";
+import { debuglog } from "./main.js";
 
 export function createVisibilityCache() {
   const store = new Map();
@@ -90,7 +88,7 @@ export function createVisibilityCache() {
     update(record, snapshot) {
       const trace = this.fold(snapshot);
       if (trace === record.trace) return;
-      debuglog(`updating '${record.token.name}'`, { record, snapshot });
+      // debuglog(`updating '${record.token.name}'`, { record, snapshot });
       const adds = Object.keys(snapshot).filter(
         (key) => !(key in record.snapshot),
       );

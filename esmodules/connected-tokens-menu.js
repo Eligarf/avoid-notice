@@ -1,7 +1,6 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
 import {
   debuglog,
-  localizeString,
   getVisibilityHandler,
   iterateActorsForTokensAndParties,
 } from "./main.js";
