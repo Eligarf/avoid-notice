@@ -44,6 +44,10 @@ export function createVisibilityCache() {
       return store.has(token.id);
     },
 
+    get(token) {
+      return store.get(token.id);
+    },
+
     create(token) {
       const record = {
         token,
