@@ -1,5 +1,3 @@
-import { log } from "./main.js";
-
 export function findBaseCoverBonus({ actor }) {
   const coverEffect = actor.items.find((i) => i.system.slug === "effect-cover");
   const systemFlags =

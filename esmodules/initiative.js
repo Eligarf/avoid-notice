@@ -1,4 +1,4 @@
-import { CONDITION_IDS, CONDITION_PACK, MODULE_ID } from "./const.js";
+import { CONDITION_IDS, CONDITION_PACK } from "./const.js";
 import { debuglog, interpolateString } from "./main.js";
 import { createStealthEffect } from "./effects.js";
 

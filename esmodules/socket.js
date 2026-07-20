@@ -1,16 +1,15 @@
 import { MODULE_ID } from "./const.js";
-import { debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
 import { onStealthReply } from "./avoidance-test.js";
 
 let socket = null;
 
 Hooks.once("socketlib.ready", () => {
-  if (typeof socketlib === "undefined") {
+  if (typeof window?.socketlib === "undefined") {
     showNotification(`{MODULE_ID}.notifications.noSocketLib`, "warn");
     return;
   }
-  socket = socketlib.registerModule(MODULE_ID);
+  socket = window.socketlib.registerModule(MODULE_ID);
   socket.register("ZoomToCombat", onZoomToCombat);
   socket.register("StealthReply", onStealthReply);
 });

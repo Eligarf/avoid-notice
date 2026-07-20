@@ -1,6 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
-import { log, getVisibilityHandler, refreshPerception } from "./main.js";
+import { getVisibilityHandler, refreshPerception } from "./main.js";
 import {
   getVisionerApi,
   isVisionerActive,

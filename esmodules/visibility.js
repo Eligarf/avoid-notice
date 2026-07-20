@@ -1,6 +1,5 @@
-import { MODULE_ID, SLUGS, CONDITION_IDS } from "./const.js";
+import { MODULE_ID, SLUGS } from "./const.js";
 import { debuglog, getVisibilityHandler } from "./main.js";
-import { SETTINGS } from "./settings.js";
 import { createVisibilityCache } from "./cache.js";
 
 let hooks = {};
@@ -82,7 +81,7 @@ function controlTokenHook(token, controlled) {
   }
 }
 
-function refreshTokenHook(token, options) {
+function refreshTokenHook(token, _options) {
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
