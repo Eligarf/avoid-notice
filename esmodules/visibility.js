@@ -17,6 +17,21 @@ globalThis.Hooks.once("ready", () => {
   gmVisionCopy = game.pf2e.settings.gmVision;
 });
 
+function setHiddenVisuals(token) {
+  // debuglog(
+  //   `token.visible=${token.visible} mesh.visible=${token?.mesh?.visible} detectionFilter=${token.detectionFilter ? "exists" : "null"}`,
+  // );
+  if (!token.visible) token.visible = true;
+  if (!token.mesh.visible) token.mesh.visible = true;
+  if (!token.detectionFilter) {
+    token.detectionFilter =
+      foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
+        wave: true,
+      });
+    token.detectionFilter.thickness = 1;
+  }
+}
+
 function handleMutations(token, record, mutations) {
   debuglog("handleMutations", { token, record, mutations });
   switch (mutations?.adds?.length) {
@@ -26,19 +41,16 @@ function handleMutations(token, record, mutations) {
     case 1:
       const type = mutations.adds[0];
       if (type === "hidden") {
-        debuglog("hidden");
         record.mutations.hidden = { enabled: token.detectionFilter?.enabled };
         if (token.detectionFilter) {
           token.detectionFilter.enabled = false;
         }
       } else if (type === "undetected") {
-        debuglog("undetected");
         record.mutations.undetected = {
           visible: token.visible,
           meshVisible: token?.mesh?.visible,
         };
-        token.visible = true;
-        if (token?.mesh) token.mesh.visible = true;
+        setHiddenVisuals(token);
       }
       break;
   }
@@ -125,9 +137,7 @@ function refreshTokenHook(token, _options) {
   if (!record) return;
   const undetected = record?.mutations?.undetected;
   if (!undetected) return;
-  token.visible = true;
-  token.mesh.visible = true;
-  // just the effects and box are visible when I jam token.visible to true
+  setHiddenVisuals(token);
 }
 
 function createItemHook(item, options, userId) {
