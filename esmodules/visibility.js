@@ -18,38 +18,48 @@ globalThis.Hooks.once("ready", () => {
 });
 
 function handleMutations(token, record, mutations) {
-  // debuglog("handleMutations", { token, record, mutations });
-  for (const type of mutations?.adds) {
-    const mutation = {};
-    switch (type) {
-      case "hidden":
+  debuglog("handleMutations", { token, record, mutations });
+  switch (mutations?.adds?.length) {
+    case 2:
+      debuglog("complicated");
+      break;
+    case 1:
+      const type = mutations.adds[0];
+      if (type === "hidden") {
+        debuglog("hidden");
+        record.mutations.hidden = { enabled: token.detectionFilter?.enabled };
         if (token.detectionFilter) {
-          mutation.visible = token.detectionFilter.enabled;
           token.detectionFilter.enabled = false;
         }
-        break;
-    }
-    record.mutations[type] = mutation;
-    debuglog(`'${token.name}' adds '${type}' mutation`, {
-      token,
-      record,
-      mutation,
-    });
+      } else if (type === "undetected") {
+        debuglog("undetected");
+        record.mutations.undetected = {
+          visible: token.visible,
+          meshVisible: token?.mesh?.visible,
+        };
+        token.visible = true;
+        if (token?.mesh) token.mesh.visible = true;
+      }
+      break;
   }
-  for (const type of mutations?.removes) {
-    const mutation = record.mutations[type];
-    switch (type) {
-      case "hidden":
+  switch (mutations?.removes?.length) {
+    case 2:
+      debuglog("complicated");
+      break;
+    case 1:
+      const type = mutations.removes[0];
+      if (type === "hidden") {
         if (token.detectionFilter) {
-          token.detectionFilter.enabled = mutation.visible;
+          token.detectionFilter.enabled = record.mutations.hidden.enabled;
         }
-        break;
-    }
-    delete record.mutations[type];
-    debuglog(`'${token.name}' removes '${type}' mutation`, {
-      token,
-      record,
-    });
+        delete record.mutations.hidden;
+      } else if (type === "undetected") {
+        token.visible = record.mutations.undetected.visible;
+        if (token?.mesh)
+          token.mesh.visible = record.mutations.undetected.meshVisible;
+        delete record.mutations.undetected;
+      }
+      break;
   }
 }
 
@@ -82,6 +92,10 @@ function controlTokenHook(token, controlled) {
 }
 
 function refreshTokenHook(token, _options) {
+  // debuglog(`'${token.name}' refreshed (visible=${token.visible})`, {
+  //   token,
+  //   observingActorIds,
+  // });
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
@@ -107,6 +121,13 @@ function refreshTokenHook(token, _options) {
       recordObservation(token, key, s);
     }
   }
+  const record = cache.get(token);
+  if (!record) return;
+  const undetected = record?.mutations?.undetected;
+  if (!undetected) return;
+  token.visible = true;
+  token.mesh.visible = true;
+  // just the effects and box are visible when I jam token.visible to true
 }
 
 function createItemHook(item, options, userId) {
