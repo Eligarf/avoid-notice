@@ -37,6 +37,10 @@ function setUndetectedMutation(token, undetected) {
   } else if (token.detectionFilter !== undetected.filter) {
     ui.notifications.warn(
       `Token '${token.name}' already has a detection filter. This may cause visual issues.`,
+      {
+        tokenFilter: token.detectionFilter,
+        undetectedFilter: undetected.filter,
+      },
     );
   }
 }
@@ -93,9 +97,16 @@ function handleMutations(token, record, mutations) {
         } else {
           token.mesh.visible = false;
         }
-        if (token.detectionFilter !== record.mutations.undetected.filter) {
+        if (
+          token.detectionFilter &&
+          token.detectionFilter !== record.mutations.undetected.filter
+        ) {
           ui.notifications.warn(
             `Token '${token.name}' has a different detection filter than expected. This may cause visual issues.`,
+            {
+              tokenFilter: token.detectionFilter,
+              undetectedFilter: record.mutations.undetected.filter,
+            },
           );
         } else token.detectionFilter = null;
         record.mutations.undetected.filter = null;
@@ -134,10 +145,13 @@ function controlTokenHook(token, controlled) {
 }
 
 function refreshTokenHook(token, _options) {
-  // debuglog(`'${token.name}' refreshed (visible=${token.visible})`, {
-  //   token,
-  //   observingActorIds,
-  // });
+  // debuglog(
+  //   `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible})`,
+  //   {
+  //     token,
+  //     observingActorIds,
+  //   },
+  // );
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
@@ -149,7 +163,7 @@ function refreshTokenHook(token, _options) {
   const actor = token?.actor;
   if (!actor) return;
   // debuglog(`'${token.name}' refreshed`, { token, observingActorIds });
-  if (observingActorIds.has(actor.id)) {
+  if (observingActorIds.has(actor.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
   }
