@@ -15,20 +15,29 @@ globalThis.Hooks.once("ready", () => {
   debuglog(`appstate is ready`);
   if (getVisibilityHandler() === "effects") setupVisibilityHooks();
   gmVisionCopy = game.pf2e.settings.gmVision;
+  for (const token of canvas.tokens.controlled) {
+    controlTokenHook(token, true);
+  }
 });
 
-function setHiddenVisuals(token) {
+function setUndetectedMutation(token, undetected) {
   // debuglog(
   //   `token.visible=${token.visible} mesh.visible=${token?.mesh?.visible} detectionFilter=${token.detectionFilter ? "exists" : "null"}`,
   // );
-  if (!token.visible) token.visible = true;
-  if (!token.mesh.visible) token.mesh.visible = true;
+  token.visible = true;
+  if (!token.mesh) {
+    ui.notifications.warn(
+      `Token '${token.name}' has no mesh. This may cause visual issues.`,
+    );
+  } else {
+    token.mesh.visible = true;
+  }
   if (!token.detectionFilter) {
-    token.detectionFilter =
-      foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
-        wave: true,
-      });
-    token.detectionFilter.thickness = 1;
+    token.detectionFilter = undetected.filter;
+  } else if (token.detectionFilter !== undetected.filter) {
+    ui.notifications.warn(
+      `Token '${token.name}' already has a detection filter. This may cause visual issues.`,
+    );
   }
 }
 
@@ -36,39 +45,60 @@ function handleMutations(token, record, mutations) {
   debuglog("handleMutations", { token, record, mutations });
   switch (mutations?.adds?.length) {
     case 2:
-      debuglog("complicated");
+      ui.notifications.warn(`Token '${token.name}' is getting two adds?`);
       break;
     case 1:
       const type = mutations.adds[0];
       if (type === "hidden") {
-        record.mutations.hidden = { enabled: token.detectionFilter?.enabled };
+        record.mutations.hidden = {};
         if (token.detectionFilter) {
           token.detectionFilter.enabled = false;
+        } else {
+          ui.notifications.warn(
+            `Token '${token.name}' is being hidden but has no detection filter. This may cause visual issues.`,
+          );
         }
       } else if (type === "undetected") {
-        record.mutations.undetected = {
-          visible: token.visible,
-          meshVisible: token?.mesh?.visible,
-        };
-        setHiddenVisuals(token);
+        const filter =
+          foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
+            wave: true,
+          });
+        filter.thickness = 1;
+        record.mutations.undetected = { filter };
+        setUndetectedMutation(token, record.mutations.undetected);
       }
       break;
   }
   switch (mutations?.removes?.length) {
     case 2:
-      debuglog("complicated");
+      ui.notifications.warn(`Token '${token.name}' is getting two removes?`);
       break;
     case 1:
       const type = mutations.removes[0];
       if (type === "hidden") {
         if (token.detectionFilter) {
-          token.detectionFilter.enabled = record.mutations.hidden.enabled;
+          token.detectionFilter.enabled = true;
+        } else {
+          ui.notifications.warn(
+            `Token '${token.name}' is being unhidden but has no detection filter. This may cause visual issues.`,
+          );
         }
         delete record.mutations.hidden;
       } else if (type === "undetected") {
-        token.visible = record.mutations.undetected.visible;
-        if (token?.mesh)
-          token.mesh.visible = record.mutations.undetected.meshVisible;
+        token.visible = false;
+        if (!token.mesh) {
+          ui.notifications.warn(
+            `Token '${token.name}' has no mesh. This may cause visual issues.`,
+          );
+        } else {
+          token.mesh.visible = false;
+        }
+        if (token.detectionFilter !== record.mutations.undetected.filter) {
+          ui.notifications.warn(
+            `Token '${token.name}' has a different detection filter than expected. This may cause visual issues.`,
+          );
+        } else token.detectionFilter = null;
+        record.mutations.undetected.filter = null;
         delete record.mutations.undetected;
       }
       break;
@@ -137,7 +167,7 @@ function refreshTokenHook(token, _options) {
   if (!record) return;
   const undetected = record?.mutations?.undetected;
   if (!undetected) return;
-  setHiddenVisuals(token);
+  setUndetectedMutation(token, undetected);
 }
 
 function createItemHook(item, options, userId) {
