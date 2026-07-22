@@ -50,7 +50,7 @@ export function setupSettings() {
     config: true,
     type: String,
     choices,
-    default: "effects",
+    default: "disabled",
     onChange: (newValue) => {
       if (newValue === "effects") {
         setupVisibilityHooks();

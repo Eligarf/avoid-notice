@@ -40,7 +40,7 @@ export function getVisibilityHandler() {
     SETTINGS.visibilityHandler,
   );
   if (visibilityHandler === "auto") {
-    visibilityHandler = isVisionerActive() ? "visioner" : "effects";
+    visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
   }
   return visibilityHandler;
 }
