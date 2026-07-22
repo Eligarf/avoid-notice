@@ -20,7 +20,7 @@ globalThis.Hooks.once("ready", () => {
   }
 });
 
-function setUndetectedMutation(token, undetected) {
+function applyMutation(token, mutation) {
   // debuglog(
   //   `token.visible=${token.visible} mesh.visible=${token?.mesh?.visible} detectionFilter=${token.detectionFilter ? "exists" : "null"}`,
   // );
@@ -33,13 +33,13 @@ function setUndetectedMutation(token, undetected) {
     token.mesh.visible = true;
   }
   if (!token.detectionFilter) {
-    token.detectionFilter = undetected.filter;
-  } else if (token.detectionFilter !== undetected.filter) {
+    token.detectionFilter = mutation.filter;
+  } else if (token.detectionFilter !== mutation.filter) {
     ui.notifications.warn(
       `Token '${token.name}' already has a detection filter. This may cause visual issues.`,
       {
         tokenFilter: token.detectionFilter,
-        undetectedFilter: undetected.filter,
+        undetectedFilter: mutation.filter,
       },
     );
   }
@@ -54,14 +54,8 @@ function handleMutations(token, record, mutations) {
     case 1:
       const type = mutations.adds[0];
       if (type === "hidden") {
-        record.mutations.hidden = {};
-        if (token.detectionFilter) {
-          token.detectionFilter.enabled = false;
-        } else {
-          ui.notifications.warn(
-            `Token '${token.name}' is being hidden but has no detection filter. This may cause visual issues.`,
-          );
-        }
+        record.mutations.hidden = { filter: token.detectionFilter };
+        token.detectionFilter = null;
       } else if (type === "undetected") {
         const filter =
           foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
@@ -69,7 +63,7 @@ function handleMutations(token, record, mutations) {
           });
         filter.thickness = 1;
         record.mutations.undetected = { filter };
-        setUndetectedMutation(token, record.mutations.undetected);
+        applyMutation(token, record.mutations.undetected);
       }
       break;
   }
@@ -80,13 +74,7 @@ function handleMutations(token, record, mutations) {
     case 1:
       const type = mutations.removes[0];
       if (type === "hidden") {
-        if (token.detectionFilter) {
-          token.detectionFilter.enabled = true;
-        } else {
-          ui.notifications.warn(
-            `Token '${token.name}' is being unhidden but has no detection filter. This may cause visual issues.`,
-          );
-        }
+        token.detectionFilter = record.mutations.hidden.filter;
         delete record.mutations.hidden;
       } else if (type === "undetected") {
         token.visible = false;
@@ -145,13 +133,13 @@ function controlTokenHook(token, controlled) {
 }
 
 function refreshTokenHook(token, _options) {
-  // debuglog(
-  //   `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible})`,
-  //   {
-  //     token,
-  //     observingActorIds,
-  //   },
-  // );
+  debuglog(
+    `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible} filter=${token.detectionFilter ? "exists" : "null"})`,
+    {
+      token,
+      observingActorIds,
+    },
+  );
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
@@ -162,7 +150,6 @@ function refreshTokenHook(token, _options) {
 
   const actor = token?.actor;
   if (!actor) return;
-  // debuglog(`'${token.name}' refreshed`, { token, observingActorIds });
   if (observingActorIds.has(actor.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
@@ -177,11 +164,14 @@ function refreshTokenHook(token, _options) {
       recordObservation(token, key, s);
     }
   }
+
+  // our mutations get zotted out every time, so we need to restore them here
   const record = cache.get(token);
   if (!record) return;
   const undetected = record?.mutations?.undetected;
-  if (!undetected) return;
-  setUndetectedMutation(token, undetected);
+  if (undetected) applyMutation(token, undetected);
+  const hidden = record?.mutations?.hidden;
+  if (hidden) token.detectionFilter = null;
 }
 
 function createItemHook(item, options, userId) {
