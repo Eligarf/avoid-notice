@@ -68,6 +68,7 @@
         "name": "PF2e Avoid Notice Menu",
         "hint": "Open the PF2e Avoid Notice menu"
       },
+      "nothingToDo": "PF2e Avoid Notice has no available actions for the given token(s)",
       "noTokensSelected": "No tokens selected",
       "tokensSelected": "{type} Tokens",
       "tokensConnected": "Connected Tokens",
@@ -85,11 +86,11 @@
         "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
       "removeControlledStealth": {
-        "label": "Remove Stealth Effects from controlled tokens",
+        "label": "Remove Stealth Effects",
         "hint": "Remove Stealth Effects from controlled tokens"
       },
       "removeTargetedStealth": {
-        "label": "Remove Stealth Effects from targeted tokens",
+        "label": "Remove Stealth Effects",
         "hint": "Remove Stealth Effects from targeted tokens"
       },
       "undoReveals": {
