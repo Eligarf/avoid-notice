@@ -85,21 +85,70 @@
         "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
       "removeControlledStealth": {
-        "label": "Remove Stealth Effects from controlled tokens"
+        "label": "Remove Stealth Effects from controlled tokens",
+        "hint": "Remove Stealth Effects from controlled tokens"
       },
       "removeTargetedStealth": {
-        "label": "Remove Stealth Effects from targeted tokens"
+        "label": "Remove Stealth Effects from targeted tokens",
+        "hint": "Remove Stealth Effects from targeted tokens"
+      },
+      "undoReveals": {
+        "label": "Undo Stealth Reveals",
+        "hint": "Undo any stealth reveals of {type} tokens"
+      },
+      "undoHiddenReveals": {
+        "label": "Undo Hidden Reveals",
+        "hint": "Undo any reveals of {type} tokens' Hidden condition"
+      },
+      "undoUndetectedReveals": {
+        "label": "Undo Undetected Reveals",
+        "hint": "Undo any reveals of {type} tokens' Undetected condition"
       },
       "testAvoidance": {
         "label": "Check Avoidance",
         "hint": "Run a stealth vs perception check for all stealthing {type} tokens"
       },
-      "makeControlledObservableToTargeted": {
-        "label": "Make controlled tokens observable to targeted tokens"
+      "revealControlledToTargeted": {
+        "label": "Reveal controlled tokens",
+        "hint": "Reveal controlled tokens to targeted tokens"
       },
-      "makeTargetedObservableToControlled": {
-        "label": "Make targeted tokens observable to controlled tokens"
-      }
+      "revealControlledAsHiddenToTargeted": {
+        "label": "Reveal controlled tokens as hidden",
+        "hint": "Reveal controlled tokens as hidden to targeted tokens"
+      },
+      "revealTargetedToControlled": {
+        "label": "Reveal targeted tokens",
+        "hint": "Reveal targeted tokens to controlled tokens"
+      },
+      "revealTargetedAsHiddenToControlled": {
+        "label": "Reveal targeted tokens as hidden",
+        "hint": "Reveal targeted tokens as hidden to controlled tokens"
+      },
+      "undoControlledRevealsToTargeted": {
+        "label": "Undo any reveals of controlled tokens",
+        "hint": "Undo any reveals of controlled tokens to targeted tokens"
+      },
+      "undoControlledHiddenRevealsToTargeted": {
+        "label": "Undo any reveals of controlled tokens' hidden condition",
+        "hint": "Undo any reveals of controlled tokens' hidden condition to targeted tokens"
+      },
+      "undoControlledUndetectedRevealsToTargeted": {
+        "label": "Undo any reveals of controlled tokens' undetected condition",
+        "hint": "Undo any reveals of controlled tokens' undetected condition to targeted tokens"
+      },
+      "undoTargetedRevealsToControlled": {
+        "label": "Undo any reveals of targeted tokens",
+        "hint": "Undo any reveals of targeted tokens to controlled tokens"
+      },
+      "undoTargetedHiddenRevealsToControlled": {
+        "label": "Undo any reveals of targeted tokens' hidden condition",
+        "hint": "Undo any reveals of targeted tokens' hidden condition to controlled tokens"
+      },
+      "undoTargetedUndetectedRevealsToControlled": {
+        "label": "Undo any reveals of targeted tokens' undetected condition",
+        "hint": "Undo any reveals of targeted tokens' undetected condition to controlled tokens"
+      },
+      "nubbin": "end of list so I don't have to mess with commas"
     },
     "effects": {
       "stealth": {

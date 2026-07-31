@@ -28,7 +28,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       {
         key: "make-controlled-observable",
         label: game.i18n.localize(
-          `${MODULE_ID}.menu.makeControlledObservableToTargeted.label`,
+          `${MODULE_ID}.menu.revealControlledToTargeted.label`,
         ),
       },
       {
@@ -45,7 +45,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       {
         key: "make-targeted-observable",
         label: game.i18n.localize(
-          `${MODULE_ID}.menu.makeTargetedObservableToControlled.label`,
+          `${MODULE_ID}.menu.revealTargetedToControlled.label`,
         ),
       },
       {
