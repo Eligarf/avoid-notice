@@ -6,7 +6,7 @@ import {
 } from "./main.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { clearActorStealth } from "./stealth.js";
-import { makeAvoidersObservableTo } from "./effects.js";
+import { revealAvoidersTo } from "./effects.js";
 
 export async function invokeConnectedTokensMenu({ controlled, targeted }) {
   debuglog("invokeConnectedTokensMenu", { selected: controlled, targeted });
@@ -67,13 +67,13 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
 
   switch (choice?.key) {
     case "make-controlled-observable":
-      await makeAvoidersObservableTo({
+      await revealAvoidersTo({
         avoiders: controlledAvoiders,
         observers: targetedActors,
       });
       break;
     case "make-targeted-observable":
-      await makeAvoidersObservableTo({
+      await revealAvoidersTo({
         avoiders: targetedAvoiders,
         observers: controlledActors,
       });

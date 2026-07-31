@@ -2,12 +2,14 @@ import { AvoidNoticePopupMenu } from "./menu.js";
 import { setAsAmbushers, clearActorStealth } from "./stealth.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { getVisibilityHandler } from "./main.js";
+import { undoRevealsOf } from "./effects.js";
 import {
   localizeString,
   debuglog,
   iterateActorsForTokensAndParties,
 } from "./main.js";
 import { testAvoidance } from "./avoidance-test.js";
+import { refreshEverybody } from "./socket.js";
 
 export async function invokeTokensMenu({ selection }) {
   debuglog("invokeTokensMenu", { selection });
@@ -50,7 +52,6 @@ export async function invokeTokensMenu({ selection }) {
         const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
         return exceptions?.exceptFor?.length > 0;
       });
-      debuglog("hiddenObserved", hiddenObserved);
       const undetectedObserved = stealthers.some((token) => {
         const stealth = token.actor?.items?.find(
           (i) => i.slug === SLUGS.stealthEffect,
@@ -58,7 +59,6 @@ export async function invokeTokensMenu({ selection }) {
         const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
         return exceptions?.exceptFor?.length > 0;
       });
-      debuglog("undetectedObserved", undetectedObserved);
 
       if (hiddenObserved && undetectedObserved) {
         choices.push({
@@ -145,12 +145,19 @@ export async function invokeTokensMenu({ selection }) {
       break;
     case "undo-hidden":
       debuglog("undo-hidden", selection.tokens);
+      undoRevealsOf({ avoiders: selection.tokens, type: "hidden" });
+      refreshEverybody();
       break;
     case "undo-undetected":
       debuglog("undo-undetected", selection.tokens);
+      undoRevealsOf({ avoiders: selection.tokens, type: "undetected" });
+      refreshEverybody();
       break;
     case "undo-reveals":
       debuglog("undo-reveals", selection.tokens);
+      undoRevealsOf({ avoiders: selection.tokens, type: "hidden" });
+      undoRevealsOf({ avoiders: selection.tokens, type: "undetected" });
+      refreshEverybody();
       break;
   }
 }

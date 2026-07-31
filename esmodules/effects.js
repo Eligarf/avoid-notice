@@ -33,7 +33,29 @@ export function isAvoider({ actor }) {
   );
 }
 
-export async function makeAvoidersObservableTo({ avoiders, observers }) {
+export async function undoRevealsOf({ avoiders, type, observers = null }) {
+  debuglog("undoRevealsOf", { avoiders, type, observers });
+  for (const avoider of avoiders) {
+    const actor = avoider?.actor;
+    const stealthEffect = actor?.items?.find(
+      (item) => item.system.slug === SLUGS.stealthEffect,
+    );
+    let flags = stealthEffect?.flags?.[MODULE_ID] || {};
+    if (!flags) continue;
+    if (!(type in flags)) continue;
+    const update = {
+      _id: stealthEffect.id,
+      flags: {
+        [MODULE_ID]: {
+          [type]: _del,
+        },
+      },
+    };
+    await stealthEffect.update(update);
+  }
+}
+
+export async function revealAvoidersTo({ avoiders, observers }) {
   debuglog("makeAvoidersObservableTo", { avoiders, observers });
   for (const avoider of avoiders) {
     const stealthEffect = avoider?.items?.find(

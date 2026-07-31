@@ -20,6 +20,11 @@ globalThis.Hooks.once("ready", () => {
   }
 });
 
+export function refreshVisibilityCache() {
+  debuglog(`refreshVisibilityCache`);
+  cache.clear(handleMutations);
+}
+
 function applyMutation(token, mutation) {
   // debuglog(
   //   `token.visible=${token.visible} mesh.visible=${token?.mesh?.visible} detectionFilter=${token.detectionFilter ? "exists" : "null"}`,
@@ -133,13 +138,13 @@ function controlTokenHook(token, controlled) {
 }
 
 function refreshTokenHook(token, _options) {
-  debuglog(
-    `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible} filter=${token.detectionFilter ? "exists" : "null"})`,
-    {
-      token,
-      observingActorIds,
-    },
-  );
+  // debuglog(
+  //   `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible} filter=${token.detectionFilter ? "exists" : "null"})`,
+  //   {
+  //     token,
+  //     observingActorIds,
+  //   },
+  // );
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
