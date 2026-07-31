@@ -154,7 +154,7 @@ export function setupKeybindings() {
   game.keybindings.register(MODULE_ID, SETTINGS.menu, {
     name: `${MODULE_ID}.${SETTINGS.menu}.bindings.name`,
     hint: `${MODULE_ID}.${SETTINGS.menu}.bindings.hint`,
-    editable: [{ key: "KeyA", modifiers: ["Alt"] }],
+    editable: [{ key: "Equal", modifiers: [] }],
     onDown: async () => {
       if (!game.user.isGM) return;
       invokeMenu();
