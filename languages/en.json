@@ -90,11 +90,11 @@
         "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
       "removeControlledStealth": {
-        "label": "Remove Stealth Effects",
+        "label": "Remove Controlled Stealth Effects",
         "hint": "Remove Stealth Effects from controlled tokens"
       },
       "removeTargetedStealth": {
-        "label": "Remove Stealth Effects",
+        "label": "Remove Targeted Stealth Effects",
         "hint": "Remove Stealth Effects from targeted tokens"
       },
       "undoReveals": {
