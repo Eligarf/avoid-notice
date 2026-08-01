@@ -17,7 +17,13 @@ export async function invokeTokensMenu({ selection }) {
     type: selection.type,
   });
 
-  let choices = [];
+  let choices = [
+    {
+      key: "refresh",
+      label: game.i18n.localize(`${MODULE_ID}.menu.refresh.label`),
+      hint: `${MODULE_ID}.menu.refresh.hint`,
+    },
+  ];
   const visibilityHandler = getVisibilityHandler();
   if (visibilityHandler !== "visioner") {
     const stealthers = selection.tokens.filter((token) =>
@@ -118,14 +124,13 @@ export async function invokeTokensMenu({ selection }) {
     });
   }
 
-  if (choices.length === 0) {
-    ui.notifications.info(game.i18n.localize(`${MODULE_ID}.menu.nothingToDo`));
-    return;
-  }
   choices.sort((a, b) => a.label.localeCompare(b.label));
   const choice = await AvoidNoticePopupMenu.show(title, choices);
 
   switch (choice?.key) {
+    case "refresh":
+      refreshEverybody();
+      break;
     case "prepare-ambush":
       debuglog("prepare-ambush", selection.tokens);
       await setAsAmbushers(selection.tokens);

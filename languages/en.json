@@ -77,6 +77,10 @@
         "controlled": "Controlled"
       },
       "cancel": "Cancel",
+      "refresh": {
+        "label": "Refresh All Clients",
+        "hint": "Refresh all client screens to clear up any visibility issues"
+      },
       "clearPartyStealth": {
         "label": "Remove Party Stealth",
         "hint": "Remove stealth effects from all party members"

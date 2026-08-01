@@ -1,7 +1,8 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { debuglog, getVisibilityHandler, refreshPerception } from "./main.js";
+import { debuglog, getVisibilityHandler } from "./main.js";
 import { clearPartyStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
+import { refreshEverybody } from "./socket.js";
 
 export async function invokeNoTokensMenu() {
   debuglog("invokeNoTokensMenu");
@@ -15,7 +16,8 @@ export async function invokeNoTokensMenu() {
     },
     {
       key: "refresh",
-      label: "refresh",
+      label: game.i18n.localize(`${MODULE_ID}.menu.refresh.label`),
+      hint: `${MODULE_ID}.menu.refresh.hint`,
     },
   ];
 
@@ -30,7 +32,7 @@ export async function invokeNoTokensMenu() {
       clearPartyStealth({});
       break;
     case "refresh":
-      refreshPerception();
+      refreshEverybody();
       break;
   }
 }
