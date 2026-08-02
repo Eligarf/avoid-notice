@@ -4,6 +4,7 @@ import { createVisibilityCache } from "./cache.js";
 
 let hooks = {};
 let observingActorIds = new Set();
+let revealedToActorIds = new Set();
 let gmVisionCopy = undefined;
 const cache = createVisibilityCache();
 
@@ -23,6 +24,20 @@ globalThis.Hooks.once("ready", () => {
 export function refreshVisibilityCache() {
   debuglog(`refreshVisibilityCache`);
   cache.clear(handleMutations);
+}
+
+function findExceptions(actor) {
+  const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
+  if (!stealth) return null;
+  const states = stealth.flags[MODULE_ID];
+  if (!states) return null;
+  let exceptions = new Set();
+  for (const [_key, s] of Object.entries(states)) {
+    for (const id of s?.exceptFor) {
+      exceptions.add(id);
+    }
+  }
+  return exceptions;
 }
 
 function applyMutation(token, mutation) {
@@ -122,18 +137,62 @@ function recordObservation(token, key, override) {
   handleMutations(token, record, mutations);
 }
 
+function showEyeball({ token, isVisible }) {
+  const spriteName = "observing-eyeball";
+  let eyeSprite = token.mesh.children.find((c) => c.name === spriteName);
+  if (isVisible) {
+    if (eyeSprite) return;
+    const iconPath = "icons/magic/perception/eye-tendrils-web-purple.webp";
+    eyeSprite = PIXI.Sprite.from(iconPath);
+    eyeSprite.name = spriteName;
+    eyeSprite.anchor.set(0.5, 0.5);
+    eyeSprite.texture.baseTexture.on("loaded", () => {
+      const desired = token.mesh.width / 2;
+      const scale = desired / eyeSprite.texture.width;
+      eyeSprite.scale.set(scale);
+    });
+    eyeSprite.x = 0;
+    eyeSprite.y = 0;
+    token.mesh.addChild(eyeSprite);
+    return;
+  }
+  if (eyeSprite) {
+    token.removeChild(eyeSprite);
+    eyeSprite.destroy({ children: true, texture: false });
+  }
+}
+
 function controlTokenHook(token, controlled) {
   debuglog(`'${token.name}' controlled: ${controlled}`, { token, controlled });
   if (!controlled) {
     const actor = token?.actor;
     observingActorIds.delete(actor?.id);
     cache.removeObserver(actor, handleMutations);
-    return;
+  } else {
+    observingActorIds.add(token.actor?.id);
+    if (cache.has(token)) {
+      cache.removeAvoider(token, handleMutations);
+    }
   }
+  if (!game.user.isGM) return;
 
-  observingActorIds.add(token.actor?.id);
-  if (cache.has(token)) {
-    cache.removeAvoider(token, handleMutations);
+  if (controlled) {
+    const actor = token?.actor;
+    if (!actor) return;
+    const exceptions = findExceptions(actor);
+    if (!exceptions) return;
+    revealedToActorIds = revealedToActorIds.union(exceptions);
+  } else {
+    revealedToActorIds.clear();
+    for (const id of observingActorIds) {
+      const token = canvas.tokens.placeables.find((t) => t.actor?.id === id);
+      const actor = token?.actor;
+      // const actor = game.actors.get(id);
+      if (!actor) continue;
+      const exceptions = findExceptions(actor);
+      if (!exceptions) continue;
+      revealedToActorIds = revealedToActorIds.union(exceptions);
+    }
   }
 }
 
@@ -158,6 +217,11 @@ function refreshTokenHook(token, _options) {
   if (observingActorIds.has(actor.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
+  }
+
+  if (game.user.isGM) {
+    const isRevealed = revealedToActorIds.has(token.actor?.id);
+    showEyeball({ token, isVisible: isRevealed });
   }
 
   const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
