@@ -187,7 +187,6 @@ function controlTokenHook(token, controlled) {
     for (const id of observingActorIds) {
       const token = canvas.tokens.placeables.find((t) => t.actor?.id === id);
       const actor = token?.actor;
-      // const actor = game.actors.get(id);
       if (!actor) continue;
       const exceptions = findExceptions(actor);
       if (!exceptions) continue;

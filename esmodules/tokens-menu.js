@@ -26,11 +26,11 @@ export async function invokeTokensMenu({ selection }) {
   ];
   const visibilityHandler = getVisibilityHandler();
   if (visibilityHandler !== "visioner") {
-    const stealthers = selection.tokens.filter((token) =>
+    const avoiders = selection.tokens.filter((token) =>
       token.actor?.items?.some((i) => i.slug === SLUGS.stealthEffect),
     );
 
-    if (stealthers.length > 0) {
+    if (avoiders.length > 0) {
       choices.push({
         key: "remove-stealth",
         label:
@@ -51,14 +51,14 @@ export async function invokeTokensMenu({ selection }) {
               ),
       });
 
-      const hiddenObserved = stealthers.some((token) => {
+      const hiddenObserved = avoiders.some((token) => {
         const stealth = token.actor?.items?.find(
           (i) => i.slug === SLUGS.stealthEffect,
         );
         const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
         return exceptions?.exceptFor?.length > 0;
       });
-      const undetectedObserved = stealthers.some((token) => {
+      const undetectedObserved = avoiders.some((token) => {
         const stealth = token.actor?.items?.find(
           (i) => i.slug === SLUGS.stealthEffect,
         );
