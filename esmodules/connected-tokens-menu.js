@@ -175,12 +175,14 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       });
       break;
     case "reveal-controlled":
+      debuglog("reveal-controlled");
       await revealAvoidersTo({
         avoiders: controlledAvoiders,
         observers: targetedActors,
       });
       break;
     case "reveal-targeted":
+      debuglog("reveal-targeted");
       await revealAvoidersTo({
         avoiders: targetedAvoiders,
         observers: controlledActors,
@@ -188,21 +190,27 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       break;
     case "undo-controlled-hidden-reveals":
       debuglog("undo-controlled-hidden-reveals");
+      ui.notifications.warn("Implement undo-controlled-hidden-reveals");
       break;
     case "undo-controlled-undetected-reveals":
       debuglog("undo-controlled-undetected-reveals");
+      ui.notifications.warn("Implement undo-controlled-undetected-reveals");
       break;
     case "undo-controlled-reveals":
       debuglog("undo-controlled-reveals");
+      ui.notifications.warn("Implement undo-controlled-reveals");
       break;
     case "undo-targeted-hidden-reveals":
       debuglog("undo-targeted-hidden-reveals");
+      ui.notifications.warn("Implement undo-targeted-hidden-reveals");
       break;
     case "undo-targeted-undetected-reveals":
       debuglog("undo-targeted-undetected-reveals");
+      ui.notifications.warn("Implement undo-targeted-undetected-reveals");
       break;
     case "undo-controlled-reveals":
-      debuglog("undo-targeted-reveals");
+      debuglog("undo-controlled-reveals");
+      ui.notifications.warn("Implement undo-controlled-reveals");
       break;
   }
 }
