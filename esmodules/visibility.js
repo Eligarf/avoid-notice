@@ -67,60 +67,50 @@ function applyMutation(token, mutation) {
 
 function handleMutations(token, record, mutations) {
   debuglog("handleMutations", { token, record, mutations });
-  switch (mutations?.adds?.length) {
-    case 2:
-      ui.notifications.warn(`Token '${token.name}' is getting two adds?`);
-      break;
-    case 1:
-      const type = mutations.adds[0];
-      if (type === "hidden") {
-        record.mutations.hidden = { filter: token.detectionFilter };
-        token.detectionFilter = null;
-      } else if (type === "undetected") {
-        const filter =
-          foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
-            wave: true,
-          });
-        filter.thickness = 1;
-        record.mutations.undetected = { filter };
-        applyMutation(token, record.mutations.undetected);
-      }
-      break;
+  for (let i = 0; i < mutations?.adds?.length; i++) {
+    const type = mutations.adds[i];
+    if (type === "hidden") {
+      record.mutations.hidden = { filter: token.detectionFilter };
+      token.detectionFilter = null;
+    } else if (type === "undetected") {
+      const filter =
+        foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
+          wave: true,
+        });
+      filter.thickness = 1;
+      record.mutations.undetected = { filter };
+      applyMutation(token, record.mutations.undetected);
+    }
   }
-  switch (mutations?.removes?.length) {
-    case 2:
-      ui.notifications.warn(`Token '${token.name}' is getting two removes?`);
-      break;
-    case 1:
-      const type = mutations.removes[0];
-      if (type === "hidden") {
-        token.detectionFilter = record.mutations.hidden.filter;
-        delete record.mutations.hidden;
-      } else if (type === "undetected") {
-        token.visible = false;
-        if (!token.mesh) {
-          ui.notifications.warn(
-            `Token '${token.name}' has no mesh. This may cause visual issues.`,
-          );
-        } else {
-          token.mesh.visible = false;
-        }
-        if (
-          token.detectionFilter &&
-          token.detectionFilter !== record.mutations.undetected.filter
-        ) {
-          ui.notifications.warn(
-            `Token '${token.name}' has a different detection filter than expected. This may cause visual issues.`,
-            {
-              tokenFilter: token.detectionFilter,
-              undetectedFilter: record.mutations.undetected.filter,
-            },
-          );
-        } else token.detectionFilter = null;
-        record.mutations.undetected.filter = null;
-        delete record.mutations.undetected;
+  for (let i = 0; i < mutations?.removes?.length; i++) {
+    const type = mutations.removes[i];
+    if (type === "hidden") {
+      token.detectionFilter = record.mutations.hidden.filter;
+      delete record.mutations.hidden;
+    } else if (type === "undetected") {
+      token.visible = false;
+      if (!token.mesh) {
+        ui.notifications.warn(
+          `Token '${token.name}' has no mesh. This may cause visual issues.`,
+        );
+      } else {
+        token.mesh.visible = false;
       }
-      break;
+      if (
+        token.detectionFilter &&
+        token.detectionFilter !== record.mutations.undetected.filter
+      ) {
+        ui.notifications.warn(
+          `Token '${token.name}' has a different detection filter than expected. This may cause visual issues.`,
+          {
+            tokenFilter: token.detectionFilter,
+            undetectedFilter: record.mutations.undetected.filter,
+          },
+        );
+      } else token.detectionFilter = null;
+      record.mutations.undetected.filter = null;
+      delete record.mutations.undetected;
+    }
   }
 }
 
