@@ -33,7 +33,7 @@ export function isAvoider({ actor }) {
   );
 }
 
-export async function undoRevealsOf({ avoiders, type, observers = null }) {
+export async function undoRevealsOf({ avoiders, type, observers = [] }) {
   debuglog("undoRevealsOf", { avoiders, type, observers });
   for (const avoider of avoiders) {
     const actor = avoider?.actor;
@@ -43,11 +43,20 @@ export async function undoRevealsOf({ avoiders, type, observers = null }) {
     let flags = stealthEffect?.flags?.[MODULE_ID] || {};
     if (!flags) continue;
     if (!(type in flags)) continue;
+    let reveals;
+    if (observers.length > 0) {
+      reveals = flags[type].exceptFor.filter(
+        (id) => !observers.some((observer) => observer.id === id),
+      );
+      if (!reveals.length) reveals = _del;
+    } else {
+      reveals = _del;
+    }
     const update = {
       _id: stealthEffect.id,
       flags: {
         [MODULE_ID]: {
-          [type]: _del,
+          [type]: reveals,
         },
       },
     };
