@@ -34,14 +34,14 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
         (i) => i.slug === SLUGS.stealthEffect,
       );
       const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-      return exceptions?.exceptFor?.length > 0;
+      return targetedActors.some((a) => exceptions?.exceptFor?.includes(a.id));
     });
     const undetectedControlledObserved = controlledAvoiders.some((avoider) => {
       const stealth = avoider?.items?.find(
         (i) => i.slug === SLUGS.stealthEffect,
       );
       const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-      return exceptions?.exceptFor?.length > 0;
+      return targetedActors.some((a) => exceptions?.exceptFor?.includes(a.id));
     });
 
     if (hiddenControlledObserved && undetectedControlledObserved) {
@@ -96,14 +96,18 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
         (i) => i.slug === SLUGS.stealthEffect,
       );
       const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-      return exceptions?.exceptFor?.length > 0;
+      return controlledActors.some((a) =>
+        exceptions?.exceptFor?.includes(a.id),
+      );
     });
     const undetectedTargetedObserved = targetedAvoiders.some((avoider) => {
       const stealth = avoider?.items?.find(
         (i) => i.slug === SLUGS.stealthEffect,
       );
       const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-      return exceptions?.exceptFor?.length > 0;
+      return controlledActors.some((a) =>
+        exceptions?.exceptFor?.includes(a.id),
+      );
     });
 
     if (hiddenTargetedObserved && undetectedTargetedObserved) {
