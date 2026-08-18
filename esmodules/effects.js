@@ -43,14 +43,12 @@ export async function undoRevealsOf({ avoiders, type, observers = [] }) {
     let flags = stealthEffect?.flags?.[MODULE_ID] || {};
     if (!flags) continue;
     if (!(type in flags)) continue;
-    let reveals;
+    let reveals = _del;
     if (observers.length > 0) {
-      reveals = flags[type].exceptFor.filter(
+      const peekers = flags[type].exceptFor.filter(
         (id) => !observers.some((observer) => observer.id === id),
       );
-      if (!reveals.length) reveals = _del;
-    } else {
-      reveals = _del;
+      if (peekers.length > 0) reveals = { exceptFor: peekers };
     }
     const update = {
       _id: stealthEffect.id,
@@ -70,6 +68,7 @@ export async function revealAvoidersTo({ avoiders, observers }) {
     const stealthEffect = avoider?.items?.find(
       (item) => item.system.slug === SLUGS.stealthEffect,
     );
+    if (!stealthEffect) continue;
     let flags = stealthEffect?.flags?.[MODULE_ID] || {};
     const states =
       stealthEffect.system?.rules

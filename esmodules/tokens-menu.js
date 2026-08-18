@@ -143,6 +143,7 @@ export async function invokeTokensMenu({ selection }) {
           await clearActorStealth({ actor });
         },
       );
+      refreshEverybody();
       break;
     case "test-avoidance":
       debuglog("test-avoidance", selection.tokens);

@@ -22,7 +22,7 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "verified": "8.3"
+          "verified": "8.4"
         }
       },
       {
@@ -30,7 +30,7 @@
         "type": "system",
         "compatibility": {
           "minimum": "0.0.1",
-          "verified": "1.3"
+          "verified": "1.4"
         }
       }
     ],

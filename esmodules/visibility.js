@@ -6,6 +6,7 @@ let hooks = {};
 let observingActorIds = new Set();
 let revealedToActorIds = new Set();
 let gmVisionCopy = undefined;
+let tokenIdsWithEyeballs = new Set();
 const cache = createVisibilityCache();
 
 hooks.canvasReady = globalThis.Hooks.on("canvasReady", async () => {
@@ -24,6 +25,11 @@ globalThis.Hooks.once("ready", () => {
 export function refreshVisibilityCache() {
   debuglog(`refreshVisibilityCache`);
   cache.clear(handleMutations);
+  for (const token of canvas.tokens.placeables) {
+    if (tokenIdsWithEyeballs.has(token.id)) {
+      showEyeball({ token, isVisible: false });
+    }
+  }
 }
 
 function findExceptions(actor) {
@@ -66,7 +72,7 @@ function applyMutation(token, mutation) {
 }
 
 function handleMutations(token, record, mutations) {
-  debuglog("handleMutations", { token, record, mutations });
+  // debuglog("handleMutations", { token, record, mutations });
   for (let i = 0; i < mutations?.adds?.length; i++) {
     const type = mutations.adds[i];
     if (type === "hidden") {
@@ -144,9 +150,11 @@ function showEyeball({ token, isVisible }) {
     eyeSprite.x = 0;
     eyeSprite.y = 0;
     token.mesh.addChild(eyeSprite);
+    tokenIdsWithEyeballs.add(token.id);
     return;
   }
   if (eyeSprite) {
+    tokenIdsWithEyeballs.delete(token.id);
     token.removeChild(eyeSprite);
     eyeSprite.destroy({ children: true, texture: false });
   }
