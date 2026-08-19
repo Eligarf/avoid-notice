@@ -8,18 +8,21 @@ let revealedToActorIds = new Set();
 let gmVisionCopy = undefined;
 let tokenIdsWithEyeballs = new Set();
 const cache = createVisibilityCache();
+let eyeballTexture = null;
 
 hooks.canvasReady = globalThis.Hooks.on("canvasReady", async () => {
   debuglog(`Canvas is ready`);
 });
 
-globalThis.Hooks.once("ready", () => {
+globalThis.Hooks.once("ready", async () => {
   debuglog(`appstate is ready`);
   if (getVisibilityHandler() === "effects") setupVisibilityHooks();
   gmVisionCopy = game.pf2e.settings.gmVision;
   for (const token of canvas.tokens.controlled) {
     controlTokenHook(token, true);
   }
+  const iconPath = "icons/magic/perception/eye-tendrils-web-purple.webp";
+  eyeballTexture = await loadTexture(iconPath);
 });
 
 export function refreshVisibilityCache() {
@@ -138,15 +141,12 @@ function showEyeball({ token, isVisible }) {
   let eyeSprite = token.mesh.children.find((c) => c.name === spriteName);
   if (isVisible) {
     if (eyeSprite) return;
-    const iconPath = "icons/magic/perception/eye-tendrils-web-purple.webp";
-    eyeSprite = PIXI.Sprite.from(iconPath);
+    eyeSprite = new PIXI.Sprite(eyeballTexture);
     eyeSprite.name = spriteName;
     eyeSprite.anchor.set(0.5, 0.5);
-    eyeSprite.texture.baseTexture.on("loaded", () => {
-      const desired = token.mesh.width / 2;
-      const scale = desired / eyeSprite.texture.width;
-      eyeSprite.scale.set(scale);
-    });
+    const desired = token.mesh.texture.width * 0.5;
+    const scale = desired / eyeballTexture.width;
+    eyeSprite.scale.set(scale);
     eyeSprite.x = 0;
     eyeSprite.y = 0;
     token.mesh.addChild(eyeSprite);
