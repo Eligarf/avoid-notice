@@ -33,14 +33,7 @@ export async function invokeTokensMenu({ selection }) {
     if (avoiders.length > 0) {
       choices.push({
         key: "remove-stealth",
-        label:
-          selection.type === "controlled"
-            ? game.i18n.localize(
-                `${MODULE_ID}.menu.removeControlledStealth.label`,
-              )
-            : game.i18n.localize(
-                `${MODULE_ID}.menu.removeTargetedStealth.label`,
-              ),
+        label: game.i18n.localize(`${MODULE_ID}.menu.removeStealth.label`),
         hint:
           selection.type === "controlled"
             ? game.i18n.localize(

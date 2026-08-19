@@ -89,6 +89,9 @@
         "label": "Prepare Ambush",
         "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
+      "removeStealth": {
+        "label": "Remove Stealth Effects"
+      },
       "removeControlledStealth": {
         "label": "Remove Controlled Stealth Effects",
         "hint": "Remove Stealth Effects from controlled tokens"
