@@ -91,7 +91,7 @@ export function createVisibilityCache() {
 
     update(record, snapshot) {
       const trace = this.fold(snapshot);
-      if (trace === record.trace) return;
+      if (trace === record.trace) return null;
       // debuglog(`updating '${record.token.name}'`, { record, snapshot });
       const adds = Object.keys(snapshot).filter(
         (key) => !(key in record.snapshot),

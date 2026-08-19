@@ -1,6 +1,8 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
 import { onStealthReply } from "./avoidance-test.js";
+import { debuglog, refreshPerception } from "./main.js";
+import { refreshVisibilityCache } from "./visibility.js";
 
 let socket = null;
 
@@ -12,6 +14,7 @@ globalThis.Hooks.once("socketlib.ready", () => {
   socket = globalThis.socketlib.registerModule(MODULE_ID);
   socket.register("ZoomToCombat", onZoomToCombat);
   socket.register("StealthReply", onStealthReply);
+  socket.register("Refresh", onRefresh);
 });
 
 async function onZoomToCombat(targetList) {
@@ -163,4 +166,15 @@ export function sendStealthRollToGM({
     dosAdjust,
     rollMessageId,
   });
+}
+
+function onRefresh() {
+  debuglog("onRefresh");
+  refreshVisibilityCache();
+  refreshPerception();
+}
+
+export function refreshEverybody() {
+  debuglog("refreshEverybody");
+  socket.executeForEveryone("Refresh", {});
 }

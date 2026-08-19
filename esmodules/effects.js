@@ -33,12 +33,42 @@ export function isAvoider({ actor }) {
   );
 }
 
-export async function makeAvoidersObservableTo({ avoiders, observers }) {
+export async function undoRevealsOf({ avoiders, type, observers = [] }) {
+  debuglog("undoRevealsOf", { avoiders, type, observers });
+  for (const avoider of avoiders) {
+    const actor = avoider?.actor;
+    const stealthEffect = actor?.items?.find(
+      (item) => item.system.slug === SLUGS.stealthEffect,
+    );
+    let flags = stealthEffect?.flags?.[MODULE_ID] || {};
+    if (!flags) continue;
+    if (!(type in flags)) continue;
+    let reveals = _del;
+    if (observers.length > 0) {
+      const peekers = flags[type].exceptFor.filter(
+        (id) => !observers.some((observer) => observer.id === id),
+      );
+      if (peekers.length > 0) reveals = { exceptFor: peekers };
+    }
+    const update = {
+      _id: stealthEffect.id,
+      flags: {
+        [MODULE_ID]: {
+          [type]: reveals,
+        },
+      },
+    };
+    await stealthEffect.update(update);
+  }
+}
+
+export async function revealAvoidersTo({ avoiders, observers }) {
   debuglog("makeAvoidersObservableTo", { avoiders, observers });
   for (const avoider of avoiders) {
     const stealthEffect = avoider?.items?.find(
       (item) => item.system.slug === SLUGS.stealthEffect,
     );
+    if (!stealthEffect) continue;
     let flags = stealthEffect?.flags?.[MODULE_ID] || {};
     const states =
       stealthEffect.system?.rules

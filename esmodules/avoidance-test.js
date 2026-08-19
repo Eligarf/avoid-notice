@@ -72,8 +72,10 @@ function findDosAdjust(rawRoll) {
 }
 
 function testAvoiderAgainstObservers(avoider, roll, observers) {
+  debuglog("testAvoiderAgainstObservers", { avoider, roll, observers });
   const stealth = roll.total;
-  const rawRoll = roll.dice[0].total;
+  const rawRoll =
+    roll.dice.length > 0 ? roll.dice[0].total : Number(roll.options.dice);
   return testAvoiderStealthAgainstObservers({
     avoider,
     stealth,
@@ -219,10 +221,11 @@ export async function testAvoidance(tokens, secret = false) {
         roll,
         friendlyActors,
       );
+      const rawRoll =
+        roll.dice.length > 0 ? roll.dice[0].total : Number(roll.options.dice);
       enemyStealth[avoider.id] = {
         total: roll.total,
-        dosAdjust:
-          roll.dice[0].total === 1 ? -1 : roll.dice[0].total === 20 ? 1 : 0,
+        dosAdjust: rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0,
       };
       const hoverId = foundry.utils.randomID();
       hovers[hoverId] = { actorId: avoider.id };
@@ -405,11 +408,13 @@ async function rollClick({ message, event, avoidanceTest, actionId }) {
       secret: false,
     });
   }
+  const rawRoll =
+    roll.dice.length > 0 ? roll.dice[0].total : Number(roll.options.dice);
   sendStealthRollToGM({
     messageId: message.id,
     actionId,
     stealth: roll.total,
-    dosAdjust: findDosAdjust(roll.dice[0].total),
+    dosAdjust: findDosAdjust(rawRoll),
     rollMessageId,
   });
 }
