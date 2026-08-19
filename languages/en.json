@@ -68,6 +68,7 @@
         "name": "PF2e Avoid Notice Menu",
         "hint": "Open the PF2e Avoid Notice menu"
       },
+      "nothingToDo": "PF2e Avoid Notice has no available actions for the given token(s)",
       "noTokensSelected": "No tokens selected",
       "tokensSelected": "{type} Tokens",
       "tokensConnected": "Connected Tokens",
@@ -76,6 +77,10 @@
         "controlled": "Controlled"
       },
       "cancel": "Cancel",
+      "refresh": {
+        "label": "Refresh All Clients",
+        "hint": "Refresh all client screens to clear up any visibility issues"
+      },
       "clearPartyStealth": {
         "label": "Remove Party Stealth",
         "hint": "Remove stealth effects from all party members"
@@ -84,22 +89,66 @@
         "label": "Prepare Ambush",
         "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
       },
+      "removeStealth": {
+        "label": "Remove Stealth Effects"
+      },
       "removeControlledStealth": {
-        "label": "Remove Stealth Effects from controlled tokens"
+        "label": "Remove Controlled Stealth Effects",
+        "hint": "Remove Stealth Effects from controlled tokens"
       },
       "removeTargetedStealth": {
-        "label": "Remove Stealth Effects from targeted tokens"
+        "label": "Remove Targeted Stealth Effects",
+        "hint": "Remove Stealth Effects from targeted tokens"
+      },
+      "undoReveals": {
+        "label": "Undo Stealth Reveals",
+        "hint": "Undo any stealth reveals of {type} tokens"
+      },
+      "undoHiddenReveals": {
+        "label": "Undo Hidden Reveals",
+        "hint": "Undo any reveals of {type} tokens' Hidden condition"
+      },
+      "undoUndetectedReveals": {
+        "label": "Undo Undetected Reveals",
+        "hint": "Undo any reveals of {type} tokens' Undetected condition"
       },
       "testAvoidance": {
         "label": "Check Avoidance",
         "hint": "Run a stealth vs perception check for all stealthing {type} tokens"
       },
-      "makeControlledObservableToTargeted": {
-        "label": "Make controlled tokens observable to targeted tokens"
+      "revealControlledToTargeted": {
+        "label": "Reveal controlled tokens to targeted",
+        "hint": "Reveal controlled tokens to targeted tokens"
       },
-      "makeTargetedObservableToControlled": {
-        "label": "Make targeted tokens observable to controlled tokens"
-      }
+      "revealControlledAsHiddenToTargeted": {
+        "label": "Reveal controlled tokens as hidden to targeted",
+        "hint": "Reveal controlled tokens as hidden to targeted tokens"
+      },
+      "revealTargetedToControlled": {
+        "label": "Reveal targeted tokens to controlled",
+        "hint": "Reveal targeted tokens to controlled tokens"
+      },
+      "revealTargetedAsHiddenToControlled": {
+        "label": "Reveal targeted tokens as hidden to controlled",
+        "hint": "Reveal targeted tokens as hidden to controlled tokens"
+      },
+      "undoControlledHiddenRevealsToTargeted": {
+        "label": "Undo controlled tokens' hidden reveals to targeted",
+        "hint": "Undo any reveals of controlled tokens' hidden condition to targeted tokens"
+      },
+      "undoControlledUndetectedRevealsToTargeted": {
+        "label": "Undo controlled tokens' undetected reveals to targeted",
+        "hint": "Undo any reveals of controlled tokens' undetected condition to targeted tokens"
+      },
+      "undoTargetedHiddenRevealsToControlled": {
+        "label": "Undo reveals of targeted tokens' hidden condition",
+        "hint": "Undo any reveals of targeted tokens' hidden condition to controlled tokens"
+      },
+      "undoTargetedUndetectedRevealsToControlled": {
+        "label": "Undo reveals of targeted tokens' undetected condition",
+        "hint": "Undo any reveals of targeted tokens' undetected condition to controlled tokens"
+      },
+      "endOfList": "end of list so I don't have to mess with commas"
     },
     "effects": {
       "stealth": {

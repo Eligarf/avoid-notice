@@ -4,62 +4,122 @@ import { createVisibilityCache } from "./cache.js";
 
 let hooks = {};
 let observingActorIds = new Set();
+let revealedToActorIds = new Set();
 let gmVisionCopy = undefined;
+let tokenIdsWithEyeballs = new Set();
 const cache = createVisibilityCache();
+let eyeballTexture = null;
 
 hooks.canvasReady = globalThis.Hooks.on("canvasReady", async () => {
   debuglog(`Canvas is ready`);
 });
 
-globalThis.Hooks.once("ready", () => {
+globalThis.Hooks.once("ready", async () => {
   debuglog(`appstate is ready`);
   if (getVisibilityHandler() === "effects") setupVisibilityHooks();
   gmVisionCopy = game.pf2e.settings.gmVision;
+  for (const token of canvas.tokens.controlled) {
+    controlTokenHook(token, true);
+  }
+  const iconPath = "icons/magic/perception/eye-tendrils-web-purple.webp";
+  eyeballTexture = await loadTexture(iconPath);
 });
 
-function handleMutations(token, record, mutations) {
-  debuglog("handleMutations", { token, record, mutations });
-  switch (mutations?.adds?.length) {
-    case 2:
-      debuglog("complicated");
-      break;
-    case 1:
-      const type = mutations.adds[0];
-      if (type === "hidden") {
-        debuglog("hidden");
-        record.mutations.hidden = { enabled: token.detectionFilter?.enabled };
-        if (token.detectionFilter) {
-          token.detectionFilter.enabled = false;
-        }
-      } else if (type === "undetected") {
-        debuglog("undetected");
-        record.mutations.undetected = {
-          visible: token.visible,
-          meshVisible: token?.mesh?.visible,
-        };
-        token.visible = true;
-        if (token?.mesh) token.mesh.visible = true;
-      }
-      break;
+export function refreshVisibilityCache() {
+  debuglog(`refreshVisibilityCache`);
+  cache.clear(handleMutations);
+  for (const token of canvas.tokens.placeables) {
+    if (tokenIdsWithEyeballs.has(token.id)) {
+      showEyeball({ token, isVisible: false });
+    }
   }
-  switch (mutations?.removes?.length) {
-    case 2:
-      debuglog("complicated");
-      break;
-    case 1:
-      const type = mutations.removes[0];
-      if (type === "hidden") {
-        if (token.detectionFilter) {
-          token.detectionFilter.enabled = record.mutations.hidden.enabled;
-        }
-        delete record.mutations.hidden;
-      } else if (type === "undetected") {
-        token.visible = record.mutations.undetected.visible;
-        if (token?.mesh)
-          token.mesh.visible = record.mutations.undetected.meshVisible;
-        delete record.mutations.undetected;
+}
+
+function findExceptions(actor) {
+  const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
+  if (!stealth) return null;
+  const states = stealth.flags[MODULE_ID];
+  if (!states) return null;
+  let exceptions = new Set();
+  for (const [_key, s] of Object.entries(states)) {
+    for (const id of s?.exceptFor) {
+      exceptions.add(id);
+    }
+  }
+  return exceptions;
+}
+
+function applyMutation(token, mutation) {
+  // debuglog(
+  //   `token.visible=${token.visible} mesh.visible=${token?.mesh?.visible} detectionFilter=${token.detectionFilter ? "exists" : "null"}`,
+  // );
+  token.visible = true;
+  if (!token.mesh) {
+    ui.notifications.warn(
+      `Token '${token.name}' has no mesh. This may cause visual issues.`,
+    );
+  } else {
+    token.mesh.visible = true;
+  }
+  if (!token.detectionFilter) {
+    token.detectionFilter = mutation.filter;
+  } else if (token.detectionFilter !== mutation.filter) {
+    ui.notifications.warn(
+      `Token '${token.name}' already has a detection filter. This may cause visual issues.`,
+      {
+        tokenFilter: token.detectionFilter,
+        undetectedFilter: mutation.filter,
+      },
+    );
+  }
+}
+
+function handleMutations(token, record, mutations) {
+  // debuglog("handleMutations", { token, record, mutations });
+  for (let i = 0; i < mutations?.adds?.length; i++) {
+    const type = mutations.adds[i];
+    if (type === "hidden") {
+      record.mutations.hidden = { filter: token.detectionFilter };
+      token.detectionFilter = null;
+    } else if (type === "undetected") {
+      const filter =
+        foundry.canvas.rendering.filters.OutlineOverlayFilter.create({
+          wave: true,
+        });
+      filter.thickness = 1;
+      record.mutations.undetected = { filter };
+      applyMutation(token, record.mutations.undetected);
+    }
+  }
+  for (let i = 0; i < mutations?.removes?.length; i++) {
+    const type = mutations.removes[i];
+    if (type === "hidden") {
+      token.detectionFilter = record.mutations.hidden.filter;
+      delete record.mutations.hidden;
+    } else if (type === "undetected") {
+      token.visible = false;
+      if (!token.mesh) {
+        ui.notifications.warn(
+          `Token '${token.name}' has no mesh. This may cause visual issues.`,
+        );
+      } else {
+        token.mesh.visible = false;
       }
-      break;
+      if (
+        token.detectionFilter &&
+        token.detectionFilter !== record.mutations.undetected.filter
+      ) {
+        ui.notifications.warn(
+          `Token '${token.name}' has a different detection filter than expected. This may cause visual issues.`,
+          {
+            tokenFilter: token.detectionFilter,
+            undetectedFilter: record.mutations.undetected.filter,
+          },
+        );
+      } else token.detectionFilter = null;
+      record.mutations.undetected.filter = null;
+      delete record.mutations.undetected;
+    }
   }
 }
 
@@ -76,26 +136,76 @@ function recordObservation(token, key, override) {
   handleMutations(token, record, mutations);
 }
 
+function showEyeball({ token, isVisible }) {
+  const spriteName = "observing-eyeball";
+  let eyeSprite = token.mesh.children.find((c) => c.name === spriteName);
+  if (isVisible) {
+    if (eyeSprite) return;
+    eyeSprite = new PIXI.Sprite(eyeballTexture);
+    eyeSprite.name = spriteName;
+    eyeSprite.anchor.set(0.5, 0.5);
+    const desired = token.mesh.texture.width * 0.5;
+    const scale = desired / eyeballTexture.width;
+    eyeSprite.scale.set(scale);
+    eyeSprite.x = 0;
+    eyeSprite.y = 0;
+    token.mesh.addChild(eyeSprite);
+    tokenIdsWithEyeballs.add(token.id);
+    return;
+  }
+  if (eyeSprite) {
+    tokenIdsWithEyeballs.delete(token.id);
+    token.removeChild(eyeSprite);
+    eyeSprite.destroy({ children: true, texture: false });
+  }
+}
+
 function controlTokenHook(token, controlled) {
   debuglog(`'${token.name}' controlled: ${controlled}`, { token, controlled });
   if (!controlled) {
     const actor = token?.actor;
     observingActorIds.delete(actor?.id);
     cache.removeObserver(actor, handleMutations);
-    return;
+  } else {
+    observingActorIds.add(token.actor?.id);
+    if (cache.has(token)) {
+      cache.removeAvoider(token, handleMutations);
+    }
   }
+  if (!game.user.isGM) return;
 
-  observingActorIds.add(token.actor?.id);
-  if (cache.has(token)) {
-    cache.removeAvoider(token, handleMutations);
+  if (controlled) {
+    const actor = token?.actor;
+    if (!actor) return;
+    const exceptions = findExceptions(actor);
+    if (!exceptions) return;
+    revealedToActorIds = revealedToActorIds.union(exceptions);
+  } else {
+    revealedToActorIds.clear();
+    for (const id of observingActorIds) {
+      const token = canvas.tokens.placeables.find((t) => t.actor?.id === id);
+      const actor = token?.actor;
+      if (!actor) continue;
+      const exceptions = findExceptions(actor);
+      if (!exceptions) continue;
+      revealedToActorIds = revealedToActorIds.union(exceptions);
+    }
   }
 }
 
 function refreshTokenHook(token, _options) {
-  // debuglog(`'${token.name}' refreshed (visible=${token.visible})`, {
-  //   token,
-  //   observingActorIds,
-  // });
+  // debuglog(
+  //   `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible} filter=${token.detectionFilter ? "exists" : "null"})`,
+  //   {
+  //     token,
+  //     observingActorIds,
+  //   },
+  // );
+  if (game.user.isGM) {
+    const isRevealed = revealedToActorIds.has(token.actor?.id);
+    showEyeball({ token, isVisible: isRevealed });
+  }
+
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
@@ -106,8 +216,7 @@ function refreshTokenHook(token, _options) {
 
   const actor = token?.actor;
   if (!actor) return;
-  // debuglog(`'${token.name}' refreshed`, { token, observingActorIds });
-  if (observingActorIds.has(actor.id)) {
+  if (observingActorIds.has(actor.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
   }
@@ -121,13 +230,14 @@ function refreshTokenHook(token, _options) {
       recordObservation(token, key, s);
     }
   }
+
+  // our mutations get zotted out every time, so we need to restore them here
   const record = cache.get(token);
   if (!record) return;
   const undetected = record?.mutations?.undetected;
-  if (!undetected) return;
-  token.visible = true;
-  token.mesh.visible = true;
-  // just the effects and box are visible when I jam token.visible to true
+  if (undetected) applyMutation(token, undetected);
+  const hidden = record?.mutations?.hidden;
+  if (hidden) token.detectionFilter = null;
 }
 
 function createItemHook(item, options, userId) {
