@@ -108,45 +108,45 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
     actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect),
   );
   if (targetedAvoidingActors.length > 0) {
-    hiddenTargetedObservingActors = targetedAvoidingActors.filter((avoider) => {
-      const stealth = avoider?.items?.find(
-        (i) => i.slug === SLUGS.stealthEffect,
-      );
-      const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-      return controlledActors.some((a) =>
-        exceptions?.exceptFor?.includes(a.id),
-      );
-    });
-    if (hiddenTargetedObservingActors.length) {
-      choices.push({
-        key: "undo-targeted-hidden-reveals",
-        label: game.i18n.localize(
-          `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.label`,
-        ),
-        hint: `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.hint`,
-      });
-    }
-
-    undetectedTargetedObservingActors = targetedAvoidingActors.filter(
-      (avoider) => {
-        const stealth = avoider?.items?.find(
-          (i) => i.slug === SLUGS.stealthEffect,
-        );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-        return controlledActors.some((a) =>
-          exceptions?.exceptFor?.includes(a.id),
-        );
-      },
-    );
-    if (undetectedTargetedObservingActors.length) {
-      choices.push({
-        key: "undo-targeted-undetected-reveals",
-        label: game.i18n.localize(
-          `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.label`,
-        ),
-        hint: `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.hint`,
-      });
-    }
+    // hiddenTargetedObservingActors = targetedAvoidingActors.filter((avoider) => {
+    //   const stealth = avoider?.items?.find(
+    //     (i) => i.slug === SLUGS.stealthEffect,
+    //   );
+    //   const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
+    //   return controlledActors.some((a) =>
+    //     exceptions?.exceptFor?.includes(a.id),
+    //   );
+    // });
+    // if (hiddenTargetedObservingActors.length) {
+    //   choices.push({
+    //     key: "undo-targeted-hidden-reveals",
+    //     label: game.i18n.localize(
+    //       `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.label`,
+    //     ),
+    //     hint: `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.hint`,
+    //   });
+    // }
+    //
+    // undetectedTargetedObservingActors = targetedAvoidingActors.filter(
+    //   (avoider) => {
+    //     const stealth = avoider?.items?.find(
+    //       (i) => i.slug === SLUGS.stealthEffect,
+    //     );
+    //     const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
+    //     return controlledActors.some((a) =>
+    //       exceptions?.exceptFor?.includes(a.id),
+    //     );
+    //   },
+    // );
+    // if (undetectedTargetedObservingActors.length) {
+    //   choices.push({
+    //     key: "undo-targeted-undetected-reveals",
+    //     label: game.i18n.localize(
+    //       `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.label`,
+    //     ),
+    //     hint: `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.hint`,
+    //   });
+    // }
 
     choices.push(
       {

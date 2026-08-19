@@ -133,19 +133,19 @@
         "hint": "Reveal targeted tokens as hidden to controlled tokens"
       },
       "undoControlledHiddenRevealsToTargeted": {
-        "label": "Undo targeted reveals of controlled tokens' hidden condition",
+        "label": "Undo controlled tokens' hidden reveals to targeted",
         "hint": "Undo any reveals of controlled tokens' hidden condition to targeted tokens"
       },
       "undoControlledUndetectedRevealsToTargeted": {
-        "label": "Undo targeted reveals of controlled tokens' undetected condition",
+        "label": "Undo controlled tokens' undetected reveals to targeted",
         "hint": "Undo any reveals of controlled tokens' undetected condition to targeted tokens"
       },
       "undoTargetedHiddenRevealsToControlled": {
-        "label": "Undo controlled reveals of targeted tokens' hidden condition",
+        "label": "Undo reveals of targeted tokens' hidden condition",
         "hint": "Undo any reveals of targeted tokens' hidden condition to controlled tokens"
       },
       "undoTargetedUndetectedRevealsToControlled": {
-        "label": "Undo controlled reveals of targeted tokens' undetected condition",
+        "label": "Undo reveals of targeted tokens' undetected condition",
         "hint": "Undo any reveals of targeted tokens' undetected condition to controlled tokens"
       },
       "endOfList": "end of list so I don't have to mess with commas"
