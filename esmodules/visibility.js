@@ -201,6 +201,11 @@ function refreshTokenHook(token, _options) {
   //     observingActorIds,
   //   },
   // );
+  if (game.user.isGM) {
+    const isRevealed = revealedToActorIds.has(token.actor?.id);
+    showEyeball({ token, isVisible: isRevealed });
+  }
+
   if (game.pf2e.settings.gmVision) {
     if (gmVisionCopy) return;
     gmVisionCopy = true;
@@ -214,11 +219,6 @@ function refreshTokenHook(token, _options) {
   if (observingActorIds.has(actor.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
-  }
-
-  if (game.user.isGM) {
-    const isRevealed = revealedToActorIds.has(token.actor?.id);
-    showEyeball({ token, isVisible: isRevealed });
   }
 
   const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
