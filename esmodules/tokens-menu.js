@@ -58,15 +58,7 @@ export async function invokeTokensMenu({ selection }) {
         const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
         return exceptions?.exceptFor?.length > 0;
       });
-      const undetectedObserved = avoiders.some((token) => {
-        const stealth = token.actor?.items?.find(
-          (i) => i.slug === SLUGS.stealthEffect,
-        );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-        return exceptions?.exceptFor?.length > 0;
-      });
-
-      if (hiddenObserved && undetectedObserved) {
+      if (hiddenObserved) {
         choices.push({
           key: "undo-hidden",
           label: game.i18n.localize(
@@ -78,22 +70,22 @@ export async function invokeTokensMenu({ selection }) {
             ),
           }),
         });
+      }
+
+      const undetectedObserved = avoiders.some((token) => {
+        const stealth = token.actor?.items?.find(
+          (i) => i.slug === SLUGS.stealthEffect,
+        );
+        const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
+        return exceptions?.exceptFor?.length > 0;
+      });
+      if (undetectedObserved) {
         choices.push({
           key: "undo-undetected",
           label: game.i18n.localize(
             `${MODULE_ID}.menu.undoUndetectedReveals.label`,
           ),
           hint: localizeString(`${MODULE_ID}.menu.undoUndetectedReveals.hint`, {
-            type: game.i18n.localize(
-              `${MODULE_ID}.menu.type.${selection.type}`,
-            ),
-          }),
-        });
-      } else if (hiddenObserved || undetectedObserved) {
-        choices.push({
-          key: "undo-reveals",
-          label: game.i18n.localize(`${MODULE_ID}.menu.undoReveals.label`),
-          hint: localizeString(`${MODULE_ID}.menu.undoReveals.hint`, {
             type: game.i18n.localize(
               `${MODULE_ID}.menu.type.${selection.type}`,
             ),
@@ -156,12 +148,6 @@ export async function invokeTokensMenu({ selection }) {
       break;
     case "undo-undetected":
       debuglog("undo-undetected", selection.tokens);
-      undoRevealsOf({ avoiders: selection.tokens, type: "undetected" });
-      refreshEverybody();
-      break;
-    case "undo-reveals":
-      debuglog("undo-reveals", selection.tokens);
-      undoRevealsOf({ avoiders: selection.tokens, type: "hidden" });
       undoRevealsOf({ avoiders: selection.tokens, type: "undetected" });
       refreshEverybody();
       break;
