@@ -70,6 +70,7 @@ jobs:
           languages/ \
           esmodules/ \
           styles/ \
+          templates/ \
           # Or whatever more
 
       # Create a release for this specific version
