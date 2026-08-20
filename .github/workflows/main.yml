@@ -74,7 +74,8 @@ jobs:
           CHANGELOG.md \
           languages/ \
           esmodules/ \
-          styles/
+          styles/ \
+          templates/
 
       # Create a release for this specific version (Only runs on actual releases)
       - name: Create version release
