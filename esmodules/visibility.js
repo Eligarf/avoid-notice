@@ -22,7 +22,7 @@ globalThis.Hooks.once("ready", async () => {
     controlTokenHook(token, true);
   }
   const iconPath = "icons/magic/perception/eye-tendrils-web-purple.webp";
-  eyeballTexture = await loadTexture(iconPath);
+  eyeballTexture = await foundry.canvas.loadTexture(iconPath);
 });
 
 export function refreshVisibilityCache() {
