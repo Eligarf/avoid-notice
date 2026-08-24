@@ -1,6 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { SETTINGS } from "./settings.js";
-import { getVisibilityHandler, refreshPerception } from "./main.js";
+import { getVisibilityHandler, refreshPerception, debuglog } from "./main.js";
 import {
   getVisionerApi,
   isVisionerActive,
@@ -82,9 +82,10 @@ globalThis.Hooks.once("init", () => {
       // log("avoider", avoider);
 
       const initiativeCard = await findInitiativeCard(avoider);
-      const rolls = initiativeCard?.rolls;
-      const dice = rolls?.[0]?.dice;
-      const rawRoll = dice?.[0]?.total;
+      const roll = initiativeCard?.rolls?.[0];
+      const dice = roll?.dice;
+      const rawRoll =
+        dice.length > 0 ? dice[0].total : Number(roll?.options?.dice);
       const initiativeDosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
 
       const disposition = avoider.token.disposition;

@@ -3,8 +3,8 @@ import { debuglog, getVisibilityHandler } from "./main.js";
 import { createVisibilityCache } from "./cache.js";
 
 let hooks = {};
-let observingActorIds = new Set();
-let revealedToActorIds = new Set();
+let observingTokenIds = new Set();
+let revealedToTokenIds = new Set();
 let gmVisionCopy = undefined;
 let tokenIdsWithEyeballs = new Set();
 const cache = createVisibilityCache();
@@ -129,7 +129,7 @@ function recordObservation(token, key, override) {
   if (!(key in snapshot)) snapshot[key] = { exceptFor: new Set() };
   const state = snapshot[key];
   const observers = new Set(override.exceptFor);
-  const detectors = observers.intersection(observingActorIds);
+  const detectors = observers.intersection(observingTokenIds);
   state.exceptFor = state.exceptFor.union(detectors);
   const mutations = cache.update(record, snapshot);
   if (!mutations) return;
@@ -163,11 +163,10 @@ function showEyeball({ token, isVisible }) {
 function controlTokenHook(token, controlled) {
   debuglog(`'${token.name}' controlled: ${controlled}`, { token, controlled });
   if (!controlled) {
-    const actor = token?.actor;
-    observingActorIds.delete(actor?.id);
-    cache.removeObserver(actor, handleMutations);
+    observingTokenIds.delete(token.id);
+    cache.removeObserver(token, handleMutations);
   } else {
-    observingActorIds.add(token.actor?.id);
+    observingTokenIds.add(token.id);
     if (cache.has(token)) {
       cache.removeAvoider(token, handleMutations);
     }
@@ -179,16 +178,16 @@ function controlTokenHook(token, controlled) {
     if (!actor) return;
     const exceptions = findExceptions(actor);
     if (!exceptions) return;
-    revealedToActorIds = revealedToActorIds.union(exceptions);
+    revealedToTokenIds = revealedToTokenIds.union(exceptions);
   } else {
-    revealedToActorIds.clear();
-    for (const id of observingActorIds) {
-      const token = canvas.tokens.placeables.find((t) => t.actor?.id === id);
+    revealedToTokenIds.clear();
+    for (const id of observingTokenIds) {
+      const token = canvas.tokens.get(id);
       const actor = token?.actor;
       if (!actor) continue;
       const exceptions = findExceptions(actor);
       if (!exceptions) continue;
-      revealedToActorIds = revealedToActorIds.union(exceptions);
+      revealedToTokenIds = revealedToTokenIds.union(exceptions);
     }
   }
 }
@@ -198,11 +197,11 @@ function refreshTokenHook(token, _options) {
   //   `'${token.name}' refreshed (hidden=${token.document.hidden} visible=${token.visible} filter=${token.detectionFilter ? "exists" : "null"})`,
   //   {
   //     token,
-  //     observingActorIds,
+  //     observingTokenIds,
   //   },
   // );
   if (game.user.isGM) {
-    const isRevealed = revealedToActorIds.has(token.actor?.id);
+    const isRevealed = revealedToTokenIds.has(token.id);
     showEyeball({ token, isVisible: isRevealed });
   }
 
@@ -214,19 +213,19 @@ function refreshTokenHook(token, _options) {
   }
   gmVisionCopy = false;
 
-  const actor = token?.actor;
-  if (!actor) return;
-  if (observingActorIds.has(actor.id) || token.document.hidden) {
+  if (observingTokenIds.has(token.id) || token.document.hidden) {
     if (cache.has(token)) cache.removeAvoider(token, handleMutations);
     return;
   }
 
+  const actor = token?.actor;
+  if (!actor) return;
   const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
   if (!stealth) return;
   const states = stealth.flags[MODULE_ID];
   if (!states) return false;
   for (const [key, s] of Object.entries(states)) {
-    if (s.exceptFor.some((id) => observingActorIds.has(id))) {
+    if (s.exceptFor.some((id) => observingTokenIds.has(id))) {
       recordObservation(token, key, s);
     }
   }
@@ -303,12 +302,3 @@ export function releaseVisibilityHooks() {
   globalThis.Hooks.off("controlToken", controlTokenHook);
   hooks = {};
 }
-
-// token.visible;
-// token.detectionFilter;
-// static getDetectionFilter() {
-// 	const filter = this._detectionFilter ??= foundry.canvas.rendering.filters.OutlineOverlayFilter.create({ wave: !0 });
-// 	return filter.thickness = 1, filter;
-// }
-// token.detectionFilterMesh.visible;
-//

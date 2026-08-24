@@ -2,7 +2,8 @@ import { MODULE_ID, SLUGS, CONDITION_IDS } from "./const.js";
 import { debuglog } from "./main.js";
 import { SETTINGS } from "./settings.js";
 
-export function isAvoider({ actor }) {
+export function isAvoider(tokenOrActor) {
+  const actor = tokenOrActor?.actor ?? tokenOrActor;
   // If you have a stealth effect you are an avoider
   if (actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect))
     return true;
@@ -10,7 +11,7 @@ export function isAvoider({ actor }) {
   // once combat starts, a combantant has to have the stealth effect
   const combat = game?.combat;
   const combatant = combat?.combatants?.contents?.some(
-    (c) => c.token?.actor?.id === actor.id,
+    (c) => c.token?.id === tokenOrActor.id || c.actor?.id === tokenOrActor.id,
   );
   if (combat?.round > 0 && !!combatant && combatant?.initiative !== null)
     return false;

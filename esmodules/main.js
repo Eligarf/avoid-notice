@@ -58,17 +58,22 @@ export function refreshPerception() {
   }
 }
 
-export async function iterateActorsForTokensAndParties(tokens, callback) {
+export async function iterateTokensAndParties(tokens, callback) {
+  let parties = [];
   for (const token of tokens) {
     const actor = token.actor;
     if (!actor) continue;
-    if (actor?.type !== "party") {
-      await callback(token?.actor);
+    if (actor.type === "party") {
+      parties.push(actor);
       continue;
     }
+    await callback(token);
+  }
 
-    for (const member of actor.members) {
-      if (member) await callback(member);
+  for (const party of parties) {
+    for (const member of party.members) {
+      if (tokens.some((token) => token.actor?.id === member.id)) continue;
+      await callback(member);
     }
   }
 }
