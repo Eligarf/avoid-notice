@@ -144,9 +144,6 @@ function showEyeball({ token, isVisible }) {
     eyeSprite = new PIXI.Sprite(eyeballTexture);
     eyeSprite.name = spriteName;
     eyeSprite.anchor.set(0.5, 0.5);
-    const desired = token.mesh.texture.width * 0.5;
-    const scale = desired / eyeballTexture.width;
-    eyeSprite.scale.set(scale);
     eyeSprite.x = 0;
     eyeSprite.y = 0;
     token.mesh.addChild(eyeSprite);
