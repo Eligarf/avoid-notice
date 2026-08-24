@@ -1,10 +1,6 @@
 import { isAvoider } from "./effects.js";
 import { MODULE_ID, SLUGS } from "./const.js";
-import {
-  localizeString,
-  debuglog,
-  iterateActorsForTokensAndParties,
-} from "./main.js";
+import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { sendStealthRollToGM } from "./socket.js";
 
@@ -42,13 +38,17 @@ function testAvoiderStealthAgainstObservers({
   dosAdjust,
   observers,
 }) {
-  const cover = findBaseCoverBonus({ actor: avoider });
+  const cover = findBaseCoverBonus({ actor: avoider?.actor ?? avoider });
   const observations = observers
-    .filter((observer) => observer?.system?.perception?.dc)
+    .filter((observer) => {
+      const actor = observer?.actor ?? observer;
+      return actor?.system?.perception?.dc;
+    })
     .map((observer) => {
+      const actor = observer?.actor ?? observer;
       return testObserver({
         stealth,
-        dc: observer.system.perception.dc,
+        dc: actor.system.perception.dc,
         observer,
         dosAdjust,
         cover,
@@ -72,12 +72,11 @@ function findDosAdjust(rawRoll) {
 }
 
 function testAvoiderAgainstObservers(avoider, roll, observers) {
-  debuglog("testAvoiderAgainstObservers", { avoider, roll, observers });
   const stealth = roll.total;
   const rawRoll =
     roll.dice.length > 0 ? roll.dice[0].total : Number(roll.options.dice);
   return testAvoiderStealthAgainstObservers({
-    avoider,
+    avoider: avoider?.actor ?? avoider,
     stealth,
     dosAdjust: findDosAdjust(rawRoll),
     observers,
@@ -122,7 +121,7 @@ function analyzeObservations(observations, hovers) {
       <ul>`;
     for (const spotter of spotters) {
       const hoverId = foundry.utils.randomID();
-      hovers[hoverId] = { actorId: spotter.observer.id };
+      hovers[hoverId] = { combatantId: spotter.observer.id };
       content += `
         <li>
           <span class="${MODULE_ID}-spotter-delta">${spotter.delta}</span>
@@ -147,14 +146,19 @@ function makeMissingActorsString() {
   });
 }
 
-function buildEncounterSection({ friendlyActors, actions }) {
+function getToken(id) {
+  let token = canvas.tokens.get(id);
+  if (!token) {
+    token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
+  }
+  return token;
+}
+
+function buildEncounterSection({ friendlies, actions }) {
   let content = `
     <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
-  const missing = friendlyActors.filter(
-    (actor) =>
-      !canvas.tokens.placeables.find((token) => token.actor?.id === actor.id),
-  );
-  if (friendlyActors.length > 0 && missing.length > 0) {
+  const missing = friendlies.filter((f) => !getToken(f.id));
+  if (friendlies.length > 0 && missing.length > 0) {
     content += `<div class="${MODULE_ID}-missing">${makeMissingActorsString()}</div>`;
   }
   content += `
@@ -167,30 +171,21 @@ function buildEncounterSection({ friendlyActors, actions }) {
 
 export async function testAvoidance(tokens, secret = false) {
   // Get our list of friendly and enemy tokens, walking through the party token if necessary
-  const friendlyTokens = tokens.filter(
-    (token) => token.document.disposition === 1,
-  );
-  const enemyTokens = tokens.filter(
-    (token) => token.document.disposition !== 1,
-  );
+  const friendlyTokens = tokens.filter((t) => t.document.disposition === 1);
+  const enemyTokens = tokens.filter((t) => t.document.disposition !== 1);
 
   // Grab the actors these represent, walking through the party token if necessary
-  let friendlyActors = [];
-  await iterateActorsForTokensAndParties(friendlyTokens, async (actor) => {
-    if (!friendlyActors.includes(actor)) friendlyActors.push(actor);
+  let friendlies = [];
+  await iterateTokensAndParties(friendlyTokens, async (combatant) => {
+    if (!friendlies.includes(combatant)) friendlies.push(combatant);
   });
-  const enemyActors = enemyTokens.map((token) => token?.actor);
 
   // Find the friendly avoiders and enemies
-  const friendlyAvoiders = friendlyActors.filter((actor) =>
-    isAvoider({ actor }),
-  );
-  const enemyAvoiders = enemyActors.filter((actor) => isAvoider({ actor }));
-  const observedEnemies = enemyActors.filter(
-    (actor) => !enemyAvoiders.includes(actor),
-  );
-  const observedFriendlies = friendlyActors.filter(
-    (actor) => !friendlyAvoiders.includes(actor),
+  const friendlyAvoiders = friendlies.filter((f) => isAvoider(f));
+  const enemyAvoiders = enemyTokens.filter((t) => isAvoider(t));
+  const observedEnemies = enemyTokens.filter((t) => !enemyAvoiders.includes(t));
+  const observedFriendlies = friendlies.filter(
+    (f) => !friendlyAvoiders.includes(f),
   );
 
   // Find the enemy avoiders and friendly observers
@@ -209,17 +204,17 @@ export async function testAvoidance(tokens, secret = false) {
         `${MODULE_ID}.avoidanceTest.observedEnemies`,
       );
       content += `<div class="${MODULE_ID}-observed-enemies">${header}<ul>`;
-      for (const actor of observedEnemies) {
-        content += `<li>${actor.name}</li>`;
+      for (const token of observedEnemies) {
+        content += `<li>${token.name}</li>`;
       }
       content += `</ul></div>`;
     }
     for (const avoider of enemyAvoiders) {
-      const roll = await rollStealth(avoider);
+      const roll = await rollStealth(avoider.actor);
       const observations = testAvoiderAgainstObservers(
         avoider,
         roll,
-        friendlyActors,
+        friendlies,
       );
       const rawRoll =
         roll.dice.length > 0 ? roll.dice[0].total : Number(roll.options.dice);
@@ -228,10 +223,10 @@ export async function testAvoidance(tokens, secret = false) {
         dosAdjust: rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0,
       };
       const hoverId = foundry.utils.randomID();
-      hovers[hoverId] = { actorId: avoider.id };
+      hovers[hoverId] = { combatantId: avoider.id };
       content += `
       <hr>
-      <div class="${MODULE_ID}-enemy" data-actor-id="${avoider.id}">
+      <div class="${MODULE_ID}-enemy" data-combatant-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
         <span class="${MODULE_ID}-roll">${roll.total}</span>
         <ul class="${MODULE_ID}-observations">`;
@@ -250,8 +245,8 @@ export async function testAvoidance(tokens, secret = false) {
         `${MODULE_ID}.avoidanceTest.observedFriendlies`,
       );
       content += `<div class="${MODULE_ID}-observed-friendlies">${friendlyHeader}<ul>`;
-      for (const actor of observedFriendlies) {
-        content += `<li>${actor.name}</li>`;
+      for (const combatant of observedFriendlies) {
+        content += `<li>${combatant.name}</li>`;
       }
       content += `</ul></div>`;
     }
@@ -259,11 +254,11 @@ export async function testAvoidance(tokens, secret = false) {
       friendlyStealth[avoider.id] = { total: null, dosAdjust: null };
       const hoverId = foundry.utils.randomID();
       const actionId = foundry.utils.randomID();
-      actions.friendlies[actionId] = { actorId: avoider.id };
-      hovers[hoverId] = { actor: avoider.id };
+      actions.friendlies[actionId] = { combatantId: avoider.id };
+      hovers[hoverId] = { combatant: avoider.id };
       content += `
       <hr>
-      <div class="${MODULE_ID}-friendly" data-actor-id="${avoider.id}">
+      <div class="${MODULE_ID}-friendly" data-combatant-id="${avoider.id}">
         <span class="${MODULE_ID}-name" data-hover-id="${hoverId}">${avoider.name}</span>
         <i class="fa-solid fa-dice-d20" data-action-id="${actionId}"></i>
         <span class="${MODULE_ID}-roll" data-visibility="gm"></span>
@@ -272,7 +267,10 @@ export async function testAvoidance(tokens, secret = false) {
     }
     content += `</div>`;
   } else {
-    content += buildEncounterSection({ friendlyActors, actions });
+    content += buildEncounterSection({
+      friendlies: friendlies.map((f) => f?.actor ?? f),
+      actions,
+    });
   }
 
   const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
@@ -286,9 +284,9 @@ export async function testAvoidance(tokens, secret = false) {
         avoidanceTest: {
           secret: superSecret,
           actions,
-          enemyIds: enemyActors.map((actor) => actor.id),
+          enemyIds: enemyTokens.map((t) => t.id),
           enemyStealth: enemyStealth ?? {},
-          friendlyIds: friendlyActors.map((actor) => actor.id),
+          friendlyIds: friendlies.map((c) => c.id),
           friendlyStealth: friendlyStealth ?? {},
           hovers,
         },
@@ -319,19 +317,14 @@ async function createEncounter(avoidanceTest) {
   const combat = !game.combat
     ? await Combat.create({ scene: canvas.scene.id, active: true })
     : game.combat;
-  if (
-    avoidanceTest.friendlyIds.some(
-      (id) => !canvas.tokens.placeables.find((t) => t?.actor?.id === id),
-    )
-  ) {
+  if (avoidanceTest.friendlyIds.some((id) => !getToken(id))) {
     ui.notifications.warn(makeMissingActorsString());
   }
   const scoutBonus = getScoutBonus();
   const combatants = avoidanceTest.enemyIds
     .map((id) => {
-      const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
+      const token = canvas.tokens.get(id);
       let entry = {
-        actorId: id,
         tokenId: token?.id,
         hidden: token?.hidden,
       };
@@ -346,9 +339,8 @@ async function createEncounter(avoidanceTest) {
     })
     .concat(
       avoidanceTest.friendlyIds.map((id) => {
-        const token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
+        const token = getToken(id);
         let entry = {
-          actorId: id,
           tokenId: token?.id,
           hidden: token?.hidden,
         };
@@ -376,18 +368,19 @@ async function createEncounter(avoidanceTest) {
     )
     .filter(
       (c) =>
-        !combat.combatants.find((existing) => existing.actorId === c.actorId),
-    )
-    .filter((c) => c.tokenId && c.actorId);
+        !combat.combatants.find((existing) => existing.tokenId === c.tokenId),
+    );
+  debuglog("combatants", { combatants });
   await combat.createEmbeddedDocuments("Combatant", combatants);
   await ui.combat.render(true);
 }
 
 async function rollClick({ message, event, avoidanceTest, actionId }) {
   debuglog("rollClick", { message, event, avoidanceTest, actionId });
-  const actorId = avoidanceTest.actions.friendlies[actionId]?.actorId;
-  if (avoidanceTest.friendlyStealth[actorId]?.total !== null) return;
-  const actor = game.actors.get(actorId);
+  const combatantId = avoidanceTest.actions.friendlies[actionId]?.combatantId;
+  if (avoidanceTest.friendlyStealth[combatantId]?.total !== null) return;
+  const actor =
+    canvas.tokens.get(combatantId)?.actor ?? game.actors.get(combatantId);
   if (!actor) return;
   if (!game.user.isGM && !actor.isOwner) return;
   const skipDialog = event.shiftKey === game.user.settings.showCheckDialogs;
@@ -437,20 +430,21 @@ export async function onStealthReply({
   if (!message) return;
   const avoidanceTest = message.flags[MODULE_ID]?.avoidanceTest;
   if (!avoidanceTest) return;
-  // debuglog("message,avoidanceTest", { message, avoidanceTest });
+  debuglog("message,avoidanceTest", { message, avoidanceTest });
   const friendly = avoidanceTest.actions.friendlies[actionId];
   if (!friendly) return;
-  const avoiderId = friendly.actorId;
-  const avoider = game.actors.get(avoiderId);
+  const avoiderId = friendly.combatantId;
+  let avoider =
+    canvas.tokens.get(avoiderId)?.actor ?? game.actors.get(avoiderId);
   if (!avoider) return;
-  const enemyActors = avoidanceTest.enemyIds.map((id) => game.actors.get(id));
+  const enemyTokens = avoidanceTest.enemyIds.map((id) => canvas.tokens.get(id));
   const observations = testAvoiderStealthAgainstObservers({
     avoider,
     stealth,
     dosAdjust,
-    observers: enemyActors,
+    observers: enemyTokens,
   });
-  avoidanceTest.friendlyStealth[friendly.actorId] = {
+  avoidanceTest.friendlyStealth[avoiderId] = {
     total: stealth,
     dosAdjust,
     rollMessageId,
@@ -459,7 +453,7 @@ export async function onStealthReply({
   const parser = new DOMParser();
   const html = parser.parseFromString(message.content, "text/html");
   const friendlyEl = html.querySelector(
-    `.${MODULE_ID}-friendly[data-actor-id="${avoiderId}"]`,
+    `.${MODULE_ID}-friendly[data-combatant-id="${avoiderId}"]`,
   );
   if (!friendlyEl) return;
   const ul = friendlyEl.querySelector("ul");
@@ -476,8 +470,8 @@ export async function onStealthReply({
   );
   if (allRolled) {
     const encounterSection = buildEncounterSection({
-      friendlyActors: avoidanceTest.friendlyIds.map((id) =>
-        game.actors.get(id),
+      friendlies: avoidanceTest.friendlyIds.map(
+        (id) => canvas.tokens.get(id) ?? game.actors.get(id),
       ),
       actions: avoidanceTest.actions,
     });
@@ -516,15 +510,13 @@ function attachHover(html, el, avoidanceTest) {
   const hoverId = el.dataset.hoverId;
   const hover = avoidanceTest.hovers[hoverId];
   if (!hover) return;
-  const actorId = hover.actorId;
+  const combatantId = hover.combatantId;
 
   let pendingEnter = false;
   let canvasReadyCb = null;
 
   const doHoverIn = () => {
-    const token = canvas.tokens.placeables.find(
-      (t) => t?.actor?.id === actorId,
-    );
+    const token = getToken(combatantId);
     if (token && typeof token._onHoverIn === "function") {
       token._onHoverIn(new MouseEvent("mouseenter"));
     }
@@ -551,9 +543,7 @@ function attachHover(html, el, avoidanceTest) {
       canvasReadyCb = null;
     }
     if (canvas?.ready) {
-      const token = canvas.tokens.placeables.find(
-        (t) => t?.actor?.id === actorId,
-      );
+      const token = getToken(combatantId);
       if (token && typeof token._onHoverOut === "function")
         token._onHoverOut(new MouseEvent("mouseleave"));
     }

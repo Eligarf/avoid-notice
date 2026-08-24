@@ -106,11 +106,7 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
       let flag = [];
       for (const c of EXCEPTIONS[visibility] || []) {
         if (c in result) {
-          flag.push(
-            result[c].observers.map(
-              (o) => canvas.tokens.get(o.observerId)?.actor?.id,
-            ),
-          );
+          flag.push(result[c].observers.map((o) => o.observerId));
         }
       }
       if (flag.length) {

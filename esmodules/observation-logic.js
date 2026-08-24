@@ -1,5 +1,6 @@
 import { MODULE_ID } from "./const.js";
 import { getCoverFrom } from "./cover.js";
+import { debuglog } from "./main.js";
 
 export function makeObservation({
   avoiderApi,

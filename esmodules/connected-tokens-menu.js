@@ -2,7 +2,7 @@ import { AvoidNoticePopupMenu } from "./menu.js";
 import {
   debuglog,
   getVisibilityHandler,
-  iterateActorsForTokensAndParties,
+  iterateTokensAndParties,
 } from "./main.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { clearActorStealth } from "./stealth.js";
@@ -177,17 +177,14 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       break;
     case "remove-controlled-stealth":
       debuglog("remove-controlled-stealth");
-      await iterateActorsForTokensAndParties(
-        controlled.tokens,
-        async (actor) => {
-          await clearActorStealth({ actor });
-        },
-      );
+      await iterateTokensAndParties(controlled.tokens, async (combatant) => {
+        await clearActorStealth({ actor: combatant?.actor ?? combatant });
+      });
       break;
     case "remove-targeted-stealth":
       debuglog("remove-targeted-stealth");
-      await iterateActorsForTokensAndParties(targeted.tokens, async (actor) => {
-        await clearActorStealth({ actor });
+      await iterateTokensAndParties(targeted.tokens, async (combatant) => {
+        await clearActorStealth({ actor: combatant?.actor ?? combatant });
       });
       break;
     case "reveal-controlled":

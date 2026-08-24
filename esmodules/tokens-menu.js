@@ -3,11 +3,7 @@ import { setAsAmbushers, clearActorStealth } from "./stealth.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { getVisibilityHandler } from "./main.js";
 import { undoRevealsOf } from "./effects.js";
-import {
-  localizeString,
-  debuglog,
-  iterateActorsForTokensAndParties,
-} from "./main.js";
+import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
 import { testAvoidance } from "./avoidance-test.js";
 import { refreshEverybody } from "./socket.js";
 
@@ -122,12 +118,9 @@ export async function invokeTokensMenu({ selection }) {
       break;
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
-      await iterateActorsForTokensAndParties(
-        selection.tokens,
-        async (actor) => {
-          await clearActorStealth({ actor });
-        },
-      );
+      await iterateTokensAndParties(selection.tokens, async (combatant) => {
+        await clearActorStealth({ actor: combatant?.actor ?? combatant });
+      });
       refreshEverybody();
       break;
     case "test-avoidance":

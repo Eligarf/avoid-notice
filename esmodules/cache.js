@@ -67,13 +67,13 @@ export function createVisibilityCache() {
       return this.get(token) || this.create(token);
     },
 
-    removeObserver(actor, callback) {
-      debuglog(`removing observer '${actor.name}'`);
+    removeObserver(token, callback) {
+      debuglog(`removing observer '${token.name}'`);
       for (const [_tokenId, record] of [...store]) {
         const snapshot = this.duplicate(record?.snapshot);
         for (const type in snapshot) {
           const state = snapshot[type];
-          state.exceptFor.delete(actor?.id);
+          state.exceptFor.delete(token?.id);
         }
         this.scrubSnapshot(snapshot);
         const delta = this.update(record, snapshot);
