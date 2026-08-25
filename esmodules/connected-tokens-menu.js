@@ -14,8 +14,6 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
 
   if (getVisibilityHandler() === "visioner") return;
 
-  const controlledActors = controlled.tokens.map((t) => t?.actor);
-  const targetedActors = targeted.tokens.map((t) => t?.actor);
   const controlledAvoidingTokens = controlled.tokens.filter((t) => {
     const actor = t?.actor;
     return actor?.items?.some(
@@ -28,10 +26,8 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       (item) => item.system.slug === SLUGS.stealthEffect,
     );
   });
-  let hiddenControlledObservingActors = [];
-  let undetectedControlledObservingActors = [];
-  let hiddenTargetedObservingActors = [];
-  let undetectedTargetedObservingActors = [];
+  let hiddenControlledObservingTokens = [];
+  let undetectedControlledObservingTokens = [];
 
   let choices = [
     {
@@ -41,22 +37,16 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
     },
   ];
 
-  const controlledAvoidingActors = controlledActors.filter((actor) =>
-    actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect),
-  );
-  if (controlledAvoidingActors.length > 0) {
-    hiddenControlledObservingActors = controlledAvoidingActors.filter(
-      (avoider) => {
-        const stealth = avoider?.items?.find(
-          (i) => i.slug === SLUGS.stealthEffect,
-        );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-        return targetedActors.some((a) =>
-          exceptions?.exceptFor?.includes(a.id),
-        );
-      },
-    );
-    if (hiddenControlledObservingActors.length) {
+  if (controlledAvoidingTokens.length > 0) {
+    hiddenControlledObservingTokens = controlledAvoidingTokens.filter((c) => {
+      const avoider = c?.actor;
+      const stealth = avoider?.items?.find(
+        (i) => i.slug === SLUGS.stealthEffect,
+      );
+      const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
+      return targeted.tokens.some((t) => exceptions?.exceptFor?.includes(t.id));
+    });
+    if (hiddenControlledObservingTokens.length) {
       choices.push({
         key: "undo-controlled-hidden-reveals",
         label: game.i18n.localize(
@@ -65,18 +55,19 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
         hint: `${MODULE_ID}.menu.undoControlledHiddenRevealsToTargeted.hint`,
       });
     }
-    undetectedControlledObservingActors = controlledAvoidingActors.filter(
-      (avoider) => {
+    undetectedControlledObservingTokens = controlledAvoidingTokens.filter(
+      (c) => {
+        const avoider = c?.actor;
         const stealth = avoider?.items?.find(
           (i) => i.slug === SLUGS.stealthEffect,
         );
         const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-        return targetedActors.some((a) =>
-          exceptions?.exceptFor?.includes(a.id),
+        return targeted.tokens.some((t) =>
+          exceptions?.exceptFor?.includes(t.id),
         );
       },
     );
-    if (undetectedControlledObservingActors.length) {
+    if (undetectedControlledObservingTokens.length) {
       choices.push({
         key: "undo-controlled-undetected-reveals",
         label: game.i18n.localize(
@@ -104,50 +95,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
     );
   }
 
-  const targetedAvoidingActors = targetedActors.filter((actor) =>
-    actor?.items?.some((item) => item.system.slug === SLUGS.stealthEffect),
-  );
-  if (targetedAvoidingActors.length > 0) {
-    // hiddenTargetedObservingActors = targetedAvoidingActors.filter((avoider) => {
-    //   const stealth = avoider?.items?.find(
-    //     (i) => i.slug === SLUGS.stealthEffect,
-    //   );
-    //   const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-    //   return controlledActors.some((a) =>
-    //     exceptions?.exceptFor?.includes(a.id),
-    //   );
-    // });
-    // if (hiddenTargetedObservingActors.length) {
-    //   choices.push({
-    //     key: "undo-targeted-hidden-reveals",
-    //     label: game.i18n.localize(
-    //       `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.label`,
-    //     ),
-    //     hint: `${MODULE_ID}.menu.undoTargetedHiddenRevealsToControlled.hint`,
-    //   });
-    // }
-    //
-    // undetectedTargetedObservingActors = targetedAvoidingActors.filter(
-    //   (avoider) => {
-    //     const stealth = avoider?.items?.find(
-    //       (i) => i.slug === SLUGS.stealthEffect,
-    //     );
-    //     const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-    //     return controlledActors.some((a) =>
-    //       exceptions?.exceptFor?.includes(a.id),
-    //     );
-    //   },
-    // );
-    // if (undetectedTargetedObservingActors.length) {
-    //   choices.push({
-    //     key: "undo-targeted-undetected-reveals",
-    //     label: game.i18n.localize(
-    //       `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.label`,
-    //     ),
-    //     hint: `${MODULE_ID}.menu.undoTargetedUndetectedRevealsToControlled.hint`,
-    //   });
-    // }
-
+  if (targetedAvoidingTokens.length > 0) {
     choices.push(
       {
         key: "reveal-targeted",
@@ -191,14 +139,14 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       debuglog("reveal-controlled");
       await revealAvoidersTo({
         avoiders: controlledAvoidingTokens,
-        observers: targetedActors,
+        observers: targeted.tokens,
       });
       break;
     case "reveal-targeted":
       debuglog("reveal-targeted");
       await revealAvoidersTo({
-        avoiders: targetedAvoidingActors,
-        observers: controlledActors,
+        avoiders: targetedAvoidingTokens,
+        observers: controlled.tokens,
       });
       break;
     case "undo-controlled-hidden-reveals":
@@ -206,7 +154,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       undoRevealsOf({
         avoiders: controlledAvoidingTokens,
         type: "hidden",
-        observers: targetedActors,
+        observers: targeted.tokens,
       });
       break;
     case "undo-controlled-undetected-reveals":
@@ -214,7 +162,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       undoRevealsOf({
         avoiders: controlledAvoidingTokens,
         type: "undetected",
-        observers: targetedActors,
+        observers: targeted.tokens,
       });
       break;
     case "undo-targeted-hidden-reveals":
@@ -222,7 +170,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       undoRevealsOf({
         avoiders: targetedAvoidingTokens,
         type: "hidden",
-        observers: controlledActors,
+        observers: controlled.tokens,
       });
       break;
     case "undo-targeted-undetected-reveals":
@@ -230,7 +178,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       undoRevealsOf({
         avoiders: targetedAvoidingTokens,
         type: "undetected",
-        observers: controlledActors,
+        observers: controlled.tokens,
       });
       break;
     default:
