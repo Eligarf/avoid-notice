@@ -18,6 +18,7 @@ export async function invokeTokensMenu({ selection }) {
       key: "refresh",
       label: game.i18n.localize(`${MODULE_ID}.menu.refresh.label`),
       hint: `${MODULE_ID}.menu.refresh.hint`,
+      section: 0,
     },
   ];
   const visibilityHandler = getVisibilityHandler();
@@ -27,6 +28,12 @@ export async function invokeTokensMenu({ selection }) {
     );
 
     if (avoiders.length > 0) {
+      choices.push({
+        key: "divider",
+        label: "------------------------",
+        section: 1,
+        disabled: true,
+      });
       choices.push({
         key: "remove-stealth",
         label: game.i18n.localize(`${MODULE_ID}.menu.removeStealth.label`),
@@ -38,6 +45,7 @@ export async function invokeTokensMenu({ selection }) {
             : game.i18n.localize(
                 `${MODULE_ID}.menu.removeTargetedStealth.hint`,
               ),
+        section: 2,
       });
 
       const hiddenObserved = avoiders.some((token) => {
@@ -58,6 +66,7 @@ export async function invokeTokensMenu({ selection }) {
               `${MODULE_ID}.menu.type.${selection.type}`,
             ),
           }),
+          section: 2,
         });
       }
 
@@ -79,22 +88,24 @@ export async function invokeTokensMenu({ selection }) {
               `${MODULE_ID}.menu.type.${selection.type}`,
             ),
           }),
+          section: 2,
         });
       }
     }
   }
 
-  const combat = game?.combat;
-  if (!combat && !selection.dispositions.has(1)) {
+  if (!selection.dispositions.has(1)) {
     choices.push({
       key: "prepare-ambush",
       label: game.i18n.localize(`${MODULE_ID}.menu.prepareAmbush.label`),
       hint: localizeString(`${MODULE_ID}.menu.prepareAmbush.hint`, {
         type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
       }),
+      section: 0,
     });
   }
 
+  const combat = game?.combat;
   if (!combat) {
     choices.push({
       key: "test-avoidance",
@@ -102,10 +113,15 @@ export async function invokeTokensMenu({ selection }) {
       hint: localizeString(`${MODULE_ID}.menu.testAvoidance.hint`, {
         type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
       }),
+      section: 0,
     });
   }
 
-  choices.sort((a, b) => a.label.localeCompare(b.label));
+  choices.sort((a, b) =>
+    a.section === b.section
+      ? a.label.localeCompare(b.label)
+      : a.section - b.section,
+  );
   const choice = await AvoidNoticePopupMenu.show(title, choices);
 
   switch (choice?.key) {

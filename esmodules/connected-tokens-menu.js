@@ -34,10 +34,17 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       key: "refresh",
       label: game.i18n.localize(`${MODULE_ID}.menu.refresh.label`),
       hint: `${MODULE_ID}.menu.refresh.hint`,
+      section: 0,
     },
   ];
 
   if (controlledAvoidingTokens.length > 0) {
+    choices.push({
+      key: "divider",
+      label: "------------------------",
+      section: 1,
+      disabled: true,
+    });
     hiddenControlledObservingTokens = controlledAvoidingTokens.filter((c) => {
       const avoider = c?.actor;
       const stealth = avoider?.items?.find(
@@ -53,6 +60,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
           `${MODULE_ID}.menu.undoControlledHiddenRevealsToTargeted.label`,
         ),
         hint: `${MODULE_ID}.menu.undoControlledHiddenRevealsToTargeted.hint`,
+        section: 2,
       });
     }
     undetectedControlledObservingTokens = controlledAvoidingTokens.filter(
@@ -74,6 +82,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
           `${MODULE_ID}.menu.undoControlledUndetectedRevealsToTargeted.label`,
         ),
         hint: `${MODULE_ID}.menu.undoControlledUndetectedRevealsToTargeted.hint`,
+        section: 2,
       });
     }
 
@@ -84,6 +93,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
           `${MODULE_ID}.menu.revealControlledToTargeted.label`,
         ),
         hint: `${MODULE_ID}.menu.revealControlledToTargeted.hint`,
+        section: 2,
       },
       {
         key: "remove-controlled-stealth",
@@ -91,6 +101,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
           `${MODULE_ID}.menu.removeControlledStealth.label`,
         ),
         hint: `${MODULE_ID}.menu.removeControlledStealth.hint`,
+        section: 2,
       },
     );
   }
@@ -98,11 +109,18 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
   if (targetedAvoidingTokens.length > 0) {
     choices.push(
       {
+        key: "divider",
+        label: "------------------------",
+        section: 3,
+        disabled: true,
+      },
+      {
         key: "reveal-targeted",
         label: game.i18n.localize(
           `${MODULE_ID}.menu.revealTargetedToControlled.label`,
         ),
         hint: `${MODULE_ID}.menu.revealTargetedToControlled.hint`,
+        section: 4,
       },
       {
         key: "remove-targeted-stealth",
@@ -110,11 +128,16 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
           `${MODULE_ID}.menu.removeTargetedStealth.label`,
         ),
         hint: `${MODULE_ID}.menu.removeTargetedStealth.hint`,
+        section: 4,
       },
     );
   }
 
-  choices.sort((a, b) => a.label.localeCompare(b.label));
+  choices.sort((a, b) =>
+    a.section === b.section
+      ? a.label.localeCompare(b.label)
+      : a.section - b.section,
+  );
   const choice = await AvoidNoticePopupMenu.show(
     `${MODULE_ID}.menu.connectedTokens`,
     choices,

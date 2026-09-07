@@ -1,5 +1,4 @@
-import { MODULE_ID } from "./const.js";
-import { SETTINGS } from "./settings.js";
+import { cachedSettings } from "./settings.js";
 import { getVisibilityHandler, refreshPerception, debuglog } from "./main.js";
 import {
   getVisionerApi,
@@ -23,11 +22,11 @@ globalThis.Hooks.once("init", () => {
     const visionerApi =
       visibilityHandler === "visioner" ? getVisionerApi() : null;
     const options = {
-      useUnnoticed: game.settings.get(MODULE_ID, SETTINGS.useUnnoticed),
-      computeCover: game.settings.get(MODULE_ID, SETTINGS.computeCover),
-      revealTokens: game.settings.get(MODULE_ID, SETTINGS.removeGmHidden),
-      requireActivity: game.settings.get(MODULE_ID, SETTINGS.requireActivity),
-      hideFromAllies: game.settings.get(MODULE_ID, SETTINGS.hideFromAllies),
+      useUnnoticed: cachedSettings.useUnnoticed,
+      computeCover: cachedSettings.computeCover,
+      revealTokens: cachedSettings.removeGmHidden,
+      requireActivity: cachedSettings.requireActivity,
+      hideFromAllies: cachedSettings.hideFromAllies,
     };
 
     // Build out the various lists of combatant types
@@ -168,8 +167,7 @@ globalThis.Hooks.once("init", () => {
     // the result structure and build the messages for each affected chat card, as well
     // as the calls we need to do for the visibility manager
     //
-    if (!game.settings.get(MODULE_ID, SETTINGS.noSummary))
-      await renderStatus(observations);
+    if (!cachedSettings.noSummary) await renderStatus(observations);
 
     // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {
@@ -240,10 +238,7 @@ globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("deleteCombat", async () => {
     if (isVisionerActive()) return;
     if (!game.user?.isActiveGM) return;
-    const cleanUp = game.settings.get(
-      MODULE_ID,
-      SETTINGS.clearPartyStealthAfterCombat,
-    );
+    const cleanUp = cachedSettings.clearPartyStealthAfterCombat;
     if (cleanUp) clearPartyStealth({ showBanner: false });
   });
 });

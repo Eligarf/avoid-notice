@@ -28,6 +28,7 @@ globalThis.Hooks.once("ready", async () => {
 export function refreshVisibilityCache() {
   debuglog(`refreshVisibilityCache`);
   cache.clear(handleMutations);
+  revealedToTokenIds.clear();
   for (const token of canvas.tokens.placeables) {
     if (tokenIdsWithEyeballs.has(token.id)) {
       showEyeball({ token, isVisible: false });

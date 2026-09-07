@@ -1,8 +1,8 @@
 import { MODULE_ID } from "./const.js";
-import { SETTINGS } from "./settings.js";
 import { onStealthReply } from "./avoidance-test.js";
 import { debuglog, refreshPerception } from "./main.js";
 import { refreshVisibilityCache } from "./visibility.js";
+import { cachedSettings } from "./settings.js";
 
 let socket = null;
 
@@ -18,7 +18,7 @@ globalThis.Hooks.once("socketlib.ready", () => {
 });
 
 async function onZoomToCombat(targetList) {
-  if (!game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat)) return;
+  if (!cachedSettings.panZoomToCombat) return;
   const tokens = targetList.map((id) => canvas.tokens.get(id));
   await zoomToTokens(tokens);
 }
