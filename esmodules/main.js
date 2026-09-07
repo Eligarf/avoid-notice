@@ -10,13 +10,14 @@ import {
   getVisionerApi,
   refreshVisionerPerception,
 } from "./visioner.js";
+import { cachedSettings } from "./settings.js";
 
 function colorizeOutput(format, ...args) {
   return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
 }
 
 export function log(format, ...args) {
-  const level = game.settings.get(MODULE_ID, SETTINGS.logLevel);
+  const level = cachedSettings.logLevel;
   if (level !== "none") {
     if (level === "debug") console.debug(...colorizeOutput(format, ...args));
     else if (level === "log") console.log(...colorizeOutput(format, ...args));
@@ -24,7 +25,7 @@ export function log(format, ...args) {
 }
 
 export function debuglog(format, ...args) {
-  const level = game.settings.get(MODULE_ID, SETTINGS.logLevel);
+  const level = cachedSettings.logLevel;
   if (level === "debug") console.debug(...colorizeOutput(format, ...args));
 }
 
@@ -35,10 +36,7 @@ export function interpolateString(str, interpolations) {
 }
 
 export function getVisibilityHandler() {
-  let visibilityHandler = game.settings.get(
-    MODULE_ID,
-    SETTINGS.visibilityHandler,
-  );
+  let visibilityHandler = cachedSettings.visibilityHandler;
   if (visibilityHandler === "auto") {
     visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
   }
@@ -119,10 +117,7 @@ function migrate(moduleVersion, oldVersion) {
 
 globalThis.Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
-  const visibilityHandler = game.settings.get(
-    MODULE_ID,
-    SETTINGS.visibilityHandler,
-  );
+  const visibilityHandler = cachedSettings.visibilityHandler;
   if (
     visibilityHandler === "perception" ||
     visibilityHandler === "perceptive" ||
@@ -134,7 +129,7 @@ globalThis.Hooks.once("ready", () => {
   }
 
   if (
-    game.settings.get(MODULE_ID, SETTINGS.panZoomToCombat) &&
+    cachedSettings.panZoomToCombat &&
     typeof window?.socketlib === "undefined"
   ) {
     ui.notifications.warn(

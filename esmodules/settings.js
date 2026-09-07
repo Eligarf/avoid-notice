@@ -24,6 +24,20 @@ export const SETTINGS = {
   menu: "menu",
 };
 
+export let cachedSettings = {
+  panZoomToCombat: true,
+  visibilityHandler: "disabled",
+  computeCover: false,
+  requireActivity: true,
+  hideFromAllies: false,
+  removeGmHidden: false,
+  clearPartyStealthAfterCombat: false,
+  useUnnoticed: true,
+  noSummary: false,
+  logLevel: "none",
+  useNewApis: false,
+};
+
 export function setupSettings() {
   game.settings.register(MODULE_ID, SETTINGS.panZoomToCombat, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.panZoomToCombat}.name`),
@@ -31,8 +45,15 @@ export function setupSettings() {
     scope: "client",
     config: true,
     type: Boolean,
-    default: true,
+    default: cachedSettings.panZoomToCombat,
+    onChange: (newValue) => {
+      cachedSettings.panZoomToCombat = newValue;
+    },
   });
+  cachedSettings.panZoomToCombat = game.settings.get(
+    MODULE_ID,
+    SETTINGS.panZoomToCombat,
+  );
 
   const visioner = isVisionerActive();
 
@@ -50,8 +71,9 @@ export function setupSettings() {
     config: true,
     type: String,
     choices,
-    default: "disabled",
+    default: cachedSettings.visibilityHandler,
     onChange: (newValue) => {
+      cachedSettings.visibilityHandler = newValue;
       if (newValue === "effects") {
         setupVisibilityHooks();
       } else {
@@ -59,6 +81,10 @@ export function setupSettings() {
       }
     },
   });
+  cachedSettings.visibilityHandler = game.settings.get(
+    MODULE_ID,
+    SETTINGS.visibilityHandler,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.computeCover}.name`),
@@ -66,8 +92,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.computeCover,
+    onChange: (newValue) => {
+      cachedSettings.computeCover = newValue;
+    },
   });
+  cachedSettings.computeCover = game.settings.get(
+    MODULE_ID,
+    SETTINGS.computeCover,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.requireActivity, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.requireActivity}.name`),
@@ -75,8 +108,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true,
+    default: cachedSettings.requireActivity,
+    onChange: (newValue) => {
+      cachedSettings.requireActivity = newValue;
+    },
   });
+  cachedSettings.requireActivity = game.settings.get(
+    MODULE_ID,
+    SETTINGS.requireActivity,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.hideFromAllies, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.hideFromAllies}.name`),
@@ -84,8 +124,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.hideFromAllies,
+    onChange: (newValue) => {
+      cachedSettings.hideFromAllies = newValue;
+    },
   });
+  cachedSettings.hideFromAllies = game.settings.get(
+    MODULE_ID,
+    SETTINGS.hideFromAllies,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.removeGmHidden, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.removeGmHidden}.name`),
@@ -93,8 +140,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.removeGmHidden,
+    onChange: (newValue) => {
+      cachedSettings.removeGmHidden = newValue;
+    },
   });
+  cachedSettings.removeGmHidden = game.settings.get(
+    MODULE_ID,
+    SETTINGS.removeGmHidden,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.clearPartyStealthAfterCombat, {
     name: game.i18n.localize(
@@ -106,8 +160,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.clearPartyStealthAfterCombat,
+    onChange: (newValue) => {
+      cachedSettings.clearPartyStealthAfterCombat = newValue;
+    },
   });
+  cachedSettings.clearPartyStealthAfterCombat = game.settings.get(
+    MODULE_ID,
+    SETTINGS.clearPartyStealthAfterCombat,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.useUnnoticed, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useUnnoticed}.name`),
@@ -115,8 +176,15 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true,
+    default: cachedSettings.useUnnoticed,
+    onChange: (newValue) => {
+      cachedSettings.useUnnoticed = newValue;
+    },
   });
+  cachedSettings.useUnnoticed = game.settings.get(
+    MODULE_ID,
+    SETTINGS.useUnnoticed,
+  );
 
   game.settings.register(MODULE_ID, SETTINGS.noSummary, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.noSummary}.name`),
@@ -124,8 +192,12 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.noSummary,
+    onChange: (newValue) => {
+      cachedSettings.noSummary = newValue;
+    },
   });
+  cachedSettings.noSummary = game.settings.get(MODULE_ID, SETTINGS.noSummary);
 
   game.settings.register(MODULE_ID, SETTINGS.logLevel, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.name`),
@@ -137,8 +209,12 @@ export function setupSettings() {
       debug: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.debug`),
       log: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.log`),
     },
-    default: "none",
+    default: cachedSettings.logLevel,
+    onChange: (newValue) => {
+      cachedSettings.logLevel = newValue;
+    },
   });
+  cachedSettings.logLevel = game.settings.get(MODULE_ID, SETTINGS.logLevel);
 
   game.settings.register(MODULE_ID, SETTINGS.useNewApis, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.name`),
@@ -146,8 +222,12 @@ export function setupSettings() {
     scope: "world",
     config: true,
     type: Boolean,
-    default: false,
+    default: cachedSettings.useNewApis,
+    onChange: (newValue) => {
+      cachedSettings.useNewApis = newValue;
+    },
   });
+  cachedSettings.useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
 }
 
 export function setupKeybindings() {

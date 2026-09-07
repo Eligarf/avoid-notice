@@ -1,5 +1,4 @@
-import { MODULE_ID } from "./const.js";
-import { SETTINGS } from "./settings.js";
+import { cachedSettings } from "./settings.js";
 
 export const VISIONER_ID = "pf2e-visioner";
 
@@ -61,7 +60,7 @@ export async function clearVisionerData({
   refresh = false,
   batch = null,
 }) {
-  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
+  const useNewApis = cachedSettings.useNewApis;
   if (!useNewApis)
     await clearVisionerDataHardWay({ token, visionerApi, refresh, batch });
   else {
@@ -77,7 +76,7 @@ export async function clearVisionerData({
 export async function setVisionerData(updates) {
   if (!updates.length) return;
   const visionerApi = getVisionerApi();
-  const useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
+  const useNewApis = cachedSettings.useNewApis;
   if (useNewApis && "bulkSetVisibility" in visionerApi) {
     await visionerApi.bulkSetVisibility(updates);
   } else {

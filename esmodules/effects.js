@@ -1,6 +1,6 @@
 import { MODULE_ID, SLUGS, CONDITION_IDS } from "./const.js";
 import { debuglog } from "./main.js";
-import { SETTINGS } from "./settings.js";
+import { cachedSettings } from "./settings.js";
 
 export function isAvoider(tokenOrActor) {
   const actor = tokenOrActor?.actor ?? tokenOrActor;
@@ -17,10 +17,7 @@ export function isAvoider(tokenOrActor) {
     return false;
 
   // If activities aren't required, you are an avoider if your initiative is stealth.
-  const requireActivity = game.settings.get(
-    MODULE_ID,
-    SETTINGS.requireActivity,
-  );
+  const requireActivity = cachedSettings.requireActivity;
   if (!requireActivity)
     return actor?.system?.initiative?.statistic === SLUGS.stealth;
 
@@ -64,9 +61,9 @@ export async function undoRevealsOf({ avoiders, type, observers = [] }) {
 }
 
 export async function revealAvoidersTo({ avoiders, observers }) {
-  debuglog("makeAvoidersObservableTo", { avoiders, observers });
+  debuglog("revealAvoidersTo", { avoiders, observers });
   for (const avoider of avoiders) {
-    const stealthEffect = avoider?.items?.find(
+    const stealthEffect = avoider?.actor?.items?.find(
       (item) => item.system.slug === SLUGS.stealthEffect,
     );
     if (!stealthEffect) continue;
