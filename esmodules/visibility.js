@@ -1,6 +1,7 @@
 import { MODULE_ID, SLUGS } from "./const.js";
-import { debuglog, getVisibilityHandler } from "./main.js";
+import { debuglog } from "./main.js";
 import { createVisibilityCache } from "./cache.js";
+import { cachedSettings } from "./settings.js";
 
 let hooks = {};
 let observingTokenIds = new Set();
@@ -16,7 +17,7 @@ hooks.canvasReady = globalThis.Hooks.on("canvasReady", async () => {
 
 globalThis.Hooks.once("ready", async () => {
   debuglog(`appstate is ready`);
-  if (getVisibilityHandler() === "effects") setupVisibilityHooks();
+  if (cachedSettings.useEffects) setupVisibilityHooks();
   gmVisionCopy = game.pf2e.settings.gmVision;
   for (const token of canvas.tokens.controlled) {
     controlTokenHook(token, true);

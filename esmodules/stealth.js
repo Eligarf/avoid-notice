@@ -1,14 +1,7 @@
-import {
-  interpolateString,
-  getVisibilityHandler,
-  refreshPerception,
-} from "./main.js";
+import { interpolateString, refreshPerception } from "./main.js";
 import { SLUGS } from "./const.js";
 
 export async function clearActorStealth({ actor, showBanner = false } = {}) {
-  const visibilityHandler = getVisibilityHandler();
-  if (visibilityHandler === "visioner") return;
-
   const conditions =
     actor?.items
       .filter((i) => i.system.slug === SLUGS.stealthEffect)
@@ -34,8 +27,6 @@ export async function clearPartyStealth({ showBanner = false }) {
     game.actors.party.members.some((a) => a.id === t?.actor?.id),
   );
 
-  const visibilityHandler = getVisibilityHandler();
-  if (visibilityHandler === "visioner") return;
   for (const token of party) {
     await clearActorStealth({ actor: token?.actor, refresh: false });
   }

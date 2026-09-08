@@ -30,12 +30,9 @@
       "name": "Apply stealth results to allies",
       "hint": "If enabled, stealth will be applied against both allied and non-allied tokens"
     },
-    "visibilityHandler": {
-      "name": "Visibility Handler",
-      "hint": "Some features of PF2e Avoid Notice will be disabled if you choose PF2e Visioner",
-      "disabled": "Don't set the status conditions",
-      "effects": "Let PF2e Avoid Notice handle it",
-      "visioner": "Let PF2e Visioner handle it"
+    "useEffects": {
+      "name": "Use PF2e Avoid Notice effects",
+      "hint": "If enabled, a Stealth effect will be applied to avoiding tokens which can track per-token visibility"
     },
     "computeCover": {
       "name": "Compute Cover at Combat Start",

@@ -5,11 +5,6 @@ import {
   setupKeybindings,
   groupSettings,
 } from "./settings.js";
-import {
-  isVisionerActive,
-  getVisionerApi,
-  refreshVisionerPerception,
-} from "./visioner.js";
 import { cachedSettings } from "./settings.js";
 
 function colorizeOutput(format, ...args) {
@@ -35,25 +30,13 @@ export function interpolateString(str, interpolations) {
   );
 }
 
-export function getVisibilityHandler() {
-  let visibilityHandler = cachedSettings.visibilityHandler;
-  if (visibilityHandler === "auto") {
-    visibilityHandler = isVisionerActive() ? "visioner" : "disabled";
-  }
-  return visibilityHandler;
-}
-
 export function localizeString(str, interpolations) {
   return interpolateString(game.i18n.localize(str), interpolations);
 }
 
 export function refreshPerception() {
-  const handler = getVisibilityHandler();
-  if (handler === "visioner") refreshVisionerPerception(getVisionerApi());
-  else {
-    debuglog("Refreshing perception for all tokens");
-    canvas.perception.update(REFRESH_OPTIONS);
-  }
+  debuglog("Refreshing perception for all tokens");
+  canvas.perception.update(REFRESH_OPTIONS);
 }
 
 export async function iterateTokensAndParties(tokens, callback) {
@@ -78,7 +61,6 @@ export async function iterateTokensAndParties(tokens, callback) {
 
 function hookMessages(message, options, id) {
   debuglog("createChatMessage", { message, options, id });
-  //   if (isVisionerActive()) return;
   //   if (game.userId != id) return;
   //   const systemFlags = message?.flags?.[game.system.id];
   //
@@ -117,17 +99,6 @@ function migrate(moduleVersion, oldVersion) {
 
 globalThis.Hooks.once("ready", () => {
   // Handle perceptive or perception module getting yoinked
-  const visibilityHandler = cachedSettings.visibilityHandler;
-  if (
-    visibilityHandler === "perception" ||
-    visibilityHandler === "perceptive" ||
-    visibilityHandler === "best" ||
-    visibilityHandler === "worst" ||
-    (visibilityHandler === "visioner" && !isVisionerActive())
-  ) {
-    game.settings.set(MODULE_ID, SETTINGS.visibilityHandler, "effects");
-  }
-
   if (
     cachedSettings.panZoomToCombat &&
     typeof window?.socketlib === "undefined"

@@ -1,12 +1,11 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { debuglog, getVisibilityHandler } from "./main.js";
+import { debuglog } from "./main.js";
 import { clearPartyStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 import { refreshEverybody } from "./socket.js";
 
 export async function invokeNoTokensMenu() {
   debuglog("invokeNoTokensMenu");
-  if (getVisibilityHandler() === "visioner") return;
 
   let choices = [
     {

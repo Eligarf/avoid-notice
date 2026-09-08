@@ -30,12 +30,9 @@
       "name": "Zastosuj efekty ukrycia do sojuszników",
       "hint": "Jeśli opcja jest włączona, ukrycie zostanie zastosowane zarówno wobec tokenów sojuszniczych, jak i nie sojuszniczych"
     },
-    "visibilityHandler": {
-      "name": "Obsługa widoczności",
-      "hint": "Some features of PF2e Avoid Notice will be disabled if you choose PF2e Visioner",
-      "disabled": "Nie ustawiaj statusu stanu",
-      "effects": "Let PF2e Avoid Notice handle it",
-      "visioner": "Niech PF2e Visioner się tym zajmie"
+    "useEffects": {
+      "name": "Use PF2e Avoid Notice effects",
+      "hint": "If enabled, a Stealth effect will be applied to avoiding tokens which can track per-token visibility"
     },
     "computeCover": {
       "name": "Oblicz osłony na początku walki",

@@ -1,11 +1,11 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
 import { setAsAmbushers, clearActorStealth } from "./stealth.js";
 import { MODULE_ID, SLUGS } from "./const.js";
-import { getVisibilityHandler } from "./main.js";
 import { undoRevealsOf } from "./effects.js";
 import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
 import { testAvoidance } from "./avoidance-test.js";
 import { refreshEverybody } from "./socket.js";
+import { cachedSettings } from "./settings.js";
 
 export async function invokeTokensMenu({ selection }) {
   debuglog("invokeTokensMenu", { selection });
@@ -21,8 +21,7 @@ export async function invokeTokensMenu({ selection }) {
       section: 0,
     },
   ];
-  const visibilityHandler = getVisibilityHandler();
-  if (visibilityHandler !== "visioner") {
+  if (cachedSettings.useEffects) {
     const avoiders = selection.tokens.filter((token) =>
       token.actor?.items?.some((i) => i.slug === SLUGS.stealthEffect),
     );

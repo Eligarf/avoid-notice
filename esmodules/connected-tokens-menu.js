@@ -1,9 +1,5 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import {
-  debuglog,
-  getVisibilityHandler,
-  iterateTokensAndParties,
-} from "./main.js";
+import { debuglog, iterateTokensAndParties } from "./main.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { clearActorStealth } from "./stealth.js";
 import { revealAvoidersTo, undoRevealsOf } from "./effects.js";
@@ -11,8 +7,6 @@ import { refreshEverybody } from "./socket.js";
 
 export async function invokeConnectedTokensMenu({ controlled, targeted }) {
   debuglog("invokeConnectedTokensMenu", { selected: controlled, targeted });
-
-  if (getVisibilityHandler() === "visioner") return;
 
   const controlledAvoidingTokens = controlled.tokens.filter((t) => {
     const actor = t?.actor;
