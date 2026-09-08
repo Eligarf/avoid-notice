@@ -1,5 +1,4 @@
 import { MODULE_ID } from "./const.js";
-import { isVisionerActive } from "./visioner.js";
 import { invokeMenu } from "./menu.js";
 import { setupVisibilityHooks, releaseVisibilityHooks } from "./visibility.js";
 
@@ -12,7 +11,7 @@ export const SETTINGS = {
   removeGmHidden: "removeGmHidden",
   requireActivity: "requireActivity",
   useUnnoticed: "useUnnoticed",
-  visibilityHandler: "visibilityHandler",
+  useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
 
   // Advanced settings
@@ -26,7 +25,7 @@ export const SETTINGS = {
 
 export let cachedSettings = {
   panZoomToCombat: true,
-  visibilityHandler: "disabled",
+  useEffects: false,
   computeCover: false,
   requireActivity: true,
   hideFromAllies: false,
@@ -55,36 +54,23 @@ export function setupSettings() {
     SETTINGS.panZoomToCombat,
   );
 
-  const visioner = isVisionerActive();
-
-  let choices = {
-    effects: `${MODULE_ID}.${SETTINGS.visibilityHandler}.effects`,
-    disabled: `${MODULE_ID}.${SETTINGS.visibilityHandler}.disabled`,
-  };
-  if (visioner)
-    choices.visioner = `${MODULE_ID}.${SETTINGS.visibilityHandler}.visioner`;
-
-  game.settings.register(MODULE_ID, SETTINGS.visibilityHandler, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.visibilityHandler}.hint`),
+  game.settings.register(MODULE_ID, SETTINGS.useEffects, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useEffects}.hint`),
     scope: "world",
     config: true,
-    type: String,
-    choices,
-    default: cachedSettings.visibilityHandler,
+    type: Boolean,
+    default: cachedSettings.useEffects,
     onChange: (newValue) => {
-      cachedSettings.visibilityHandler = newValue;
-      if (newValue === "effects") {
+      cachedSettings.useEffects = newValue;
+      if (newValue) {
         setupVisibilityHooks();
       } else {
         releaseVisibilityHooks();
       }
     },
   });
-  cachedSettings.visibilityHandler = game.settings.get(
-    MODULE_ID,
-    SETTINGS.visibilityHandler,
-  );
+  cachedSettings.useEffects = game.settings.get(MODULE_ID, SETTINGS.useEffects);
 
   game.settings.register(MODULE_ID, SETTINGS.computeCover, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.computeCover}.name`),

@@ -1,10 +1,5 @@
 import { cachedSettings } from "./settings.js";
-import { getVisibilityHandler, refreshPerception, debuglog } from "./main.js";
-import {
-  getVisionerApi,
-  isVisionerActive,
-  processObservationsForVisioner,
-} from "./visioner.js";
+import { refreshPerception, debuglog } from "./main.js";
 import {
   findInitiativeCard,
   modifyInitiativeCard,
@@ -18,9 +13,6 @@ import { zoomToCombat } from "./socket.js";
 
 globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("combatStart", async (encounter) => {
-    const visibilityHandler = getVisibilityHandler();
-    const visionerApi =
-      visibilityHandler === "visioner" ? getVisionerApi() : null;
     const options = {
       useUnnoticed: cachedSettings.useUnnoticed,
       computeCover: cachedSettings.computeCover,
@@ -113,7 +105,6 @@ globalThis.Hooks.once("init", () => {
         : avoider.token;
 
       const avoiderApi = {
-        visionerApi,
         avoider,
         avoiderTokenDoc,
         baseCoverBonus: findBaseCoverBonus({ actor: avoider.actor }),
@@ -186,13 +177,8 @@ globalThis.Hooks.once("init", () => {
     let tokenUpdates = [];
 
     // Adjust the avoider's condition
-    switch (visibilityHandler) {
-      case "effects":
-        await applyInitiativeConditions(observations, tokenUpdates);
-        break;
-      case "visioner":
-        await processObservationsForVisioner(observations);
-        break;
+    if (cachedSettings.useEffects) {
+      await applyInitiativeConditions(observations, tokenUpdates);
     }
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
@@ -236,7 +222,6 @@ globalThis.Hooks.once("init", () => {
   });
 
   globalThis.Hooks.on("deleteCombat", async () => {
-    if (isVisionerActive()) return;
     if (!game.user?.isActiveGM) return;
     const cleanUp = cachedSettings.clearPartyStealthAfterCombat;
     if (cleanUp) clearPartyStealth({ showBanner: false });
