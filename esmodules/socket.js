@@ -38,10 +38,7 @@ export function zoomToCombat(encounter, observations) {
     let observers = [avoiderId];
     for (const observerId in avoider.observers) {
       const observation = avoider.observers[observerId].observation;
-      if (
-        observation.state !== "unnoticed" &&
-        observation.state !== "undetected"
-      ) {
+      if (observation.state !== "undetected") {
         observers.push(observerId);
       }
     }

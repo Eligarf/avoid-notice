@@ -8,10 +8,6 @@
       "debug": "Poziom debugowania",
       "log": "Poziom logów"
     },
-    "useUnnoticed": {
-      "name": "Użyj stanu Niezauważony",
-      "hint": "Użyj „Niezauważony” zamiast „Niewykryty”, gdy test inicjatywy ukrycia przewyższa współczynnik ST i inicjatywę celu. Walczący, którzy nie zostali zauważeni przez żadnego z bohaterów, nie zostaną automatycznie wykryci po użyciu tej opcji."
-    },
     "removeGmHidden": {
       "name": "Włącz opcję „MG – ukryci przeciwnicy” na początku walki.",
       "hint": "Tokeny bojowników, których widoczność została wyłączona za pomocą HUD-u tokenów, zostaną włączone. Wszelkie wyniki testów ukrycia przeciwko percepcji dla tych tokenów będą miały zastosowane odpowiednie stany."
@@ -44,7 +40,7 @@
     },
     "panZoomToCombat": {
       "name": "Przesunięcie / Powiększenie w walce",
-      "hint": "Kiedy rozpocznie się walka, przesuń/powiększ kamerę, aby dopasować widocznych i ukrytych walczących do kontrolowanych tokenów. Zignoruje wszystkich walczących ukrytych przez foundry, niewykrytych lub niezauważonych."
+      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden or undetected combatants"
     },
     "notifications": {
       "noSocketLib": "PF2e Avoid Notice wymaga aktywacji modułu socketlib, aby umożliwić przesuwanie/powiększanie obrazu podczas walki. Proszę go aktywować."
@@ -84,7 +80,11 @@
       },
       "prepareAmbush": {
         "label": "Prepare Ambush",
-        "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
+        "hint": "All {type} NPC tokens become ghosted and use stealth for initiative"
+      },
+      "clearAmbush": {
+        "label": "Clear Ambush",
+        "hint": "All {type} NPC tokens become unghosted and use perception for initiative"
       },
       "removeControlledStealth": {
         "label": "Remove Stealth Effects",
@@ -155,14 +155,13 @@
     "effects": {
       "stealth": {
         "name": "Stealth",
-        "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
+        "description": "Stealth effect will apply hidden/undetected to observer tokens as appropriate"
       }
     },
     "avoidanceTest": {
       "title": "Avoidance Check",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
-      "unnoticed": "unnoticed by {unnoticed}",
       "createEncounter": "Create/Populate Encounter",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
       "observedEnemies": "Observed Enemies",

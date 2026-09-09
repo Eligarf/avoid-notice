@@ -81,9 +81,9 @@ function hookMessages(message, options, id) {
 }
 
 globalThis.Hooks.once("init", () => {
-  globalThis.Hooks.on("createChatMessage", async (message, options, id) => {
-    hookMessages(message, options, id);
-  });
+  // globalThis.Hooks.on("createChatMessage", async (message, options, id) => {
+  //   hookMessages(message, options, id);
+  // });
 
   setupKeybindings();
 });

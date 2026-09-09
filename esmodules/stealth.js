@@ -40,7 +40,7 @@ export async function clearPartyStealth({ showBanner = false }) {
   }
 }
 
-export async function setAsAmbushers(tokens) {
+export async function prepareAmbush(tokens) {
   let tokenUpdates = [];
 
   for (const token of tokens) {
@@ -50,6 +50,23 @@ export async function setAsAmbushers(tokens) {
     await actor.update({ "system.initiative.statistic": "stealth" });
     if (actor.type === "hazard")
       await actor.toggleCondition("hidden", { active: true });
+  }
+
+  if (tokenUpdates.length > 0) {
+    canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
+  }
+}
+
+export async function clearAmbush(tokens) {
+  let tokenUpdates = [];
+
+  for (const token of tokens) {
+    tokenUpdates.push({ _id: token.id, hidden: false });
+    const actor = token?.actor;
+    if (!actor) continue;
+    await actor.update({ "system.initiative.statistic": "perception" });
+    if (actor.type === "hazard")
+      await actor.toggleCondition("hidden", { active: false });
   }
 
   if (tokenUpdates.length > 0) {

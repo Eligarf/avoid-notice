@@ -1,5 +1,5 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { setAsAmbushers, clearActorStealth } from "./stealth.js";
+import { prepareAmbush, clearAmbush, clearActorStealth } from "./stealth.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { undoRevealsOf } from "./effects.js";
 import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
@@ -94,14 +94,42 @@ export async function invokeTokensMenu({ selection }) {
   }
 
   if (!selection.dispositions.has(1)) {
-    choices.push({
-      key: "prepare-ambush",
-      label: game.i18n.localize(`${MODULE_ID}.menu.prepareAmbush.label`),
-      hint: localizeString(`${MODULE_ID}.menu.prepareAmbush.hint`, {
-        type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
-      }),
-      section: 0,
-    });
+    if (
+      selection.tokens.some((t) => {
+        if (!t?.document?.hidden) return true;
+        const actor = t?.actor;
+        if (!actor) return false;
+        const stat = actor?.system?.initiative?.statistic;
+        return stat !== "stealth";
+      })
+    ) {
+      choices.push({
+        key: "prepare-ambush",
+        label: game.i18n.localize(`${MODULE_ID}.menu.prepareAmbush.label`),
+        hint: localizeString(`${MODULE_ID}.menu.prepareAmbush.hint`, {
+          type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
+        }),
+        section: 0,
+      });
+    }
+    if (
+      selection.tokens.some((t) => {
+        if (t?.document?.hidden) return true;
+        const actor = t?.actor;
+        if (!actor) return false;
+        const stat = actor?.system?.initiative?.statistic;
+        return stat === "stealth";
+      })
+    ) {
+      choices.push({
+        key: "clear-ambush",
+        label: game.i18n.localize(`${MODULE_ID}.menu.clearAmbush.label`),
+        hint: localizeString(`${MODULE_ID}.menu.clearAmbush.hint`, {
+          type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
+        }),
+        section: 0,
+      });
+    }
   }
 
   const combat = game?.combat;
@@ -129,7 +157,11 @@ export async function invokeTokensMenu({ selection }) {
       break;
     case "prepare-ambush":
       debuglog("prepare-ambush", selection.tokens);
-      await setAsAmbushers(selection.tokens);
+      await prepareAmbush(selection.tokens);
+      break;
+    case "clear-ambush":
+      debuglog("clear-ambush", selection.tokens);
+      await clearAmbush(selection.tokens);
       break;
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
