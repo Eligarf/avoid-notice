@@ -58,11 +58,7 @@ export function makeObservation({
 
   // avoider beat the other token at the stealth battle
   else {
-    observation.visibility =
-      options.useUnnoticed &&
-      avoiderApi.avoider.initiative > observation.observer?.initiative
-        ? "unnoticed"
-        : "undetected";
+    observation.visibility = "undetected";
   }
 
   return observation;
@@ -80,11 +76,4 @@ export function evaluateObservation({
   observation.success =
     observation.visibility !== "observed" &&
     observation.visibility !== "hidden";
-
-  if (options.useUnnoticed && observation.visibility === "undetected") {
-    const observerId = observation.observerId;
-    const minion = minionTokens.some((t) => t.id === observerId);
-    const eidolon = eidolonTokens.some((t) => t.id === observerId);
-    if (minion || eidolon) observation.deltaStr += "?";
-  }
 }

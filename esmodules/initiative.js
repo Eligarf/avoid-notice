@@ -2,39 +2,6 @@ import { CONDITION_IDS, CONDITION_PACK } from "./const.js";
 import { debuglog, interpolateString } from "./main.js";
 import { createStealthEffect } from "./effects.js";
 
-export function renderInitiativeDice(roll) {
-  let content = `
-    <div class="dice-roll initiative" data-tooltip-class="pf2e">
-      <div class="dice-result">
-        <div class="dice-formula">${roll.formula}</div>
-        <div class="dice-tooltip">
-          <section class="tooltip-part">`;
-  for (const die of roll.dice) {
-    content += `
-            <div class="dice">
-              <header class="part-header flexrow">
-                <span class="part-formula">${die.formula}</span>
-                <span class="part-total">${die.total}</span>
-              </header>
-              <ol class="dice-rolls">`;
-    for (const r of die.results) {
-      content += `
-                <li class="roll die d${die.faces}">${r.result}</li>`;
-    }
-    content += `
-              </ol>
-            </div>`;
-  }
-
-  content += `
-          </section>
-        </div>
-        <h4 class="dice-total">${roll.total}</h4>
-      </div>
-    </div><br>`;
-  return content;
-}
-
 export async function findInitiativeCard(combatant) {
   let messages = game.messages.contents.filter(
     (m) =>
@@ -59,13 +26,15 @@ export async function modifyInitiativeCard({
 }) {
   const lastMessage = await findInitiativeCard(combatant);
   if (!lastMessage) return;
-  let content = renderInitiativeDice(lastMessage.rolls[0]);
+  let content = "";
+  for (const roll in lastMessage.rolls) {
+    content += await roll.render();
+  }
   content += interpolateString(message, interpolations);
   await lastMessage.update({ content });
 }
 
 const EXCEPTIONS = {
-  unnoticed: ["hidden", "observed", "undetected"],
   undetected: ["hidden", "observed"],
   hidden: ["observed"],
 };

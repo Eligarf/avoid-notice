@@ -1,6 +1,6 @@
 import { interpolateString } from "./main.js";
 import { MODULE_ID, CONDITION_IDS, CONDITION_PACK } from "./const.js";
-import { findInitiativeCard, renderInitiativeDice } from "./initiative.js";
+import { findInitiativeCard } from "./initiative.js";
 
 export async function renderStatus(observations) {
   for (const avoiderId in observations) {
@@ -45,7 +45,11 @@ export async function renderStatus(observations) {
 
     let initiativeMessage = await findInitiativeCard(avoider);
     if (initiativeMessage) {
-      content = renderInitiativeDice(initiativeMessage.rolls[0]) + content;
+      let rollsContent = "";
+      for (const roll of initiativeMessage.rolls) {
+        rollsContent += await roll.render();
+      }
+      content = rollsContent + content;
     } else {
       initiativeMessage = await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({
@@ -55,7 +59,7 @@ export async function renderStatus(observations) {
       });
     }
 
-    for (const t of ["unnoticed", "undetected", "hidden", "observed"]) {
+    for (const t of ["undetected", "hidden", "observed"]) {
       const status = messageData[t];
       if (status) {
         content += `

@@ -8,10 +8,6 @@
       "debug": "Debug level",
       "log": "Log level"
     },
-    "useUnnoticed": {
-      "name": "Use Unnoticed",
-      "hint": "Use 'Unnoticed' rather than 'Undetected' when the stealth initiative check beats the target's perception DC and initiative. combatants unnoticed by all PCs will not get visibility automatically toggled on when using that option."
-    },
     "removeGmHidden": {
       "name": "Toggle on GM-Hidden combatants at Combat Start",
       "hint": "Combatant tokens whose visibility as been toggled off with token HUD will be toggled on. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
@@ -44,7 +40,7 @@
     },
     "panZoomToCombat": {
       "name": "Pan/Zoom to combat",
-      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden, undetected, or unnoticed combatants"
+      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden or undetected combatants"
     },
     "notifications": {
       "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
@@ -84,7 +80,11 @@
       },
       "prepareAmbush": {
         "label": "Prepare Ambush",
-        "hint": "All {type} NPC tokens become GM-hidden and use stealth for initiative"
+        "hint": "All {type} NPC tokens become ghosted and use stealth for initiative"
+      },
+      "clearAmbush": {
+        "label": "Clear Ambush",
+        "hint": "All {type} NPC tokens become unghosted and use perception for initiative"
       },
       "removeStealth": {
         "label": "Remove Stealth Effects"
@@ -150,14 +150,13 @@
     "effects": {
       "stealth": {
         "name": "Stealth",
-        "description": "Stealth effect will apply hidden/undetected/unnoticed to observer tokens as appropriate"
+        "description": "Stealth effect will apply hidden/undetected to observer tokens as appropriate"
       }
     },
     "avoidanceTest": {
       "title": "Avoidance Check",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
-      "unnoticed": "unnoticed by {unnoticed}",
       "createEncounter": "Create/Populate Encounter",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
       "observedEnemies": "Observed Enemies",

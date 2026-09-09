@@ -104,9 +104,12 @@ function analyzeObservations(observations, hovers) {
     content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   if (summary[2]) {
-    const observation = localizeString(`${MODULE_ID}.avoidanceTest.unnoticed`, {
-      unnoticed: summary[2],
-    });
+    const observation = localizeString(
+      `${MODULE_ID}.avoidanceTest.undetected`,
+      {
+        undetected: summary[2],
+      },
+    );
     content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   content += `</li>`;

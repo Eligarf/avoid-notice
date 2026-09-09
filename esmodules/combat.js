@@ -14,7 +14,6 @@ import { zoomToCombat } from "./socket.js";
 globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("combatStart", async (encounter) => {
     const options = {
-      useUnnoticed: cachedSettings.useUnnoticed,
       computeCover: cachedSettings.computeCover,
       revealTokens: cachedSettings.removeGmHidden,
       requireActivity: cachedSettings.requireActivity,
@@ -193,15 +192,7 @@ globalThis.Hooks.once("init", () => {
             : c.token,
         )
         .filter((t) => t.hidden && t.actor.type !== "hazard")
-        .map((t) => t.id)
-        .filter((avoiderId) => {
-          if (!options.useUnnoticed) return true;
-          const observers = observations[avoiderId]?.observers;
-          return pcTokenIds.some(
-            (id) => observers?.[id]?.observation?.visibility !== "unnoticed",
-          );
-        });
-
+        .map((t) => t.id);
       for (const t of unrevealedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
         if (update) {

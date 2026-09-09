@@ -10,7 +10,6 @@ export const SETTINGS = {
   noSummary: "noSummary",
   removeGmHidden: "removeGmHidden",
   requireActivity: "requireActivity",
-  useUnnoticed: "useUnnoticed",
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
 
@@ -31,7 +30,6 @@ export let cachedSettings = {
   hideFromAllies: false,
   removeGmHidden: false,
   clearPartyStealthAfterCombat: false,
-  useUnnoticed: true,
   noSummary: false,
   logLevel: "none",
   useNewApis: false,
@@ -154,22 +152,6 @@ export function setupSettings() {
   cachedSettings.clearPartyStealthAfterCombat = game.settings.get(
     MODULE_ID,
     SETTINGS.clearPartyStealthAfterCombat,
-  );
-
-  game.settings.register(MODULE_ID, SETTINGS.useUnnoticed, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useUnnoticed}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useUnnoticed}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: cachedSettings.useUnnoticed,
-    onChange: (newValue) => {
-      cachedSettings.useUnnoticed = newValue;
-    },
-  });
-  cachedSettings.useUnnoticed = game.settings.get(
-    MODULE_ID,
-    SETTINGS.useUnnoticed,
   );
 
   game.settings.register(MODULE_ID, SETTINGS.noSummary, {
