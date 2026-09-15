@@ -1,5 +1,4 @@
 import { MODULE_ID } from "./const.js";
-import { getCoverFrom } from "./cover.js";
 import { debuglog } from "./main.js";
 
 export function makeObservation({
@@ -18,13 +17,7 @@ export function makeObservation({
     tokenDoc: observerTokenDoc,
   };
 
-  let coverBonus = getCoverFrom({
-    api: avoiderApi,
-    options,
-    observerToken,
-  });
-
-  if (coverBonus < 0) coverBonus = avoiderApi.baseCoverBonus;
+  let coverBonus = avoiderApi.baseCoverBonus;
   if (coverBonus > 0) {
     observation.coverBonus = coverBonus;
     const oldDelta = avoiderApi.avoider.initiative - observation.dc;

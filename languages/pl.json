@@ -1,5 +1,8 @@
 {
   "pf2e-avoid-notice": {
+    "undetected": "Undetected",
+    "hidden": "Hidden",
+    "observed": "Observed",
     "standardCover": "Standardowa osłona",
     "greaterCover": "Większa osłona",
     "logLevel": {
@@ -9,12 +12,12 @@
       "log": "Poziom logów"
     },
     "removeGmHidden": {
-      "name": "Włącz opcję „MG – ukryci przeciwnicy” na początku walki.",
-      "hint": "Tokeny bojowników, których widoczność została wyłączona za pomocą HUD-u tokenów, zostaną włączone. Wszelkie wyniki testów ukrycia przeciwko percepcji dla tych tokenów będą miały zastosowane odpowiednie stany."
+      "name": "Un-ghost combatants at Combat Start",
+      "hint": "Ghosted combatant tokens (where visibility has been toggled off with token HUD) will be un-ghosted. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
     },
     "activity": "Aktywność eksploracyjna: {activity}",
     "requireActivity": {
-      "name": "Wymóg użycia „Unikanie wykrycia” w akcjach eksploracji",
+      "name": "Require 'Avoid Notice' activity",
       "hint": "Aby ukryć się na początku walki, gracze muszą ustawić aktywność eksploracji „Unikanie wykrcia” jako aktywną. Jeśli ta opcja jest wyłączona, gracze muszą użyć Ukrycia, aby uzyskać inicjatywę.",
       "error": "{actor} musi użyć {action} jeśli chce się ukryć na początku walki."
     },
@@ -23,16 +26,12 @@
       "hint": "Pominie aktualizację karty inicjatywy o wyniki ukrycia"
     },
     "hideFromAllies": {
-      "name": "Zastosuj efekty ukrycia do sojuszników",
-      "hint": "Jeśli opcja jest włączona, ukrycie zostanie zastosowane zarówno wobec tokenów sojuszniczych, jak i nie sojuszniczych"
+      "name": "Stealth affects allies",
+      "hint": "If enabled, stealth will affect both allied and non-allied tokens"
     },
     "useEffects": {
       "name": "Use PF2e Avoid Notice effects",
       "hint": "If enabled, a Stealth effect will be applied to avoiding tokens which can track per-token visibility"
-    },
-    "computeCover": {
-      "name": "Oblicz osłony na początku walki",
-      "hint": "Użyj modułu widoczności, aby automatycznie obliczyć osłonę między tokenami przy użyciu skradania się dla inicjatywy i tokenów niebędących sojusznikami. Jest to używane wyłącznie do tego celu."
     },
     "clearPartyStealthAfterCombat": {
       "name": "Usuń Ukrycie z drużyny po walce",
@@ -158,10 +157,14 @@
         "description": "Stealth effect will apply hidden/undetected to observer tokens as appropriate"
       }
     },
+    "initiative": {
+      "vs": "vs {name}"
+    },
     "avoidanceTest": {
       "title": "Avoidance Check",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
+      "undetected": "undetected to {undetected}",
       "createEncounter": "Create/Populate Encounter",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
       "observedEnemies": "Observed Enemies",

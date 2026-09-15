@@ -12,23 +12,3 @@ export function findBaseCoverBonus({ actor }) {
   }
   return baseCoverBonus;
 }
-
-export function getCoverFrom({ api, options, observerToken }) {
-  let cover = "na";
-
-  let coverBonus = -1;
-  switch (cover) {
-    case "na":
-      break;
-    case "standard":
-      coverBonus = 2;
-      break;
-    case "greater":
-      coverBonus = 4;
-      break;
-    default:
-      coverBonus = 0;
-      break;
-  }
-  return coverBonus;
-}

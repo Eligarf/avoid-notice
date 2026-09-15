@@ -59,32 +59,7 @@ export async function iterateTokensAndParties(tokens, callback) {
   }
 }
 
-function hookMessages(message, options, id) {
-  debuglog("createChatMessage", { message, options, id });
-  //   if (game.userId != id) return;
-  //   const systemFlags = message?.flags?.[game.system.id];
-  //
-  //   // Accept only spell casting of non-attack damaging spells
-  //   if (!systemFlags?.casting) return;
-  //   const originUuid = systemFlags?.origin?.uuid;
-  //   const origin = originUuid ? await fromUuid(originUuid) : null;
-  //   if (origin?.traits?.has("attack")) return;
-  //   if (
-  //     !message.content.includes(
-  //       '<button type="button" data-action="spell-damage" data-visibility="owner">',
-  //     )
-  //   )
-  //     return;
-  //
-  //   // Roll the damage!
-  //   origin?.rollDamage({ target: message.token });
-}
-
 globalThis.Hooks.once("init", () => {
-  // globalThis.Hooks.on("createChatMessage", async (message, options, id) => {
-  //   hookMessages(message, options, id);
-  // });
-
   setupKeybindings();
 });
 
