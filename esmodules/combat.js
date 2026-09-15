@@ -14,8 +14,7 @@ import { zoomToCombat } from "./socket.js";
 globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("combatStart", async (encounter) => {
     const options = {
-      computeCover: cachedSettings.computeCover,
-      revealTokens: cachedSettings.removeGmHidden,
+      unghost: cachedSettings.unghost,
       requireActivity: cachedSettings.requireActivity,
       hideFromAllies: cachedSettings.hideFromAllies,
     };
@@ -182,10 +181,8 @@ globalThis.Hooks.once("init", () => {
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
     // Do this last to avoid any flashes of observability
-    if (options.revealTokens) {
-      const pcTokenIds = pcs.map((c) => c.token.id);
-
-      const unrevealedIds = encounter.combatants.contents
+    if (options.unghost) {
+      const ghostedIds = encounter.combatants.contents
         .map((c) =>
           c.token instanceof foundry.canvas.placeables.Token
             ? c.token.document
@@ -193,7 +190,7 @@ globalThis.Hooks.once("init", () => {
         )
         .filter((t) => t.hidden && t.actor.type !== "hazard")
         .map((t) => t.id);
-      for (const t of unrevealedIds) {
+      for (const t of ghostedIds) {
         let update = tokenUpdates.find((u) => u._id === t);
         if (update) {
           update.hidden = false;

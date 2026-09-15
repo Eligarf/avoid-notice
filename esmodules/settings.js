@@ -5,10 +5,9 @@ import { setupVisibilityHooks, releaseVisibilityHooks } from "./visibility.js";
 export const SETTINGS = {
   // General settings
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
-  computeCover: "computeCover",
   hideFromAllies: "hideFromAllies",
   noSummary: "noSummary",
-  removeGmHidden: "removeGmHidden",
+  unghost: "removeGmHidden",
   requireActivity: "requireActivity",
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
@@ -25,10 +24,9 @@ export const SETTINGS = {
 export let cachedSettings = {
   panZoomToCombat: true,
   useEffects: false,
-  computeCover: false,
   requireActivity: true,
   hideFromAllies: false,
-  removeGmHidden: false,
+  unghost: false,
   clearPartyStealthAfterCombat: false,
   noSummary: false,
   logLevel: "none",
@@ -70,22 +68,6 @@ export function setupSettings() {
   });
   cachedSettings.useEffects = game.settings.get(MODULE_ID, SETTINGS.useEffects);
 
-  game.settings.register(MODULE_ID, SETTINGS.computeCover, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.computeCover}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.computeCover}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: cachedSettings.computeCover,
-    onChange: (newValue) => {
-      cachedSettings.computeCover = newValue;
-    },
-  });
-  cachedSettings.computeCover = game.settings.get(
-    MODULE_ID,
-    SETTINGS.computeCover,
-  );
-
   game.settings.register(MODULE_ID, SETTINGS.requireActivity, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.requireActivity}.name`),
     hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.requireActivity}.hint`),
@@ -118,21 +100,18 @@ export function setupSettings() {
     SETTINGS.hideFromAllies,
   );
 
-  game.settings.register(MODULE_ID, SETTINGS.removeGmHidden, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.removeGmHidden}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.removeGmHidden}.hint`),
+  game.settings.register(MODULE_ID, SETTINGS.unghost, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.unghost}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.unghost}.hint`),
     scope: "world",
     config: true,
     type: Boolean,
-    default: cachedSettings.removeGmHidden,
+    default: cachedSettings.unghost,
     onChange: (newValue) => {
-      cachedSettings.removeGmHidden = newValue;
+      cachedSettings.unghost = newValue;
     },
   });
-  cachedSettings.removeGmHidden = game.settings.get(
-    MODULE_ID,
-    SETTINGS.removeGmHidden,
-  );
+  cachedSettings.unghost = game.settings.get(MODULE_ID, SETTINGS.unghost);
 
   game.settings.register(MODULE_ID, SETTINGS.clearPartyStealthAfterCombat, {
     name: game.i18n.localize(

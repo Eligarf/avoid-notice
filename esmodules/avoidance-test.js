@@ -127,7 +127,7 @@ function analyzeObservations(observations, hovers) {
       hovers[hoverId] = { combatantId: spotter.observer.id };
       content += `
         <li>
-          <span class="${MODULE_ID}-spotter-delta">${spotter.delta}</span>
+          <span class="degree-of-success ${spotter.dos > 0 ? "failure" : "critical-failure"}">${spotter.delta}</span>
           <span class="${MODULE_ID}-spotter" data-hover-id="${hoverId}">${spotter.observer.name}</span>
         </li>`;
     }
@@ -577,7 +577,12 @@ function attachHover(html, el, avoidanceTest) {
 globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const avoidanceTest = message.flags[MODULE_ID]?.avoidanceTest;
   if (!avoidanceTest) return;
-  debuglog("renderChatMessageHTML", { message, html, data, avoidanceTest });
+  debuglog("renderChatMessageHTML (avoidanceTest)", {
+    message,
+    html,
+    data,
+    avoidanceTest,
+  });
 
   html.addEventListener(
     "click",
