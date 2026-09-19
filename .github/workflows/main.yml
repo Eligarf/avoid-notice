@@ -65,6 +65,7 @@ jobs:
           license: ${{ env.release_blob }}/LICENSE
 
       # Create a zip file with all files required by the module to add to the release
+      # 7z u module.zip module.json README.md LICENSE CHANGELOG.md languages/ esmodules/ styles/ templates/
       - name: Create module zip
         run: |
           zip -r ./module.zip \

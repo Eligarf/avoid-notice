@@ -1,6 +1,5 @@
-import { CONDITION_IDS, CONDITION_PACK } from "./const.js";
 import { debuglog, interpolateString } from "./main.js";
-import { createStealthEffect } from "./effects.js";
+import { adaptStealthEffectToObservers } from "./effects.js";
 
 export async function findInitiativeCard(combatant) {
   let messages = game.messages.contents.filter(
@@ -34,56 +33,26 @@ export async function modifyInitiativeCard({
   await lastMessage.update({ content });
 }
 
-const EXCEPTIONS = {
-  undetected: ["hidden", "observed"],
-  hidden: ["observed"],
-};
-
 export async function applyInitiativeConditions(observations, tokenUpdates) {
   debuglog("applyInitiativeConditions", { observations, tokenUpdates });
   for (const avoiderId in observations) {
     const { avoiderApi, observers } = observations[avoiderId];
     const avoider = avoiderApi.avoider;
-
-    // walk through all the observers and group their observations by result
-    let result = {};
-    for (const observerId in observers) {
-      const observation = observers[observerId].observation;
-
-      if (!(observation.visibility in result)) {
-        result[observation.visibility] = {
-          observers: [observation],
-        };
-      } else {
-        result[observation.visibility].observers.push(observation);
-      }
-    }
-
-    let flags = {};
-    let rules = [];
-    flags = {};
-
-    // Each visibility result gets a condition and possibly a list of exceptions for observers that saw a better result
-    for (const visibility in result) {
-      if (visibility === "observed") continue;
-
-      rules.push({
-        key: "GrantItem",
-        uuid: `Compendium.${CONDITION_PACK}.Item.${CONDITION_IDS[visibility]}`,
-      });
-
-      let flag = [];
-      for (const c of EXCEPTIONS[visibility] || []) {
-        if (c in result) {
-          flag.push(result[c].observers.map((o) => o.observerId));
-        }
-      }
-      if (flag.length) {
-        flags[visibility] = { exceptFor: flag.flat() };
-      }
-    }
-
-    // If no rules to apply, nothing to do for this avoider
-    if (rules.length) await createStealthEffect(avoider.actor, rules, flags);
+    const gazers = Object.fromEntries(
+      Object.entries(observers)
+        .filter(([_, o]) => o.observation.degreeOfSuccess < 2)
+        .map(([id, o]) => [
+          id,
+          {
+            dos: o.observation.degreeOfSuccess,
+            signature: o.observation.observer.actor?.signature,
+          },
+        ]),
+    );
+    await adaptStealthEffectToObservers({
+      actor: avoider.actor,
+      baseline: 2,
+      observers: gazers,
+    });
   }
 }

@@ -2,6 +2,7 @@ import { MODULE_ID, SLUGS } from "./const.js";
 import { debuglog } from "./main.js";
 import { createVisibilityCache } from "./cache.js";
 import { cachedSettings } from "./settings.js";
+import { buildVisibilitySets } from "./effects.js";
 
 let hooks = {};
 let observingTokenIds = new Set();
@@ -37,18 +38,16 @@ export function refreshVisibilityCache() {
   }
 }
 
-function findExceptions(actor) {
+function findObservations(token) {
+  const actor = token?.actor;
   const stealth = actor?.items.find((i) => i.slug === SLUGS.stealthEffect);
   if (!stealth) return null;
-  const states = stealth.flags[MODULE_ID];
-  if (!states) return null;
-  let exceptions = new Set();
-  for (const [_key, s] of Object.entries(states)) {
-    for (const id of s?.exceptFor) {
-      exceptions.add(id);
-    }
-  }
-  return exceptions;
+  const flags = stealth.flags[MODULE_ID];
+  if (!flags) return null;
+  return {
+    baseline: flags.baseline,
+    observers: flags.observers,
+  };
 }
 
 function applyMutation(token, mutation) {
@@ -128,11 +127,11 @@ function handleMutations(token, record, mutations) {
 function recordObservation(token, key, override) {
   const record = cache.getOrCreate(token);
   const snapshot = cache.duplicate(record.snapshot);
-  if (!(key in snapshot)) snapshot[key] = { exceptFor: new Set() };
+  if (!(key in snapshot)) snapshot[key] = { except: new Set() };
   const state = snapshot[key];
-  const observers = new Set(override.exceptFor);
+  const observers = new Set(override.except);
   const detectors = observers.intersection(observingTokenIds);
-  state.exceptFor = state.exceptFor.union(detectors);
+  state.except = state.except.union(detectors);
   const mutations = cache.update(record, snapshot);
   if (!mutations) return;
   handleMutations(token, record, mutations);
@@ -159,6 +158,15 @@ function showEyeball({ token, isVisible }) {
   }
 }
 
+function findObservers(token) {
+  const observations = findObservations(token);
+  if (!observations) return;
+  const observers = Object.entries(observations.observers)
+    .filter(([_, o]) => o.dos < observations.baseline)
+    .map(([id, _]) => id);
+  return new Set(observers);
+}
+
 function controlTokenHook(token, controlled) {
   debuglog(`'${token.name}' controlled: ${controlled}`, { token, controlled });
   if (!controlled) {
@@ -173,20 +181,14 @@ function controlTokenHook(token, controlled) {
   if (!game.user.isGM) return;
 
   if (controlled) {
-    const actor = token?.actor;
-    if (!actor) return;
-    const exceptions = findExceptions(actor);
-    if (!exceptions) return;
-    revealedToTokenIds = revealedToTokenIds.union(exceptions);
+    const observers = findObservers(token);
+    if (observers) revealedToTokenIds = revealedToTokenIds.union(observers);
   } else {
     revealedToTokenIds.clear();
     for (const id of observingTokenIds) {
       const token = canvas.tokens.get(id);
-      const actor = token?.actor;
-      if (!actor) continue;
-      const exceptions = findExceptions(actor);
-      if (!exceptions) continue;
-      revealedToTokenIds = revealedToTokenIds.union(exceptions);
+      const observers = findObservers(token);
+      if (observers) revealedToTokenIds = revealedToTokenIds.union(observers);
     }
   }
 }
@@ -224,7 +226,7 @@ function refreshTokenHook(token, _options) {
   const states = stealth.flags[MODULE_ID];
   if (!states) return false;
   for (const [key, s] of Object.entries(states)) {
-    if (s.exceptFor.some((id) => observingTokenIds.has(id))) {
+    if (s.except?.some((id) => observingTokenIds.has(id))) {
       recordObservation(token, key, s);
     }
   }
