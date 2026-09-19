@@ -72,6 +72,7 @@ jobs:
           styles/ \
           templates/ \
           # Or whatever more
+          # 7z u module.zip module.json README.md LICENSE CHANGELOG.md languages/ esmodules/ styles/ templates/
 
       # Create a release for this specific version
       - name: Create version release

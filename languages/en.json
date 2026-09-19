@@ -100,14 +100,6 @@
         "label": "Undo Stealth Reveals",
         "hint": "Undo any stealth reveals of {type} tokens"
       },
-      "undoHiddenReveals": {
-        "label": "Undo Hidden Reveals",
-        "hint": "Undo any reveals of {type} tokens' Hidden condition"
-      },
-      "undoUndetectedReveals": {
-        "label": "Undo Undetected Reveals",
-        "hint": "Undo any reveals of {type} tokens' Undetected condition"
-      },
       "testAvoidance": {
         "label": "Check Avoidance",
         "hint": "Run a stealth vs perception check for all stealthing {type} tokens"
@@ -128,21 +120,13 @@
         "label": "Reveal targeted tokens as hidden to controlled",
         "hint": "Reveal targeted tokens as hidden to controlled tokens"
       },
-      "undoControlledHiddenRevealsToTargeted": {
-        "label": "Undo controlled tokens' hidden reveals to targeted",
-        "hint": "Undo any reveals of controlled tokens' hidden condition to targeted tokens"
+      "undoControlledRevealsToTargeted": {
+        "label": "Undo controlled tokens' reveals to targeted",
+        "hint": "Undo any reveals of controlled tokens' to targeted tokens"
       },
-      "undoControlledUndetectedRevealsToTargeted": {
-        "label": "Undo controlled tokens' undetected reveals to targeted",
-        "hint": "Undo any reveals of controlled tokens' undetected condition to targeted tokens"
-      },
-      "undoTargetedHiddenRevealsToControlled": {
-        "label": "Undo reveals of targeted tokens' hidden condition",
-        "hint": "Undo any reveals of targeted tokens' hidden condition to controlled tokens"
-      },
-      "undoTargetedUndetectedRevealsToControlled": {
-        "label": "Undo reveals of targeted tokens' undetected condition",
-        "hint": "Undo any reveals of targeted tokens' undetected condition to controlled tokens"
+      "undoTargetedRevealsToControlled": {
+        "label": "Undo reveals of targeted tokens' condition",
+        "hint": "Undo any reveals of targeted tokens' to controlled tokens"
       },
       "endOfList": "end of list so I don't have to mess with commas"
     },

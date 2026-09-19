@@ -20,8 +20,7 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       (item) => item.system.slug === SLUGS.stealthEffect,
     );
   });
-  let hiddenControlledObservingTokens = [];
-  let undetectedControlledObservingTokens = [];
+  let controlledObservingTokens = [];
 
   let choices = [
     {
@@ -39,43 +38,24 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       section: 1,
       disabled: true,
     });
-    hiddenControlledObservingTokens = controlledAvoidingTokens.filter((c) => {
+    controlledObservingTokens = controlledAvoidingTokens.filter((c) => {
       const avoider = c?.actor;
       const stealth = avoider?.items?.find(
         (i) => i.slug === SLUGS.stealthEffect,
       );
-      const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-      return targeted.tokens.some((t) => exceptions?.exceptFor?.includes(t.id));
+      const flags = stealth?.flags?.[MODULE_ID];
+      const exceptions = (flags?.hidden?.except || []).concat(
+        flags?.undetected?.except || [],
+      );
+      return targeted.tokens.some((t) => exceptions.includes(t.id));
     });
-    if (hiddenControlledObservingTokens.length) {
+    if (controlledObservingTokens.length) {
       choices.push({
-        key: "undo-controlled-hidden-reveals",
+        key: "undo-controlled-reveals",
         label: game.i18n.localize(
-          `${MODULE_ID}.menu.undoControlledHiddenRevealsToTargeted.label`,
+          `${MODULE_ID}.menu.undoControlledRevealsToTargeted.label`,
         ),
-        hint: `${MODULE_ID}.menu.undoControlledHiddenRevealsToTargeted.hint`,
-        section: 2,
-      });
-    }
-    undetectedControlledObservingTokens = controlledAvoidingTokens.filter(
-      (c) => {
-        const avoider = c?.actor;
-        const stealth = avoider?.items?.find(
-          (i) => i.slug === SLUGS.stealthEffect,
-        );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-        return targeted.tokens.some((t) =>
-          exceptions?.exceptFor?.includes(t.id),
-        );
-      },
-    );
-    if (undetectedControlledObservingTokens.length) {
-      choices.push({
-        key: "undo-controlled-undetected-reveals",
-        label: game.i18n.localize(
-          `${MODULE_ID}.menu.undoControlledUndetectedRevealsToTargeted.label`,
-        ),
-        hint: `${MODULE_ID}.menu.undoControlledUndetectedRevealsToTargeted.hint`,
+        hint: `${MODULE_ID}.menu.undoControlledRevealsToTargeted.hint`,
         section: 2,
       });
     }
@@ -166,35 +146,17 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
         observers: controlled.tokens,
       });
       break;
-    case "undo-controlled-hidden-reveals":
-      debuglog("undo-controlled-hidden-reveals");
+    case "undo-controlled-reveals":
+      debuglog("undo-controlled-reveals");
       undoRevealsOf({
         avoiders: controlledAvoidingTokens,
-        type: "hidden",
         observers: targeted.tokens,
       });
       break;
-    case "undo-controlled-undetected-reveals":
-      debuglog("undo-controlled-undetected-reveals");
-      undoRevealsOf({
-        avoiders: controlledAvoidingTokens,
-        type: "undetected",
-        observers: targeted.tokens,
-      });
-      break;
-    case "undo-targeted-hidden-reveals":
-      debuglog("undo-targeted-hidden-reveals");
+    case "undo-targeted-reveals":
+      debuglog("undo-targeted-reveals");
       undoRevealsOf({
         avoiders: targetedAvoidingTokens,
-        type: "hidden",
-        observers: controlled.tokens,
-      });
-      break;
-    case "undo-targeted-undetected-reveals":
-      debuglog("undo-targeted-undetected-reveals");
-      undoRevealsOf({
-        avoiders: targetedAvoidingTokens,
-        type: "undetected",
         observers: controlled.tokens,
       });
       break;

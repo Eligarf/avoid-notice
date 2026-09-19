@@ -47,42 +47,23 @@ export async function invokeTokensMenu({ selection }) {
         section: 2,
       });
 
-      const hiddenObserved = avoiders.some((token) => {
+      const observed = avoiders.some((token) => {
         const stealth = token.actor?.items?.find(
           (i) => i.slug === SLUGS.stealthEffect,
         );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.hidden;
-        return exceptions?.exceptFor?.length > 0;
+        const flags = stealth?.flags?.[MODULE_ID];
+        if (!flags) return false;
+        return (
+          flags.hidden?.except?.length > 0 ||
+          flags.undetected?.except?.length > 0
+        );
       });
-      if (hiddenObserved) {
-        choices.push({
-          key: "undo-hidden",
-          label: game.i18n.localize(
-            `${MODULE_ID}.menu.undoHiddenReveals.label`,
-          ),
-          hint: localizeString(`${MODULE_ID}.menu.undoHiddenReveals.hint`, {
-            type: game.i18n.localize(
-              `${MODULE_ID}.menu.type.${selection.type}`,
-            ),
-          }),
-          section: 2,
-        });
-      }
 
-      const undetectedObserved = avoiders.some((token) => {
-        const stealth = token.actor?.items?.find(
-          (i) => i.slug === SLUGS.stealthEffect,
-        );
-        const exceptions = stealth?.flags?.[MODULE_ID]?.undetected;
-        return exceptions?.exceptFor?.length > 0;
-      });
-      if (undetectedObserved) {
+      if (observed) {
         choices.push({
-          key: "undo-undetected",
-          label: game.i18n.localize(
-            `${MODULE_ID}.menu.undoUndetectedReveals.label`,
-          ),
-          hint: localizeString(`${MODULE_ID}.menu.undoUndetectedReveals.hint`, {
+          key: "undo-reveals",
+          label: game.i18n.localize(`${MODULE_ID}.menu.undoReveals.label`),
+          hint: localizeString(`${MODULE_ID}.menu.undoReveals.hint`, {
             type: game.i18n.localize(
               `${MODULE_ID}.menu.type.${selection.type}`,
             ),
@@ -174,14 +155,9 @@ export async function invokeTokensMenu({ selection }) {
       debuglog("test-avoidance", selection.tokens);
       await testAvoidance(selection.tokens, choice.secret);
       break;
-    case "undo-hidden":
-      debuglog("undo-hidden", selection.tokens);
-      undoRevealsOf({ avoiders: selection.tokens, type: "hidden" });
-      refreshEverybody();
-      break;
-    case "undo-undetected":
-      debuglog("undo-undetected", selection.tokens);
-      undoRevealsOf({ avoiders: selection.tokens, type: "undetected" });
+    case "undo-reveals":
+      debuglog("undo-reveals", selection.tokens);
+      undoRevealsOf({ avoiders: selection.tokens });
       refreshEverybody();
       break;
   }

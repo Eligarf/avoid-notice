@@ -29,7 +29,7 @@ export function createVisibilityCache() {
     scrubSnapshot(snapshot) {
       for (const type in snapshot) {
         const state = snapshot[type];
-        if (state.exceptFor.size == 0) delete snapshot[type];
+        if (state.except.size == 0) delete snapshot[type];
       }
     },
 
@@ -73,7 +73,7 @@ export function createVisibilityCache() {
         const snapshot = this.duplicate(record?.snapshot);
         for (const type in snapshot) {
           const state = snapshot[type];
-          state.exceptFor.delete(token?.id);
+          state.except.delete(token?.id);
         }
         this.scrubSnapshot(snapshot);
         const delta = this.update(record, snapshot);
