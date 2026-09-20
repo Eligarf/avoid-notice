@@ -11,10 +11,6 @@
       "debug": "Debug level",
       "log": "Log level"
     },
-    "removeGmHidden": {
-      "name": "Un-ghost combatants at Combat Start",
-      "hint": "Ghosted combatant tokens (where visibility has been toggled off with token HUD) will be un-ghosted. Any stealth vs perception results for those tokens will have had the appropriate conditions applied."
-    },
     "activity": "Exploration Activity: {activity}",
     "requireActivity": {
       "name": "Require 'Avoid Notice' activity",

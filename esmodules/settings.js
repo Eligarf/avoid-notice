@@ -7,7 +7,6 @@ export const SETTINGS = {
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
   hideFromAllies: "hideFromAllies",
   noSummary: "noSummary",
-  unghost: "removeGmHidden",
   requireActivity: "requireActivity",
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
@@ -26,7 +25,6 @@ export let cachedSettings = {
   useEffects: false,
   requireActivity: true,
   hideFromAllies: false,
-  unghost: false,
   clearPartyStealthAfterCombat: false,
   noSummary: false,
   logLevel: "none",
@@ -99,19 +97,6 @@ export function setupSettings() {
     MODULE_ID,
     SETTINGS.hideFromAllies,
   );
-
-  game.settings.register(MODULE_ID, SETTINGS.unghost, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.unghost}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.unghost}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: cachedSettings.unghost,
-    onChange: (newValue) => {
-      cachedSettings.unghost = newValue;
-    },
-  });
-  cachedSettings.unghost = game.settings.get(MODULE_ID, SETTINGS.unghost);
 
   game.settings.register(MODULE_ID, SETTINGS.clearPartyStealthAfterCombat, {
     name: game.i18n.localize(

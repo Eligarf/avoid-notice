@@ -14,7 +14,6 @@ import { zoomToCombat } from "./socket.js";
 globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("combatStart", async (encounter) => {
     const options = {
-      unghost: cachedSettings.unghost,
       requireActivity: cachedSettings.requireActivity,
       hideFromAllies: cachedSettings.hideFromAllies,
     };
@@ -181,22 +180,20 @@ globalThis.Hooks.once("init", () => {
 
     // Reveal GM-hidden combatants so that their sneak results can control visibility
     // Do this last to avoid any flashes of observability
-    if (options.unghost) {
-      const ghostedIds = encounter.combatants.contents
-        .map((c) =>
-          c.token instanceof foundry.canvas.placeables.Token
-            ? c.token.document
-            : c.token,
-        )
-        .filter((t) => t.hidden && t.actor.type !== "hazard")
-        .map((t) => t.id);
-      for (const t of ghostedIds) {
-        let update = tokenUpdates.find((u) => u._id === t);
-        if (update) {
-          update.hidden = false;
-        } else {
-          tokenUpdates.push({ _id: t, hidden: false });
-        }
+    const ghostedIds = encounter.combatants.contents
+      .map((c) =>
+        c.token instanceof foundry.canvas.placeables.Token
+          ? c.token.document
+          : c.token,
+      )
+      .filter((t) => t.hidden && t.actor.type !== "hazard")
+      .map((t) => t.id);
+    for (const t of ghostedIds) {
+      let update = tokenUpdates.find((u) => u._id === t);
+      if (update) {
+        update.hidden = false;
+      } else {
+        tokenUpdates.push({ _id: t, hidden: false });
       }
     }
 
