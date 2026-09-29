@@ -1,102 +1,101 @@
-import { interpolateString, debuglog, localizeString } from "./main.js";
-import { MODULE_ID, CONDITION_IDS, CONDITION_PACK } from "./const.js";
+import { MODULE_ID } from "./const.js";
 import { findInitiativeCard } from "./initiative.js";
+import { debuglog, interpolateString, localizeString } from "./utils.js";
 
 const dosTable = ["critical-failure", "failure", "success", "critical-success"];
 
-export async function renderStatus(observations) {
-  for (const avoiderId in observations) {
-    const { avoiderApi, observers } = observations[avoiderId];
-    const avoider = avoiderApi.avoider;
+export function prepareTargetList(sortedObservers, hoverIds) {
+  return sortedObservers.map((o) => {
+    const observation = o.observation ?? o;
+    const tokenId = observation.tokenDoc.id;
+    const hoverId = foundry.utils.randomID();
+    hoverIds[hoverId] = tokenId;
+    const entry = {
+      dc: observation.dc,
+      degreeOfSuccess: observation.degreeOfSuccess,
+      delta: observation.delta,
+      deltaStr: observation.deltaStr,
+      hoverId: hoverId,
+      name: observation.name,
+      tokenId: tokenId,
+      visibility: observation.visibility,
+      visibilityLabel: observation.visibilityLabel,
+      ...(observation.tooltip && { tooltip: observation.tooltip }),
+    };
+    return entry;
+  });
+}
 
-    const sortedObservers = Object.entries(observers).sort((a, b) => {
-      const diff = b[1].observation.dc - a[1].observation.dc;
-      return diff !== 0
-        ? diff
-        : a[1].observation.name.localeCompare(b[1].observation.name);
+export function renderTargetList(targetList) {
+  let content = `
+    <div data-visibility="gm">
+      <div class="${MODULE_ID}-target-list">`;
+
+  for (const target of targetList) {
+    const hoverId = target.hoverId;
+    const vs = localizeString(`${MODULE_ID}.initiative.vs`, {
+      name: target.name,
     });
-    // debuglog(
-    //   `Rendering status for ${avoider.token.name} with ${sortedObservers.length} observers`,
-    //   { sortedObservers },
-    // );
-
-    let activity = interpolateString(
-      game.i18n.localize("pf2e-avoid-notice.activity"),
-      {
-        activity: game.i18n.localize(
-          "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
-        ),
-        actor: avoider.actor.name,
-      },
-    );
-
-    let content = "";
-    let hovers = {};
-    let initiativeMessage = await findInitiativeCard(avoider);
-    if (initiativeMessage) {
-      let rollsContent = "";
-      for (const roll of initiativeMessage.rolls) {
-        rollsContent += await roll.render();
-      }
-      content = rollsContent;
-    } else {
-      initiativeMessage = await ChatMessage.create({
-        speaker: ChatMessage.getSpeaker({
-          actor: avoider.actor,
-          alias: avoider.token.name,
-        }),
-      });
-    }
-
     content += `
-      <div class="${MODULE_ID}-init-activity">${activity}</div>
-      <div data-visibility="gm">
-        <div class="${MODULE_ID}-init-observations">`;
-    for (const [_observerId, { observation }] of sortedObservers) {
-      const hoverId = foundry.utils.randomID();
-      const tokenId = observation.tokenDoc.id;
-      hovers[hoverId] = tokenId;
-      const vs = localizeString(`${MODULE_ID}.initiative.vs`, {
-        name: observation.name,
-      });
+        <div class="${MODULE_ID}-target" data-hover-id="${hoverId}">
+          <div class="${MODULE_ID}-name">${vs}</div>
+          <div class="${MODULE_ID}-result">
+            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
+              ${game.i18n.localize(`${MODULE_ID}.${target.visibilityLabel}`)}
+            </span>
+          </div>`;
+    if (target.tooltip) {
       content += `
-          <div class="${MODULE_ID}-observer">
-            <div class="${MODULE_ID}-name" data-hover-id="${hoverId}">${vs}</div>
-            <div class="${MODULE_ID}-result">
-              <span class="degree-of-success ${dosTable[observation.degreeOfSuccess]}">
-                ${game.i18n.localize(MODULE_ID + "." + observation.visibility)}
-              </span>
-            </div>`;
-      if (observation.oldDelta) {
-        content += `
-            <div class="${MODULE_ID}-dc">
-              <span class="degree-of-success ${dosTable[observation.degreeOfSuccess]}">
-                DC ${observation.dc}
-              </span>
-              <span data-tooltip="<div>${observation.tooltip}</div>">
-                <i class="fas fa-info-circle"></i>
-              </span>
-            </div>`;
-      } else {
-        content += `
-            <div class="${MODULE_ID}-dc">
-              <span class="degree-of-success ${dosTable[observation.degreeOfSuccess]}">
-                DC ${observation.dc}
-              </span>
-            </div>`;
-      }
+          <div class="${MODULE_ID}-dc" data-tooltip="<div>${game.i18n.localize(`${MODULE_ID}.${target.tooltip}`)}</div>">
+            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
+              DC ${target.dc}
+            </span>
+            <i class="fas fa-info-circle"></i>
+          </div>`;
+    } else {
       content += `
+          <div class="${MODULE_ID}-dc">
+            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
+              DC ${target.dc}
+            </span>
           </div>`;
     }
     content += `
-        </div>
-      </div>`;
+        </div>`;
+  }
+  content += `
+      </div>
+    </div>`;
+  return content;
+}
 
+export async function updateInitiativeCards(observations) {
+  for (const avoiderId in observations) {
+    const { avoider, observers } = observations[avoiderId];
+
+    const sortedObservers = Object.values(observers).sort((a, b) => {
+      const diff = b.observation.dc - a.observation.dc;
+      return diff !== 0
+        ? diff
+        : a.observation.name.localeCompare(b.observation.name);
+    });
+
+    let hoverIds = {};
+    const targetList = prepareTargetList(sortedObservers, hoverIds);
+
+    const initiativeMessage = await findInitiativeCard(avoider.combatant);
+    if (!initiativeMessage) {
+      debuglog("No initiative message found for", { avoider });
+      continue;
+    }
     const update = {
-      content,
       flags: {
         [MODULE_ID]: {
-          initiative: hovers,
+          card: "initiative",
+          name: avoider.tokenDoc.name,
+          activity: "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
+          initiative: { targetList: targetList },
+          hoverIds: hoverIds,
         },
       },
     };
@@ -104,149 +103,15 @@ export async function renderStatus(observations) {
   }
 }
 
-function getToken(id) {
-  let token = canvas.tokens.get(id);
-  if (!token) {
-    token = canvas.tokens.placeables.find((t) => t?.actor?.id === id);
-  }
-  return token;
-}
-
-function attachHover(html, el, initiative) {
-  const hoverId = el.dataset.hoverId;
-  const hover = initiative[hoverId];
-  if (!hover) return;
-  const combatantId = hover;
-
-  let pendingEnter = false;
-  let canvasReadyCb = null;
-
-  const doHoverIn = () => {
-    const token = getToken(combatantId);
-    if (token && typeof token._onHoverIn === "function") {
-      token._onHoverIn(new MouseEvent("mouseenter"));
-    }
-  };
-
-  const onEnter = () => {
-    if (canvas?.ready) {
-      doHoverIn();
-      return;
-    }
-    pendingEnter = true;
-    canvasReadyCb = () => {
-      if (pendingEnter) doHoverIn();
-      pendingEnter = false;
-      canvasReadyCb = null;
-    };
-    globalThis.Hooks.once("canvasReady", canvasReadyCb);
-  };
-
-  const onLeave = () => {
-    pendingEnter = false;
-    if (canvasReadyCb) {
-      globalThis.Hooks.off("canvasReady", canvasReadyCb);
-      canvasReadyCb = null;
-    }
-    if (canvas?.ready) {
-      const token = getToken(combatantId);
-      if (token && typeof token._onHoverOut === "function")
-        token._onHoverOut(new MouseEvent("mouseleave"));
-    }
-  };
-
-  el.addEventListener("mouseenter", onEnter);
-  el.addEventListener("mouseleave", onLeave);
-
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const removed of m.removedNodes) {
-        if (removed === el) {
-          el.removeEventListener("mouseenter", onEnter);
-          el.removeEventListener("mouseleave", onLeave);
-          if (canvasReadyCb) {
-            globalThis.Hooks.off("canvasReady", canvasReadyCb);
-            canvasReadyCb = null;
-          }
-          observer.disconnect();
-          return;
-        }
-      }
-    }
-  });
-  observer.observe(html, { childList: true, subtree: true });
-}
-
-globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
-  const initiative = message.flags[MODULE_ID]?.initiative;
-  if (!initiative) return;
-  debuglog("renderChatMessageHTML (initiative)", {
-    message,
-    html,
-    data,
-    initiative,
-  });
-
-  // Deal with the hover elements
-  const selected = html.querySelectorAll(
-    `.${MODULE_ID}-init-observations [data-hover-id]`,
+export function renderInitiativeCard(message, html, data, flags) {
+  const activity = interpolateString(
+    game.i18n.localize("pf2e-avoid-notice.activity"),
+    {
+      activity: game.i18n.localize(flags.activity),
+      actor: flags.name,
+    },
   );
-  for (const el of selected) {
-    attachHover(html, el, initiative);
-  }
-});
-
-/*
-
-// Left portion: image and token name alignment
-.pf2e-avoid-notice-init-observations .target-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-    min-width: 0;
+  let content = `<div class="${MODULE_ID}-init-activity">${activity}</div>`;
+  content += renderTargetList(flags.initiative?.targetList);
+  html.insertAdjacentHTML("beforeend", content);
 }
-
-.pf2e-avoid-notice-init-observations .token-avatar {
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--color-border-dark, #999);
-    border-radius: 4px;
-    object-fit: cover;
-}
-
-
-// Right portion: DC display and target helper buttons
-.pf2e-avoid-notice-init-observations .target-dc-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.pf2e-avoid-notice-init-observations .dc-label {
-    font-weight: bold;
-    color: var(--secondary, #444);
-    background: rgba(0, 0, 0, 0.05);
-    padding: 2px 6px;
-    border-radius: 3px;
-}
-
-.pf2e-avoid-notice-init-observations .roll-save-btn {
-    height: 24px;
-    width: 24px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: normal;
-    border: 1px solid var(--color-border-light);
-    background: var(--color-bg-btn, #eee);
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-.pf2e-avoid-notice-init-observations .roll-save-btn:hover {
-    background: var(--color-bg-btn-hover, #ddd);
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-}
-  */

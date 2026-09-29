@@ -1,5 +1,5 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { debuglog } from "./main.js";
+import { debuglog } from "./utils.js";
 import { clearPartyStealth } from "./stealth.js";
 import { MODULE_ID } from "./const.js";
 import { refreshEverybody } from "./socket.js";

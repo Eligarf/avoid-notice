@@ -1,9 +1,9 @@
 import { AvoidNoticePopupMenu } from "./menu.js";
-import { debuglog, iterateTokensAndParties } from "./main.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { clearActorStealth } from "./stealth.js";
 import { revealAvoidersTo, undoRevealsOf } from "./effects.js";
 import { refreshEverybody } from "./socket.js";
+import { debuglog, iterateTokensAndParties } from "./utils.js";
 
 export async function invokeConnectedTokensMenu({ controlled, targeted }) {
   debuglog("invokeConnectedTokensMenu", { selected: controlled, targeted });

@@ -1,4 +1,4 @@
-import { MODULE_ID, CONSOLE_COLORS, REFRESH_OPTIONS } from "./const.js";
+import { MODULE_ID } from "./const.js";
 import {
   SETTINGS,
   setupSettings,
@@ -6,58 +6,7 @@ import {
   groupSettings,
 } from "./settings.js";
 import { cachedSettings } from "./settings.js";
-
-function colorizeOutput(format, ...args) {
-  return [`%c${MODULE_ID} %c|`, ...CONSOLE_COLORS, format, ...args];
-}
-
-export function log(format, ...args) {
-  const level = cachedSettings.logLevel;
-  if (level !== "none") {
-    if (level === "debug") console.debug(...colorizeOutput(format, ...args));
-    else if (level === "log") console.log(...colorizeOutput(format, ...args));
-  }
-}
-
-export function debuglog(format, ...args) {
-  const level = cachedSettings.logLevel;
-  if (level === "debug") console.debug(...colorizeOutput(format, ...args));
-}
-
-export function interpolateString(str, interpolations) {
-  return str.replace(/\{([A-Za-z0-9_]+)\}/g, (match, key) =>
-    interpolations.hasOwnProperty(key) ? interpolations[key] : match,
-  );
-}
-
-export function localizeString(str, interpolations) {
-  return interpolateString(game.i18n.localize(str), interpolations);
-}
-
-export function refreshPerception() {
-  debuglog("Refreshing perception for all tokens");
-  canvas.perception.update(REFRESH_OPTIONS);
-}
-
-export async function iterateTokensAndParties(tokens, callback) {
-  let parties = [];
-  for (const token of tokens) {
-    const actor = token.actor;
-    if (!actor) continue;
-    if (actor.type === "party") {
-      parties.push(actor);
-      continue;
-    }
-    await callback(token);
-  }
-
-  for (const party of parties) {
-    for (const member of party.members) {
-      if (tokens.some((token) => token.actor?.id === member.id)) continue;
-      await callback(member);
-    }
-  }
-}
+import { log } from "./utils.js";
 
 globalThis.Hooks.once("init", () => {
   setupKeybindings();

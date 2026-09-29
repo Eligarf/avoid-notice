@@ -1,5 +1,4 @@
 import { cachedSettings } from "./settings.js";
-import { refreshPerception, debuglog } from "./main.js";
 import {
   findInitiativeCard,
   modifyInitiativeCard,
@@ -7,12 +6,57 @@ import {
 } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
-import { makeObservation, evaluateObservation } from "./observation-logic.js";
-import { renderStatus } from "./render-status.js";
+import { makeObservation } from "./observation-logic.js";
+import { updateInitiativeCards } from "./render-status.js";
 import { zoomToCombat } from "./socket.js";
+import { avoidNoticeCheck } from "./sneak.js";
+import { breakdownRoll, debuglog, refreshPerception } from "./utils.js";
+import { MODULE_ID } from "./const.js";
+
+export function findCompanionsOnCanvas() {
+  const minionTokens = canvas.scene.tokens.filter(
+    (t) =>
+      t?.actor?.system?.traits?.value?.includes("minion") &&
+      t?.actor?.system?.details?.alliance === "party",
+  );
+  const eidolonTokens = canvas.scene.tokens.filter(
+    (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
+  );
+  return { minionTokens, eidolonTokens };
+}
+
+export function findPossibleObservers({
+  encounter,
+  avoider,
+  minionTokens,
+  eidolonTokens,
+}) {
+  const alliance = avoider.actor?.system?.details?.alliance;
+  const tokens = encounter.combatants.contents
+    .map((c) => c.token)
+    .concat(
+      alliance !== "party" || cachedSettings.hideFromAllies ? minionTokens : [],
+    )
+    .concat(eidolonTokens)
+    .filter((t) =>
+      cachedSettings.hideFromAllies
+        ? t.id !== avoider.id
+        : t.actor?.system?.details?.alliance !== alliance,
+    );
+  const tokenDocs = tokens.map((t) =>
+    t instanceof foundry.canvas.placeables.Token ? t.document : t,
+  );
+  return tokenDocs;
+}
 
 globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("combatStart", async (encounter) => {
+    debuglog("combatStart", { encounter });
+    const avoidanceCheckMessageId =
+      encounter.flags[MODULE_ID]?.avoidanceCheckMessageId;
+    const avoidanceCheckMessage = avoidanceCheckMessageId
+      ? game.messages.get(avoidanceCheckMessageId)
+      : null;
     const options = {
       requireActivity: cachedSettings.requireActivity,
       hideFromAllies: cachedSettings.hideFromAllies,
@@ -51,14 +95,8 @@ globalThis.Hooks.once("init", () => {
       );
     }
 
-    const minionTokens = canvas.scene.tokens.filter(
-      (t) =>
-        t?.actor?.system?.traits?.value?.includes("minion") &&
-        t?.actor?.system?.details?.alliance === "party",
-    );
-    const eidolonTokens = canvas.scene.tokens.filter(
-      (t) => t?.actor?.system?.details?.class?.trait === "eidolon",
-    );
+    const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
+
     // initialize the aggregators
     let observations = {};
 
@@ -66,87 +104,63 @@ globalThis.Hooks.once("init", () => {
     // Walk through all the avoiders and test them against the appropriate observers,
     // recording the results for later batch processing
     //
-    for (const avoider of avoiders) {
+    for (const avoidingCombatant of avoiders) {
       // log("avoider", avoider);
 
-      const initiativeCard = await findInitiativeCard(avoider);
-      const roll = initiativeCard?.rolls?.[0];
-      const dice = roll?.dice;
-      const rawRoll =
-        dice.length > 0 ? dice[0].total : Number(roll?.options?.dice);
-      const initiativeDosDelta = rawRoll === 1 ? -1 : rawRoll === 20 ? 1 : 0;
+      const initiativeCard = await findInitiativeCard(avoidingCombatant);
+      let rawRollDosDelta = 0;
+      if (initiativeCard) {
+        ({ rawRollDosDelta } = breakdownRoll(initiativeCard?.rolls?.[0]));
+      } else {
+        const avoidanceCheck =
+          avoidanceCheckMessage?.flags?.[MODULE_ID]?.avoidanceTest;
+        if (avoidanceCheck) {
+          const tokenId = avoidingCombatant.token.id;
+          if (tokenId in avoidanceCheck.enemyStealth) {
+            rawRollDosDelta =
+              avoidanceCheck.enemyStealth[tokenId].rawRollDosDelta;
+          } else if (tokenId in avoidanceCheck.friendlyStealth) {
+            rawRollDosDelta =
+              avoidanceCheck.friendlyStealth[tokenId].rawRollDosDelta;
+          }
+        }
+      }
 
-      const disposition = avoider.token.disposition;
-      const observers = encounter.combatants.contents
-        .filter(
-          (c) =>
-            c.token.disposition !== disposition ||
-            (options.hideFromAllies && c.id !== avoider.id),
-        )
-        .concat(
-          minionTokens.filter(
-            (t) => options.hideFromAllies || t.disposition != disposition,
-          ),
-        )
-        .concat(
-          eidolonTokens.filter(
-            (t) => options.hideFromAllies || t.disposition != disposition,
-          ),
-        );
+      const observers = findPossibleObservers({
+        encounter,
+        avoider: avoidingCombatant.token,
+        minionTokens,
+        eidolonTokens,
+      });
       if (!observers.length) continue;
 
       const isAvoiderToken =
-        avoider.token instanceof foundry.canvas.placeables.Token;
+        avoidingCombatant.token instanceof foundry.canvas.placeables.Token;
       const avoiderTokenDoc = isAvoiderToken
-        ? avoider.token.document
-        : avoider.token;
+        ? avoidingCombatant.token.document
+        : avoidingCombatant.token;
 
-      const avoiderApi = {
-        avoider,
-        avoiderTokenDoc,
-        baseCoverBonus: findBaseCoverBonus({ actor: avoider.actor }),
-        initiativeDosDelta,
+      const avoider = {
+        tokenDoc: avoiderTokenDoc,
+        stealthResult: avoidingCombatant.initiative,
+        rawRollDosDelta,
+        baseCoverBonus: findBaseCoverBonus({ actor: avoidingCombatant.actor }),
+        combatant: avoidingCombatant,
       };
 
-      observations[avoider.token.id] = { avoiderApi, observers: {} };
-      let avoiderSeenBy = observations[avoider.token.id];
+      const avoiderSeenBy = { avoider, observers: {} };
+      observations[avoidingCombatant.token.id] = avoiderSeenBy;
 
-      for (const observer of observers) {
-        const isObserverToken =
-          observer?.token instanceof foundry.canvas.placeables.Token;
-        const observerToken = observer?.token ?? observer;
-        const observerActor = observerToken.actor;
-
-        // Bail out if we are dealing with a hazard, otherwise make the observation
+      for (const observerTokenDoc of observers) {
+        const observerActor = observerTokenDoc.actor;
         if (observerActor.type === "hazard") continue;
-
-        const observerTokenDoc = isObserverToken
-          ? observer.token.document
-          : (observer?.token ?? observer);
         let observation = makeObservation({
-          avoiderApi,
-          options,
-          observer,
-          observerToken,
-          observerTokenDoc,
-          observerActor,
+          avoider,
+          observer: observerTokenDoc,
+          analyze: avoidNoticeCheck,
         });
 
         avoiderSeenBy.observers[observation.observerId] = { observation };
-      }
-    }
-
-    // Now evaluate each observation
-    for (const avoiderId in observations) {
-      const { observers } = observations[avoiderId];
-      for (const observerId in observers) {
-        const observation = observers[observerId].observation;
-        evaluateObservation({
-          observation,
-          options,
-          minionTokens,
-          eidolonTokens,
-        });
       }
     }
 
@@ -155,7 +169,7 @@ globalThis.Hooks.once("init", () => {
     // the result structure and build the messages for each affected chat card, as well
     // as the calls we need to do for the visibility manager
     //
-    if (!cachedSettings.noSummary) await renderStatus(observations);
+    if (!cachedSettings.noSummary) await updateInitiativeCards(observations);
 
     // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {

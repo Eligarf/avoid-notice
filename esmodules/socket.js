@@ -1,8 +1,8 @@
 import { MODULE_ID } from "./const.js";
-import { onStealthReply } from "./avoidance-test.js";
-import { debuglog, refreshPerception } from "./main.js";
+import { onStealthReply } from "./avoidance-check.js";
 import { refreshVisibilityCache } from "./visibility.js";
 import { cachedSettings } from "./settings.js";
+import { debuglog, refreshPerception } from "./utils.js";
 
 let socket = null;
 
@@ -151,16 +151,16 @@ async function zoomToTokens(tokens) {
 export function sendStealthRollToGM({
   messageId,
   actionId,
-  stealth,
-  dosAdjust,
+  stealthResult,
+  rawRollDosDelta,
   rollMessageId,
 }) {
   if (!socket) return;
   socket.executeAsGM("StealthReply", {
     messageId,
     actionId,
-    stealth,
-    dosAdjust,
+    stealthResult,
+    rawRollDosDelta,
     rollMessageId,
   });
 }

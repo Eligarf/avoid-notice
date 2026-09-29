@@ -42,3 +42,14 @@ export const COMBAT_STATES = {
   active: "active",
   started: "started",
 };
+
+export const OBSERVED = 0;
+export const HIDDEN = 1;
+export const UNDETECTED = 2;
+
+export const VISIBILITY_LABELS = [
+  "observed",
+  "hidden",
+  "undetected",
+  "undetected",
+];

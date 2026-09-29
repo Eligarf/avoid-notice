@@ -1,4 +1,4 @@
-import { debuglog } from "./main.js";
+import { debuglog } from "./utils.js";
 
 export function createVisibilityCache() {
   const store = new Map();

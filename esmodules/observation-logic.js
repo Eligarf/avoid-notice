@@ -1,72 +1,68 @@
-import { MODULE_ID } from "./const.js";
-import { debuglog } from "./main.js";
+import { clampDos, debuglog } from "./utils.js";
+import { prepareTargetList } from "./render-status.js";
 
-export function makeObservation({
-  avoiderApi,
-  options,
-  observer,
-  observerToken,
-  observerTokenDoc,
-  observerActor,
-}) {
+export function makeObservation({ avoider, observer, analyze }) {
   let observation = {
-    dc: observerActor.system.perception.dc,
-    name: observerTokenDoc.name,
-    observer,
-    observerId: observerToken.id,
-    tokenDoc: observerTokenDoc,
+    dc: observer.actor.system.perception.dc,
+    name: observer.name,
+    observerId: observer.id,
+    tokenDoc: observer,
   };
 
-  let coverBonus = avoiderApi.baseCoverBonus;
+  let coverBonus = avoider.baseCoverBonus;
   if (coverBonus > 0) {
     observation.coverBonus = coverBonus;
-    const oldDelta = avoiderApi.avoider.initiative - observation.dc;
-    observation.oldDelta = oldDelta < 0 ? `${oldDelta}` : `+${oldDelta}`;
     switch (coverBonus) {
       case 2:
-        observation.tooltip = `${game.i18n.localize(`${MODULE_ID}.standardCover`)}: +2`;
+        observation.tooltip = `standardCover`;
         break;
       case 4:
-        observation.tooltip = `${game.i18n.localize(`${MODULE_ID}.greaterCover`)}: +4`;
+        observation.tooltip = `greaterCover`;
         break;
     }
   }
 
-  // Handle critical failing to win at stealth
-  const delta = avoiderApi.avoider.initiative + coverBonus - observation.dc;
+  const delta = avoider.stealthResult + coverBonus - observation.dc;
   observation.delta = delta;
-  const dos =
-    avoiderApi.initiativeDosDelta +
-    (delta < -9 ? 0 : delta < 0 ? 1 : delta > 9 ? 3 : 2);
-  observation.degreeOfSuccess = dos;
-
-  if (dos < 1) {
-    observation.visibility = "observed";
-  }
-
-  // Normal fail is hidden
-  else if (dos < 2) {
-    observation.visibility = "hidden";
-  }
-
-  // avoider beat the other token at the stealth battle
-  else {
-    observation.visibility = "undetected";
-  }
+  observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
+  observation.degreeOfSuccess = clampDos(delta, avoider.rawRollDosDelta);
+  analyze(observation);
+  // debuglog("makeObservation", { avoider, observer, observation });
 
   return observation;
 }
 
-export function evaluateObservation({
-  observation,
-  options,
-  minionTokens,
-  eidolonTokens,
+export function testAvoiderStealthAgainstObservers({
+  avoider,
+  observers,
+  analyze,
 }) {
-  const delta = observation.delta;
-  observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
+  const observations = observers
+    .filter((observer) => {
+      return observer.actor?.system?.perception?.dc;
+    })
+    .map((observer) => {
+      const observation = makeObservation({
+        avoider,
+        observer,
+        analyze,
+      });
+      return observation;
+    });
+  return observations.sort((a, b) => a.delta - b.delta);
+}
 
-  observation.success =
-    observation.visibility !== "observed" &&
-    observation.visibility !== "hidden";
+export function prepareObservations(observations, hoverIds) {
+  const summary = observations.reduce((acc, obs) => {
+    const visibility = obs.visibility;
+    acc[visibility] = (acc[visibility] || 0) + 1;
+    return acc;
+  }, {});
+
+  const sortedObservers = observations.sort((a, b) => {
+    const diff = b.dc - a.dc;
+    return diff !== 0 ? diff : a.name.localeCompare(b.name);
+  });
+  const targetList = prepareTargetList(sortedObservers, hoverIds);
+  return { summary, targetList };
 }

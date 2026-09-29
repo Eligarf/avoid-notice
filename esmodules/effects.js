@@ -1,5 +1,14 @@
-import { MODULE_ID, SLUGS, CONDITION_PACK, CONDITION_IDS } from "./const.js";
-import { debuglog } from "./main.js";
+import {
+  CONDITION_IDS,
+  CONDITION_PACK,
+  HIDDEN,
+  MODULE_ID,
+  OBSERVED,
+  SLUGS,
+  UNDETECTED,
+  VISIBILITY_LABELS,
+} from "./const.js";
+import { debuglog } from "./utils.js";
 import { cachedSettings } from "./settings.js";
 
 export function isAvoider(tokenOrActor) {
@@ -31,8 +40,6 @@ export function isAvoider(tokenOrActor) {
   );
 }
 
-const REVEALED_AS = { observed: 0, hidden: 1, undetected: 2 };
-
 export async function undoRevealsOf({ avoiders, observers = [] }) {
   debuglog("undoRevealsOf", { avoiders, observers });
   for (const avoider of avoiders) {
@@ -62,13 +69,19 @@ export async function undoRevealsOf({ avoiders, observers = [] }) {
   }
 }
 
+const REVEALED_AS = {
+  observed: OBSERVED,
+  hidden: HIDDEN,
+  undetected: UNDETECTED,
+};
+
 export async function revealAvoidersTo({
   avoiders,
   observers,
   revealedAs = "observed",
 }) {
-  const dos = REVEALED_AS[revealedAs];
-  debuglog("revealAvoidersTo", { avoiders, observers, revealedAs, dos });
+  const visibility = REVEALED_AS[revealedAs];
+  debuglog("revealAvoidersTo", { avoiders, observers, revealedAs, visibility });
   for (const avoider of avoiders) {
     const actor = avoider?.actor;
     const stealthEffect = actor?.items?.find(
@@ -82,9 +95,9 @@ export async function revealAvoidersTo({
     for (const observer of observers) {
       const id = observer.id;
       if (id in reveals) {
-        reveals[id].dos = Math.min(reveals[id].dos, dos);
+        reveals[id].visibility = Math.min(reveals[id].visibility, visibility);
       } else {
-        reveals[id] = { dos, signature: observer.actor.signature };
+        reveals[id] = { visibility, signature: observer.actor.signature };
       }
     }
     await adaptStealthEffectToObservers({
@@ -127,17 +140,17 @@ async function createStealthEffect(actor, rules, flags) {
   await actor.createEmbeddedDocuments("Item", [effectData]);
 }
 
-const SNEAK_RESULTS = ["observed", "hidden", "undetected", "undetected"];
-
 export function buildVisibilitySets(observers, baseline = undefined) {
   const observations = Object.entries(observers);
-  const list = observations.map(([_, o]) => o.dos);
+  const list = observations.map(([_, o]) => o.visibility);
   const resultGroups = new Set(list);
   if (baseline !== undefined) resultGroups.add(baseline);
-  const visibilities = resultGroups.reduce((acc, dos) => {
-    if (dos >= baseline) return acc;
-    const matches = observations.filter(([_, o]) => o.dos === dos);
-    acc.push([SNEAK_RESULTS[dos], Object.fromEntries(matches)]);
+  const visibilities = resultGroups.reduce((acc, visibility) => {
+    if (visibility >= baseline) return acc;
+    const matches = observations.filter(
+      ([_, o]) => o.visibility === visibility,
+    );
+    acc.push([VISIBILITY_LABELS[visibility], Object.fromEntries(matches)]);
     return acc;
   }, []);
   return Object.fromEntries(visibilities);
@@ -177,13 +190,13 @@ function buildFlagsAndRules(visibilities, baseline) {
   const rules = [];
 
   const observed = Object.entries(visibilities.observed || {});
-  if (baseline >= 1) {
+  if (baseline >= HIDDEN) {
     const [hFlags, hRules] = buildFlagAndRulesForExcept("hidden", observed);
     if (hFlags) flags.hidden = hFlags;
     rules.push(...hRules);
   }
 
-  if (baseline >= 2) {
+  if (baseline >= UNDETECTED) {
     const [uFlags, uRules] = buildFlagAndRulesForExcept(
       "undetected",
       observed.concat(Object.entries(visibilities.hidden || {})),

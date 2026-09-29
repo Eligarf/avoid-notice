@@ -2,10 +2,10 @@ import { AvoidNoticePopupMenu } from "./menu.js";
 import { prepareAmbush, clearAmbush, clearActorStealth } from "./stealth.js";
 import { MODULE_ID, SLUGS } from "./const.js";
 import { undoRevealsOf } from "./effects.js";
-import { localizeString, debuglog, iterateTokensAndParties } from "./main.js";
-import { testAvoidance } from "./avoidance-test.js";
+import { avoidanceCheck } from "./avoidance-check.js";
 import { refreshEverybody } from "./socket.js";
 import { cachedSettings } from "./settings.js";
+import { debuglog, iterateTokensAndParties, localizeString } from "./utils.js";
 
 export async function invokeTokensMenu({ selection }) {
   debuglog("invokeTokensMenu", { selection });
@@ -114,9 +114,9 @@ export async function invokeTokensMenu({ selection }) {
   }
 
   const combat = game?.combat;
-  if (!combat) {
+  if (!combat || !combat.started) {
     choices.push({
-      key: "test-avoidance",
+      key: "avoidance-check",
       label: game.i18n.localize(`${MODULE_ID}.menu.testAvoidance.label`),
       hint: localizeString(`${MODULE_ID}.menu.testAvoidance.hint`, {
         type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
@@ -151,9 +151,9 @@ export async function invokeTokensMenu({ selection }) {
       });
       refreshEverybody();
       break;
-    case "test-avoidance":
-      debuglog("test-avoidance", selection.tokens);
-      await testAvoidance(selection.tokens, choice.secret);
+    case "avoidance-check":
+      debuglog("avoidance-check", selection.tokens);
+      await avoidanceCheck(selection.tokens);
       break;
     case "undo-reveals":
       debuglog("undo-reveals", selection.tokens);

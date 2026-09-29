@@ -1,5 +1,5 @@
 import { MODULE_ID, SLUGS } from "./const.js";
-import { debuglog } from "./main.js";
+import { debuglog } from "./utils.js";
 import { createVisibilityCache } from "./cache.js";
 import { cachedSettings } from "./settings.js";
 import { buildVisibilitySets } from "./effects.js";
@@ -162,7 +162,7 @@ function findObservers(token) {
   const observations = findObservations(token);
   if (!observations) return;
   const observers = Object.entries(observations.observers)
-    .filter(([_, o]) => o.dos < observations.baseline)
+    .filter(([_, o]) => o.visibility < observations.baseline)
     .map(([id, _]) => id);
   return new Set(observers);
 }

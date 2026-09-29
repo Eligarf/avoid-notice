@@ -10,7 +10,7 @@
       "ko-fi": "rule671908"
     }
   ],
-  "version": "14.1.0",
+  "version": "14.5.0",
   "compatibility": {
     "minimum": "13",
     "maximum": "14",
@@ -49,7 +49,12 @@
       }
     ]
   },
-  "esmodules": ["esmodules/main.js", "esmodules/combat.js"],
+  "esmodules": [
+    "esmodules/main.js",
+    "esmodules/combat.js",
+    "esmodules/action.js",
+    "esmodules/render-card.js"
+  ],
   "styles": ["styles/style.css"],
   "languages": [
     {

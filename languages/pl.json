@@ -3,8 +3,8 @@
     "undetected": "Undetected",
     "hidden": "Hidden",
     "observed": "Observed",
-    "standardCover": "Standardowa osłona",
-    "greaterCover": "Większa osłona",
+    "standardCover": "Standardowa osłona +2",
+    "greaterCover": "Większa osłona +4",
     "logLevel": {
       "name": "Poziom logów",
       "none": "Bez logów",
@@ -134,13 +134,16 @@
     },
     "avoidanceTest": {
       "title": "Avoidance Check",
+      "secretTitle": "Secret Avoidance Check",
+      "checkLabel": "Check result:",
       "observed": "observed by {observed}",
       "hidden": "hidden to {hidden}",
       "undetected": "undetected to {undetected}",
-      "createEncounter": "Create/Populate Encounter",
+      "createEncounter": "Add All to Combat",
+      "createEncounterTooltip": "Add all tokens in this card to the combat using the rolled stealth results as initiative.&#10Note that some initiative adjustments might shift slightly due to the approximations used in the Avoidance Check",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
-      "observedEnemies": "Observed Enemies",
-      "observedFriendlies": "Observed Friendlies"
+      "observedEnemies": "Noticable Enemies",
+      "observedFriendlies": "Noticable Party Members"
     }
   }
 }

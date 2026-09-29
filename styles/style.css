@@ -18,15 +18,58 @@
   color: var(--color-pf-text-critical-failure);
 }
 
-.pf2e-avoid-notice-avoidance-test {
+.pf2e-avoid-notice-avoidance-check {
   .pf2e-avoid-notice-observation + .pf2e-avoid-notice-observation {
     margin-left: 6px;
   }
-  ul {
-    list-style: none;
-    padding-left: 0;
-  }
-  [data-hover-id] {
+  .pf2e-avoid-notice-avoider {
+    display: grid;
+    grid-template-rows: auto auto 1fr; /* top, summary, observers */
+    /* gap: 6px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08); */
+    .pf2e-avoid-notice-description {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      align-items: center;
+      .pf2e-avoid-notice-name {
+        font-weight: bold;
+        color: var(--secondary, #444);
+        background: rgba(0, 0, 0, 0.05);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+      .pf2e-avoid-notice-roll {
+        font-weight: bold;
+        color: var(--secondary, #444);
+        background: rgba(0, 0, 0, 0.05);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+    }
+    .pf2e-avoid-notice-summary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 0.95em;
+      .pf2e-avoid-notice-group {
+        background: rgba(0, 0, 0, 0.03);
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 40%; /* help keep items short on small screens */
+      }
+    }
+    .pf2e-avoid-notice-observers {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
   }
 }
 
@@ -34,7 +77,7 @@
   display: none;
 }
 
-.pf2e-avoid-notice-init-observations {
+.pf2e-avoid-notice-target-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -42,47 +85,45 @@
   border: 1px solid var(--color-border-light, #ccc);
   border-radius: 4px;
   overflow: hidden;
-}
 
-.pf2e-avoid-notice-init-observations
-  .pf2e-avoid-notice-init-observation:nth-child(even) {
-  background: rgba(0, 0, 0, 0.07);
-}
+  .pf2e-avoid-notice-target:nth-child(even) {
+    background: rgba(0, 0, 0, 0.07);
+  }
 
-.pf2e-avoid-notice-init-observations
-  .pf2e-avoid-notice-init-observation:last-child {
-  border-bottom: none;
-}
+  .pf2e-avoid-notice-target:last-child {
+    border-bottom: none;
+  }
 
-.pf2e-avoid-notice-init-observations .pf2e-avoid-notice-observer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  font-size: var(--font-size-12, 12px);
-}
+  .pf2e-avoid-notice-target {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: var(--font-size-12, 12px);
 
-.pf2e-avoid-notice-init-observations .pf2e-avoid-notice-name {
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .pf2e-avoid-notice-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.pf2e-avoid-notice-init-observations .pf2e-avoid-notice-result {
-  font-weight: bold;
-  color: var(--secondary, #444);
-  background: rgba(0, 0, 0, 0.05);
-  padding: 2px 6px;
-  border-radius: 3px;
-}
+    .pf2e-avoid-notice-result {
+      font-weight: bold;
+      color: var(--secondary, #444);
+      background: rgba(0, 0, 0, 0.05);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
 
-.pf2e-avoid-notice-init-observations .pf2e-avoid-notice-dc {
-  font-weight: bold;
-  color: var(--secondary, #444);
-  background: rgba(0, 0, 0, 0.05);
-  padding: 2px 6px;
-  border-radius: 3px;
+    .pf2e-avoid-notice-dc {
+      font-weight: bold;
+      color: var(--secondary, #444);
+      background: rgba(0, 0, 0, 0.05);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  }
 }

@@ -1,5 +1,5 @@
-import { interpolateString, refreshPerception } from "./main.js";
 import { SLUGS } from "./const.js";
+import { interpolateString, refreshPerception } from "./utils.js";
 
 export async function clearActorStealth({ actor, showBanner = false } = {}) {
   const conditions =
