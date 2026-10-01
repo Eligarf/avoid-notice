@@ -79,40 +79,90 @@ export function attachHoverIds(html, hoverIds) {
   }
 }
 
+async function clickHandler(message, event, flags, clickIds) {
+  debuglog("clickHandler", { message, event, flags, clickIds });
+  const element = event.target.closest(`[data-click-id]`);
+  if (element) {
+    event.preventDefault();
+    const clickId = element.dataset.clickId;
+    if (clickId in clickIds) {
+      await clickIds[clickId](message, event, flags);
+    }
+    return;
+  }
+}
+
 globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
   const flags = message.flags[MODULE_ID];
   if (!flags) return;
-  // debuglog("renderChatMessageHTML (render-card)", {
-  //   message,
-  //   html,
-  //   data,
-  //   flags,
-  // });
+  debuglog("renderChatMessageHTML (render-card)", {
+    message,
+    html,
+    data,
+    flags,
+  });
 
-  switch (flags.card) {
-    case "initiative":
-      renderInitiativeCard(message, html, data, flags);
-      break;
-    case "avoidance-check":
-      renderAvoidanceCheckCard(message, html, data, flags);
-      break;
-    case "hide":
-      renderHideCard(message, html, data, flags);
-      break;
-    case "sneak":
-      renderSneakCard(message, html, data, flags);
-      break;
-    case "create-a-diversion":
-      renderCreateADiversionCard(message, html, data, flags);
-      break;
-    default:
-      debuglog(`Unknown card type '${flags.card}'`, {
-        message,
-        html,
-        data,
-        flags,
-      });
+  let interactionContext = null;
+  function guts() {
+    switch (flags.card) {
+      case "initiative":
+        interactionContext = renderInitiativeCard(message, html, data, flags);
+        break;
+      case "avoidance-check":
+        interactionContext = renderAvoidanceCheckCard(
+          message,
+          html,
+          data,
+          flags,
+        );
+        break;
+      case "hide":
+        interactionContext = renderHideCard(message, html, data, flags);
+        break;
+      case "sneak":
+        interactionContext = renderSneakCard(message, html, data, flags);
+        break;
+      case "create-a-diversion":
+        interactionContext = renderCreateADiversionCard(
+          message,
+          html,
+          data,
+          flags,
+        );
+        break;
+      default:
+        debuglog(`Unknown card type '${flags.card}'`, {
+          message,
+          html,
+          data,
+          flags,
+        });
+    }
+    if (!interactionContext) return;
+    debuglog("interactionContext", { interactionContext });
+
+    if (interactionContext.clickIds) {
+      html.addEventListener(
+        "click",
+        async (event) =>
+          await clickHandler(
+            message,
+            event,
+            flags,
+            interactionContext.clickIds,
+          ),
+      );
+    }
+    if (interactionContext.hoverIds) {
+      attachHoverIds(html, interactionContext.hoverIds);
+    }
   }
 
-  attachHoverIds(html, flags.hoverIds);
+  if (canvas.ready) {
+    guts();
+  } else {
+    Hooks.once("canvasReady", () => {
+      guts();
+    });
+  }
 });

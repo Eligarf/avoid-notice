@@ -7,7 +7,7 @@ import {
   prepareObservations,
 } from "./observation-logic.js";
 import { avoidNoticeCheck } from "./sneak.js";
-import { prepareTargetList, renderTargetList } from "./render-status.js";
+import { renderTargetList } from "./render-status.js";
 import {
   getToken,
   breakdownRoll,
@@ -50,55 +50,58 @@ function testAvoiderAgainstObservers(avoiderToken, roll, observers) {
 function renderObservations(summary, targetList) {
   let content = `<li class="${MODULE_ID}-summary">`;
   if (summary[OBSERVED]) {
-    const observation = localizeString(`${MODULE_ID}.avoidanceTest.observed`, {
+    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
       observed: summary[OBSERVED],
     });
     content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   if (summary[HIDDEN]) {
-    const observation = localizeString(`${MODULE_ID}.avoidanceTest.hidden`, {
+    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.hidden`, {
       hidden: summary[HIDDEN],
     });
     content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
   if (summary[UNDETECTED]) {
     const observation = localizeString(
-      `${MODULE_ID}.avoidanceTest.undetected`,
+      `${MODULE_ID}.avoidanceCheck.undetected`,
       {
         undetected: summary[UNDETECTED],
       },
     );
     content += `<span class="${MODULE_ID}-observation">${observation}</span>`;
   }
-  content += renderTargetList(targetList.slice(0, 2));
+  content += renderTargetList(targetList.slice(0, 2), context);
   return content;
 }
 
 function makeMissingActorsString() {
   const clownCar = localizeString("PF2E.Actor.Party.ClownCar.Deposit");
   const createEncounter = localizeString(
-    `${MODULE_ID}.avoidanceTest.createEncounter`,
+    `${MODULE_ID}.avoidanceCheck.createEncounter`,
   );
-  return localizeString(`${MODULE_ID}.avoidanceTest.missingActors`, {
+  return localizeString(`${MODULE_ID}.avoidanceCheck.missingActors`, {
     clownCar,
     createEncounter,
   });
 }
 
-function renderEncounterSection(avoidanceCheck) {
+function renderEncounterSection(avoidanceCheck, context) {
   let content = `
     <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
   const friendlyIds = avoidanceCheck.friendlyIds ?? [];
   const missing = friendlyIds.filter((id) => !getToken(id));
   if (missing.length > 0) {
     content += `<div class="${MODULE_ID}-missing">${makeMissingActorsString()}</div>`;
+  } else if (!avoidanceCheck.addedToCombat) {
+    const clickId = foundry.utils.randomID();
+    (context["clickIds"] ??= {})[clickId] = createEncounter;
+    content += `
+      <button class="${MODULE_ID}-create" data-click-id="${clickId}"
+          data-visibility="gm" title="${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounterTooltip`)}">
+        ${localizeString(`${MODULE_ID}.avoidanceCheck.createEncounter`)}
+      </button>`;
   }
-  content += `
-      <button class="${MODULE_ID}-create" data-action-id="${avoidanceCheck.actions.createEncounter}"
-          data-visibility="gm" title="${localizeString(`${MODULE_ID}.avoidanceTest.createEncounterTooltip`)}">
-        ${localizeString(`${MODULE_ID}.avoidanceTest.createEncounter`)}
-      </button>
-    </div>`;
+  content += "</div>";
   return content;
 }
 
@@ -107,7 +110,6 @@ async function prepareAvoidanceCheckData(tokens) {
   const enemyTokens = tokens.filter((t) => t.document.disposition !== 1);
 
   let friendlies = [];
-  const hoverIds = {};
   await iterateTokensAndParties(friendlyTokens, async (combatant) => {
     if (!friendlies.includes(combatant)) friendlies.push(combatant);
   });
@@ -121,11 +123,6 @@ async function prepareAvoidanceCheckData(tokens) {
     .filter((t) => !friendlyAvoiders.includes(t))
     .map((t) => t.name);
 
-  let actions = {
-    friendlies: {},
-    enemies: {},
-    createEncounter: foundry.utils.randomID(),
-  };
   let enemyStealth = {};
   if (enemyAvoiders.length > 0) {
     for (const avoider of enemyAvoiders) {
@@ -137,17 +134,11 @@ async function prepareAvoidanceCheckData(tokens) {
         friendlies,
       );
 
-      const hoverId = foundry.utils.randomID();
-      hoverIds[hoverId] = avoider.id;
-      const { summary, targetList } = prepareObservations(
-        observations,
-        hoverIds,
-      );
+      const { summary, targetList } = prepareObservations(observations);
       enemyStealth[avoider.id] = {
         name: avoider.name,
         stealthResult: roll.total,
         rawRollDosDelta,
-        hoverId,
         summary,
         targetList,
       };
@@ -157,22 +148,16 @@ async function prepareAvoidanceCheckData(tokens) {
   let friendlyStealth = {};
   if (friendlyAvoiders.length > 0) {
     for (const avoider of friendlyAvoiders) {
-      const hoverId = foundry.utils.randomID();
-      const actionId = foundry.utils.randomID();
-      actions.friendlies[actionId] = { combatantId: avoider.id };
-      hoverIds[hoverId] = avoider.id;
       friendlyStealth[avoider.id] = {
         name: avoider.name,
         stealthResult: null,
         rawRollDosDelta: null,
-        hoverId,
-        actionId,
       };
     }
   }
 
   const avoidanceCheckData = {
-    actions,
+    addedToCombat: false,
     noticableEnemies: noticableEnemies,
     enemyIds: enemyTokens.map((t) => t.id),
     enemyStealth: enemyStealth ?? {},
@@ -180,14 +165,13 @@ async function prepareAvoidanceCheckData(tokens) {
     friendlyIds: friendlies.map((c) => c.id),
     friendlyStealth: friendlyStealth ?? {},
   };
-  return { avoidanceCheckData, hoverIds };
+  return avoidanceCheckData;
 }
 
-function renderAvoidanceCheck(avoidanceCheck) {
-  debuglog("renderAvoidanceCheck", { avoidanceCheck });
+function renderAvoidanceCheck(avoidanceCheck, context) {
   let content = `
     <div class="${MODULE_ID}-avoidance-check">
-      <h3>${localizeString(`${MODULE_ID}.avoidanceTest.title`)}</h3>`;
+      <h3>${localizeString(`${MODULE_ID}.avoidanceCheck.title`)}</h3>`;
   const enemyIds = avoidanceCheck.enemyIds;
   if (enemyIds.length > 0) {
     content += `
@@ -196,7 +180,7 @@ function renderAvoidanceCheck(avoidanceCheck) {
     if (noticableEnemies?.length > 0) {
       content += `
           <div class="${MODULE_ID}-observed-enemies">
-            ${localizeString(`${MODULE_ID}.avoidanceTest.observedEnemies`)}
+            ${localizeString(`${MODULE_ID}.avoidanceCheck.observedEnemies`)}
             <div class="${MODULE_ID}-noticables">`;
       for (const name of noticableEnemies) {
         content += `<span>${name}</span>`;
@@ -208,17 +192,23 @@ function renderAvoidanceCheck(avoidanceCheck) {
 
     const enemyAvoiders = avoidanceCheck.enemyStealth;
     for (const [tokenId, avoider] of Object.entries(enemyAvoiders)) {
+      const hoverId = foundry.utils.randomID();
+      (context["hoverIds"] ??= {})[hoverId] = tokenId;
       content += `
           <hr>
           <div class="${MODULE_ID}-enemies">
-            <div class="${MODULE_ID}-avoider" data-combatant-id="${tokenId}" data-hover-id="${avoider.hoverId}">
+            <div class="${MODULE_ID}-avoider" data-combatant-id="${tokenId}" data-hover-id="${hoverId}">
               <div class="${MODULE_ID}-description">
                 <div class="${MODULE_ID}-name">${avoider.name}</div>
-                <span>${localizeString(`${MODULE_ID}.avoidanceTest.checkLabel`)}</span>
+                <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>
                 <div class="${MODULE_ID}-roll">${avoider.stealthResult}</div>
               </div>
               <div class="${MODULE_ID}-observations">`;
-      content += renderObservations(avoider.summary, avoider.targetList);
+      content += renderObservations(
+        avoider.summary,
+        avoider.targetList,
+        context,
+      );
       content += `
               </div>
             </div>
@@ -236,7 +226,7 @@ function renderAvoidanceCheck(avoidanceCheck) {
     if (noticableFriendlies.length > 0) {
       content += `
             <div class="${MODULE_ID}-observed-friendlies">
-              ${localizeString(`${MODULE_ID}.avoidanceTest.observedFriendlies`)}
+              ${localizeString(`${MODULE_ID}.avoidanceCheck.observedFriendlies`)}
               <div class="${MODULE_ID}-noticables">`;
       for (const name of noticableFriendlies) {
         content += `<li>${name}</li>`;
@@ -247,16 +237,22 @@ function renderAvoidanceCheck(avoidanceCheck) {
     }
     const friendlyAvoiders = avoidanceCheck.friendlyStealth;
     for (const [tokenId, avoider] of Object.entries(friendlyAvoiders)) {
+      const hoverId = foundry.utils.randomID();
+      (context["hoverIds"] ??= {})[hoverId] = tokenId;
       content += `
             <hr>
             <div class="${MODULE_ID}-friendlies">
-              <div class="${MODULE_ID}-avoider" data-combatant-id="${tokenId}" data-hover-id="${avoider.hoverId}">
+              <div class="${MODULE_ID}-avoider" data-combatant-id="${tokenId}" data-hover-id="${hoverId}">
                 <div class="${MODULE_ID}-description">
                   <div class="${MODULE_ID}-name">${avoider.name}</div>
-                  <span>${localizeString(`${MODULE_ID}.avoidanceTest.checkLabel`)}</span>`;
+                  <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>`;
       if (avoider.stealthResult === null) {
+        const clickId = foundry.utils.randomID();
+        (context["clickIds"] ??= {})[clickId] = (message, event, flags) => {
+          rollClick(message, event, flags.avoidanceCheck, tokenId);
+        };
         content += `
-                  <i class="fa-solid fa-dice-d20" data-action-id="${avoider.actionId}"></i>`;
+                  <i class="fa-solid fa-dice-d20" data-click-id="${clickId}"></i>`;
       } else {
         content += `
                   <div class="${MODULE_ID}-roll" data-visibility="gm">${avoider.stealthResult}</div>`;
@@ -279,15 +275,14 @@ function renderAvoidanceCheck(avoidanceCheck) {
     (s) => s.stealthResult === null,
   );
   if (!unrolled) {
-    content += renderEncounterSection(avoidanceCheck);
+    content += renderEncounterSection(avoidanceCheck, context);
   }
   return content;
 }
 
 export async function avoidanceCheck(tokens) {
   const gmIds = game.users.filter((u) => u.isGM).map((u) => u.id);
-  const { avoidanceCheckData, hoverIds } =
-    await prepareAvoidanceCheckData(tokens);
+  const avoidanceCheckData = await prepareAvoidanceCheckData(tokens);
   const secret = !avoidanceCheckData.friendlyIds.length;
   avoidanceCheckData.secret = secret;
   await ChatMessage.create({
@@ -296,8 +291,7 @@ export async function avoidanceCheck(tokens) {
     flags: {
       [MODULE_ID]: {
         card: "avoidance-check",
-        hoverIds: hoverIds,
-        avoidanceTest: avoidanceCheckData,
+        avoidanceCheck: avoidanceCheckData,
       },
     },
   });
@@ -320,16 +314,17 @@ function getScoutBonus() {
   return bonus;
 }
 
-async function createEncounter(avoidanceTest, message) {
-  debuglog("createEncounter", { avoidanceTest, message });
+async function createEncounter(message, event, flags) {
+  debuglog("createEncounter", { message, event, flags });
+  const avoidanceCheck = flags.avoidanceCheck;
   const combat = !game.combat
     ? await Combat.create({ scene: canvas.scene.id, active: true })
     : game.combat;
-  if (avoidanceTest.friendlyIds.some((id) => !getToken(id))) {
+  if (avoidanceCheck.friendlyIds.some((id) => !getToken(id))) {
     ui.notifications.warn(makeMissingActorsString());
   }
   const scoutBonus = getScoutBonus();
-  const combatants = avoidanceTest.enemyIds
+  const combatants = avoidanceCheck.enemyIds
     .map((id) => {
       const token = canvas.tokens.get(id);
       let entry = {
@@ -337,26 +332,26 @@ async function createEncounter(avoidanceTest, message) {
         hidden: token?.hidden,
       };
       if (
-        id in avoidanceTest.enemyStealth &&
-        avoidanceTest.enemyStealth[id]?.stealthResult !== null
+        id in avoidanceCheck.enemyStealth &&
+        avoidanceCheck.enemyStealth[id]?.stealthResult !== null
       ) {
-        entry.initiative = avoidanceTest.enemyStealth[id]?.stealthResult;
+        entry.initiative = avoidanceCheck.enemyStealth[id]?.stealthResult;
         entry.flags = { [game.system.id]: { initiativeStatistic: "stealth" } };
       }
       return entry;
     })
     .concat(
-      avoidanceTest.friendlyIds.map((id) => {
+      avoidanceCheck.friendlyIds.map((id) => {
         const token = getToken(id);
         let entry = {
           tokenId: token?.id,
           hidden: token?.hidden,
         };
         if (
-          id in avoidanceTest.friendlyStealth &&
-          avoidanceTest.friendlyStealth[id]?.stealthResult !== null
+          id in avoidanceCheck.friendlyStealth &&
+          avoidanceCheck.friendlyStealth[id]?.stealthResult !== null
         ) {
-          const stealthEntry = avoidanceTest.friendlyStealth[id];
+          const stealthEntry = avoidanceCheck.friendlyStealth[id];
           entry.initiative = stealthEntry?.stealthResult;
           if (scoutBonus) {
             const message = game.messages.get(stealthEntry?.rollMessageId);
@@ -378,26 +373,25 @@ async function createEncounter(avoidanceTest, message) {
       (c) =>
         !combat.combatants.find((existing) => existing.tokenId === c.tokenId),
     );
-  debuglog("combatants", { combatants });
   await combat.createEmbeddedDocuments("Combatant", combatants);
   await combat.update({
     flags: { [MODULE_ID]: { avoidanceCheckMessageId: message.id } },
   });
+  avoidanceCheck.addedToCombat = true;
+  message.update({ flags: { [MODULE_ID]: flags } });
   await ui.combat.render(true);
 }
 
-async function rollClick({ message, event, avoidanceTest, actionId }) {
-  debuglog("rollClick", { message, event, avoidanceTest, actionId });
-  const combatantId = avoidanceTest.actions.friendlies[actionId]?.combatantId;
-  if (avoidanceTest.friendlyStealth[combatantId]?.stealthResult !== null)
-    return;
+async function rollClick(message, event, avoidanceCheck, tokenId) {
+  debuglog("rollClick", { message, event, avoidanceCheck, tokenId });
+  if (avoidanceCheck.friendlyStealth[tokenId]?.stealthResult !== null) return;
   const actor =
-    canvas.tokens.get(combatantId)?.actor ?? game.actors.get(combatantId);
+    canvas.tokens.get(tokenId)?.actor ?? game.actors.get(combatantId);
   if (!actor) return;
   if (!game.user.isGM && !actor.isOwner) return;
   let roll = null;
   let rollMessageId = null;
-  if (avoidanceTest.secret) {
+  if (avoidanceCheck.secret) {
     roll = await rollStealth(actor, {
       skipDialog: true,
       player: false,
@@ -416,7 +410,7 @@ async function rollClick({ message, event, avoidanceTest, actionId }) {
   const { rawRollDosDelta } = breakdownRoll(roll);
   sendStealthRollToGM({
     messageId: message.id,
-    actionId,
+    tokenId,
     stealthResult: roll.total,
     rawRollDosDelta,
     rollMessageId,
@@ -425,14 +419,14 @@ async function rollClick({ message, event, avoidanceTest, actionId }) {
 
 export async function onStealthReply({
   messageId,
-  actionId,
+  tokenId,
   stealthResult,
   rawRollDosDelta,
   rollMessageId,
 }) {
   debuglog("onStealthReply", {
     messageId,
-    actionId,
+    tokenId,
     stealthResult,
     rawRollDosDelta,
     rollMessageId,
@@ -441,12 +435,9 @@ export async function onStealthReply({
   if (!message) return;
   const flags = message.flags[MODULE_ID];
   if (!flags) return;
-  const avoidanceTest = flags.avoidanceTest;
-  if (!avoidanceTest) return;
-  const friendly = avoidanceTest.actions.friendlies[actionId];
-  if (!friendly) return;
-  const avoiderId = friendly.combatantId;
-  let avoiderToken = canvas.tokens.get(avoiderId);
+  const avoidanceCheck = flags.avoidanceCheck;
+  if (!avoidanceCheck) return;
+  let avoiderToken = canvas.tokens.get(tokenId);
   if (!avoiderToken) return;
   const avoider = {
     tokenDoc: avoiderToken?.document ?? avoiderToken,
@@ -456,17 +447,16 @@ export async function onStealthReply({
       actor: avoiderToken?.actor,
     }),
   };
-  const enemyTokens = avoidanceTest.enemyIds.map((id) => canvas.tokens.get(id));
+  const enemyTokens = avoidanceCheck.enemyIds.map((id) =>
+    canvas.tokens.get(id),
+  );
   const observations = testAvoiderStealthAgainstObservers({
     avoider,
     observers: enemyTokens,
     analyze: avoidNoticeCheck,
   });
-  const { summary, targetList } = prepareObservations(
-    observations,
-    flags.hoverIds,
-  );
-  const avoiderData = avoidanceTest.friendlyStealth[avoiderId];
+  const { summary, targetList } = prepareObservations(observations);
+  const avoiderData = avoidanceCheck.friendlyStealth[tokenId];
   avoiderData.stealthResult = stealthResult;
   avoiderData.rawRollDosDelta = rawRollDosDelta;
   avoiderData.summary = summary;
@@ -480,41 +470,9 @@ export async function onStealthReply({
   await message.update(update);
 }
 
-async function clickHandler(message, event, avoidanceTest) {
-  debuglog("clickHandler", { message, event, avoidanceTest });
-  const button = event.target.closest(`button[data-action-id]`);
-  if (button) {
-    event.preventDefault();
-    const actionId = button.dataset.actionId;
-    if (actionId === avoidanceTest.actions.createEncounter) {
-      if (game.user.isGM) await createEncounter(avoidanceTest, message);
-    }
-    return;
-  }
-  const icon = event.target.closest(`i[data-action-id]`);
-  if (icon) {
-    event.preventDefault();
-    const actionId = icon.dataset.actionId;
-    await rollClick({ message, event, avoidanceTest, actionId });
-    return;
-  }
-}
-
-function renderAvoidanceCheckCardGuts(message, html, _data, flags) {
-  const content = renderAvoidanceCheck(flags.avoidanceTest);
+export function renderAvoidanceCheckCard(_message, html, _data, flags) {
+  const context = { interactive: true };
+  const content = renderAvoidanceCheck(flags.avoidanceCheck, context);
   html.insertAdjacentHTML("beforeend", content);
-  html.addEventListener(
-    "click",
-    async (event) => await clickHandler(message, event, flags.avoidanceTest),
-  );
-}
-
-export function renderAvoidanceCheckCard(message, html, _data, flags) {
-  if (canvas.ready) {
-    renderAvoidanceCheckCardGuts(message, html, _data, flags);
-  } else {
-    Hooks.once("canvasReady", () => {
-      renderAvoidanceCheckCardGuts(message, html, _data, flags);
-    });
-  }
+  return context;
 }

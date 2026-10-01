@@ -4,18 +4,15 @@ import { debuglog, interpolateString, localizeString } from "./utils.js";
 
 const dosTable = ["critical-failure", "failure", "success", "critical-success"];
 
-export function prepareTargetList(sortedObservers, hoverIds) {
+export function prepareTargetList(sortedObservers) {
   return sortedObservers.map((o) => {
     const observation = o.observation ?? o;
     const tokenId = observation.tokenDoc.id;
-    const hoverId = foundry.utils.randomID();
-    hoverIds[hoverId] = tokenId;
     const entry = {
       dc: observation.dc,
       degreeOfSuccess: observation.degreeOfSuccess,
       delta: observation.delta,
       deltaStr: observation.deltaStr,
-      hoverId: hoverId,
       name: observation.name,
       tokenId: tokenId,
       visibility: observation.visibility,
@@ -26,13 +23,14 @@ export function prepareTargetList(sortedObservers, hoverIds) {
   });
 }
 
-export function renderTargetList(targetList) {
+export function renderTargetList(targetList, context) {
   let content = `
     <div data-visibility="gm">
       <div class="${MODULE_ID}-target-list">`;
 
   for (const target of targetList) {
-    const hoverId = target.hoverId;
+    const hoverId = foundry.utils.randomID();
+    (context["hoverIds"] ??= {})[hoverId] = target.tokenId;
     const vs = localizeString(`${MODULE_ID}.initiative.vs`, {
       name: target.name,
     });
@@ -46,7 +44,7 @@ export function renderTargetList(targetList) {
           </div>`;
     if (target.tooltip) {
       content += `
-          <div class="${MODULE_ID}-dc" data-tooltip="<div>${game.i18n.localize(`${MODULE_ID}.${target.tooltip}`)}</div>">
+          <div class="${MODULE_ID}-dc" data-tooltip="<div>${target.tooltip}</div>">
             <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
               DC ${target.dc}
             </span>
@@ -80,8 +78,7 @@ export async function updateInitiativeCards(observations) {
         : a.observation.name.localeCompare(b.observation.name);
     });
 
-    let hoverIds = {};
-    const targetList = prepareTargetList(sortedObservers, hoverIds);
+    const targetList = prepareTargetList(sortedObservers);
 
     const initiativeMessage = await findInitiativeCard(avoider.combatant);
     if (!initiativeMessage) {
@@ -95,7 +92,6 @@ export async function updateInitiativeCards(observations) {
           name: avoider.tokenDoc.name,
           activity: "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
           initiative: { targetList: targetList },
-          hoverIds: hoverIds,
         },
       },
     };
@@ -103,7 +99,7 @@ export async function updateInitiativeCards(observations) {
   }
 }
 
-export function renderInitiativeCard(message, html, data, flags) {
+export function renderInitiativeCard(_message, html, _data, flags) {
   const activity = interpolateString(
     game.i18n.localize("pf2e-avoid-notice.activity"),
     {
@@ -112,6 +108,8 @@ export function renderInitiativeCard(message, html, data, flags) {
     },
   );
   let content = `<div class="${MODULE_ID}-init-activity">${activity}</div>`;
-  content += renderTargetList(flags.initiative?.targetList);
+  const context = { interactive: false };
+  content += renderTargetList(flags.initiative?.targetList, context);
   html.insertAdjacentHTML("beforeend", content);
+  return context;
 }

@@ -117,8 +117,8 @@ export async function invokeTokensMenu({ selection }) {
   if (!combat || !combat.started) {
     choices.push({
       key: "avoidance-check",
-      label: game.i18n.localize(`${MODULE_ID}.menu.testAvoidance.label`),
-      hint: localizeString(`${MODULE_ID}.menu.testAvoidance.hint`, {
+      label: game.i18n.localize(`${MODULE_ID}.menu.avoidanceCheck.label`),
+      hint: localizeString(`${MODULE_ID}.menu.avoidanceCheck.hint`, {
         type: game.i18n.localize(`${MODULE_ID}.menu.type.${selection.type}`),
       }),
       section: 0,

@@ -17,10 +17,6 @@
       "hint": "PCs are required to set the 'Avoid Notice' exploration activity active to hide at combat start. If disabled, PCs instead need to use stealth for initiative.",
       "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
-    "noSummary": {
-      "name": "Disable chat card summaries",
-      "hint": "Will skip updating the initiative card with stealth results"
-    },
     "hideFromAllies": {
       "name": "Stealth affects allies",
       "hint": "If enabled, stealth will affect both allied and non-allied tokens"
@@ -96,7 +92,7 @@
         "label": "Undo Stealth Reveals",
         "hint": "Undo any stealth reveals of {type} tokens"
       },
-      "testAvoidance": {
+      "avoidanceCheck": {
         "label": "Check Avoidance",
         "hint": "Run a stealth vs perception check for all stealthing {type} tokens"
       },
@@ -130,12 +126,13 @@
       "stealth": {
         "name": "Stealth",
         "description": "Stealth effect will apply hidden/undetected to observer tokens as appropriate"
-      }
+      },
+      "apply": "Apply Effects"
     },
     "initiative": {
       "vs": "vs {name}"
     },
-    "avoidanceTest": {
+    "avoidanceCheck": {
       "title": "Avoidance Check",
       "secretTitle": "Secret Avoidance Check",
       "checkLabel": "Check result:",
@@ -147,6 +144,12 @@
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",
       "observedEnemies": "Noticable Enemies",
       "observedFriendlies": "Noticable Party Members"
+    },
+    "hide": {
+      "retain": "Success retains undetected status"
+    },
+    "sneak": {
+      "observed": "Sneak action requires hidden or undetected condition"
     }
   }
 }

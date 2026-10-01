@@ -1,11 +1,45 @@
-import { debuglog } from "./utils.js";
+import { debuglog, breakdownRoll } from "./utils.js";
 import { prepareSeekData } from "./seek.js";
 import { prepareHideData } from "./hide.js";
 import { prepareSneakData } from "./sneak.js";
 import { prepareCreateADiversionData } from "./create-a-diversion.js";
 import { preparePointOutData } from "./point-out.js";
+import { findCompanionsOnCanvas, findPossibleObservers } from "./combat.js";
+import {
+  testAvoiderStealthAgainstObservers,
+  prepareObservations,
+} from "./observation-logic.js";
+import { findBaseCoverBonus } from "./cover.js";
 
 const pointOutLabel = "PF2E.Actions.PointOut.Title";
+
+export function prepareObservedActionData({ message, actingToken, analyze }) {
+  const combat = game?.combat;
+  const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
+  const observers = findPossibleObservers({
+    encounter: combat,
+    avoider: actingToken,
+    minionTokens,
+    eidolonTokens,
+  });
+  const roll = message.rolls?.[0];
+  const { rawRollDosDelta } = breakdownRoll(roll);
+  const avoider = {
+    tokenDoc: actingToken?.document ?? actingToken,
+    roll,
+    stealthResult: roll.total,
+    rawRollDosDelta,
+    baseCoverBonus: findBaseCoverBonus({
+      actor: actingToken?.actor ?? actingToken,
+    }),
+  };
+  const observations = testAvoiderStealthAgainstObservers({
+    avoider,
+    observers,
+    analyze,
+  });
+  return prepareObservations(observations);
+}
 
 Hooks.on("createChatMessage", async (message, options, userId) => {
   const combat = game?.combat;

@@ -6,7 +6,6 @@ export const SETTINGS = {
   // General settings
   clearPartyStealthAfterCombat: "clearPartyStealthAfterCombat",
   hideFromAllies: "hideFromAllies",
-  noSummary: "noSummary",
   requireActivity: "requireActivity",
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
@@ -22,11 +21,10 @@ export const SETTINGS = {
 
 export let cachedSettings = {
   panZoomToCombat: true,
-  useEffects: false,
+  useEffects: true,
   requireActivity: true,
   hideFromAllies: false,
   clearPartyStealthAfterCombat: false,
-  noSummary: false,
   logLevel: "none",
   useNewApis: false,
 };
@@ -117,19 +115,6 @@ export function setupSettings() {
     MODULE_ID,
     SETTINGS.clearPartyStealthAfterCombat,
   );
-
-  game.settings.register(MODULE_ID, SETTINGS.noSummary, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.noSummary}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.noSummary}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: cachedSettings.noSummary,
-    onChange: (newValue) => {
-      cachedSettings.noSummary = newValue;
-    },
-  });
-  cachedSettings.noSummary = game.settings.get(MODULE_ID, SETTINGS.noSummary);
 
   game.settings.register(MODULE_ID, SETTINGS.logLevel, {
     name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.logLevel}.name`),

@@ -40,6 +40,21 @@ export function isAvoider(tokenOrActor) {
   );
 }
 
+export function getVisibilityOf(avoider, observer) {
+  debuglog("getVisibilityBetween", { avoider, observer });
+  const actor = avoider.tokenDoc.actor;
+  const stealthEffect = actor?.items?.find(
+    (item) => item.system.slug === SLUGS.stealthEffect,
+  );
+  const flags = stealthEffect?.flags?.[MODULE_ID];
+  const undetected = flags?.undetected;
+  if (undetected && !undetected.except?.includes(observer.id))
+    return UNDETECTED;
+  const hidden = flags?.hidden;
+  if (hidden && !hidden.except?.includes(observer.id)) return HIDDEN;
+  return OBSERVED;
+}
+
 export async function undoRevealsOf({ avoiders, observers = [] }) {
   debuglog("undoRevealsOf", { avoiders, observers });
   for (const avoider of avoiders) {

@@ -7,7 +7,7 @@ import {
 } from "./observation-logic.js";
 import { renderTargetList } from "./render-status.js";
 
-export function createADiversionCheck(observation) {
+export function createADiversionCheck(_avoider, observation) {
   observation.visibility = observation.degreeOfSuccess >= 2 ? HIDDEN : OBSERVED;
   observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
 }
@@ -44,14 +44,12 @@ export async function prepareCreateADiversionData(
     observers,
     analyze: createADiversionCheck,
   });
-  const hoverIds = {};
-  const { summary, targetList } = prepareObservations(observations, hoverIds);
+  const { summary, targetList } = prepareObservations(observations);
   const update = {
     flags: {
       [MODULE_ID]: {
         card: "create-a-diversion",
         createADiversion: { summary, targetList },
-        hoverIds: hoverIds,
       },
     },
   };
@@ -59,6 +57,8 @@ export async function prepareCreateADiversionData(
 }
 
 export function renderCreateADiversionCard(_message, html, _data, flags) {
-  const content = renderTargetList(flags.createADiversion?.targetList);
+  const context = { interactive: flags.showApplyButton };
+  const content = renderTargetList(flags.createADiversion?.targetList, context);
   html.insertAdjacentHTML("beforeend", content);
+  return context;
 }

@@ -113,7 +113,7 @@ globalThis.Hooks.once("init", () => {
         ({ rawRollDosDelta } = breakdownRoll(initiativeCard?.rolls?.[0]));
       } else {
         const avoidanceCheck =
-          avoidanceCheckMessage?.flags?.[MODULE_ID]?.avoidanceTest;
+          avoidanceCheckMessage?.flags?.[MODULE_ID]?.avoidanceCheck;
         if (avoidanceCheck) {
           const tokenId = avoidingCombatant.token.id;
           if (tokenId in avoidanceCheck.enemyStealth) {
@@ -169,7 +169,7 @@ globalThis.Hooks.once("init", () => {
     // the result structure and build the messages for each affected chat card, as well
     // as the calls we need to do for the visibility manager
     //
-    if (!cachedSettings.noSummary) await updateInitiativeCards(observations);
+    await updateInitiativeCards(observations);
 
     // Print out the warnings for PCs that aren't using Avoid Notice
     for (const nonAvoider of nonAvoidingPcs) {

@@ -1,5 +1,6 @@
 import { clampDos, debuglog } from "./utils.js";
 import { prepareTargetList } from "./render-status.js";
+import { MODULE_ID } from "./const.js";
 
 export function makeObservation({ avoider, observer, analyze }) {
   let observation = {
@@ -14,10 +15,10 @@ export function makeObservation({ avoider, observer, analyze }) {
     observation.coverBonus = coverBonus;
     switch (coverBonus) {
       case 2:
-        observation.tooltip = `standardCover`;
+        observation.tooltip = game.i18n.localize(`${MODULE_ID}.standardCover`);
         break;
       case 4:
-        observation.tooltip = `greaterCover`;
+        observation.tooltip = game.i18n.localize(`${MODULE_ID}.greaterCover`);
         break;
     }
   }
@@ -26,7 +27,7 @@ export function makeObservation({ avoider, observer, analyze }) {
   observation.delta = delta;
   observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
   observation.degreeOfSuccess = clampDos(delta, avoider.rawRollDosDelta);
-  analyze(observation);
+  analyze(avoider, observation);
   // debuglog("makeObservation", { avoider, observer, observation });
 
   return observation;
@@ -52,7 +53,7 @@ export function testAvoiderStealthAgainstObservers({
   return observations.sort((a, b) => a.delta - b.delta);
 }
 
-export function prepareObservations(observations, hoverIds) {
+export function prepareObservations(observations) {
   const summary = observations.reduce((acc, obs) => {
     const visibility = obs.visibility;
     acc[visibility] = (acc[visibility] || 0) + 1;
@@ -63,6 +64,6 @@ export function prepareObservations(observations, hoverIds) {
     const diff = b.dc - a.dc;
     return diff !== 0 ? diff : a.name.localeCompare(b.name);
   });
-  const targetList = prepareTargetList(sortedObservers, hoverIds);
+  const targetList = prepareTargetList(sortedObservers);
   return { summary, targetList };
 }
