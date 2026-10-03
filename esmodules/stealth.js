@@ -53,7 +53,7 @@ export async function prepareAmbush(tokens) {
   }
 
   if (tokenUpdates.length > 0) {
-    canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
+    return canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
   }
 }
 
@@ -70,6 +70,6 @@ export async function clearAmbush(tokens) {
   }
 
   if (tokenUpdates.length > 0) {
-    canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
+    return canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates);
   }
 }

@@ -118,6 +118,10 @@
         "label": "Undo reveals of targeted tokens' condition",
         "hint": "Undo any reveals of targeted tokens' to controlled tokens"
       },
+      "declump": {
+        "label": "Declump Initiative",
+        "hint": "Preserve initiative order but spread out all initiatives"
+      },
       "endOfList": "end of list so I don't have to mess with commas"
     },
     "effects": {

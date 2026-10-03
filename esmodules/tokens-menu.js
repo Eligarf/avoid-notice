@@ -134,31 +134,25 @@ export async function invokeTokensMenu({ selection }) {
 
   switch (choice?.key) {
     case "refresh":
-      refreshEverybody();
-      break;
+      return refreshEverybody();
     case "prepare-ambush":
       debuglog("prepare-ambush", selection.tokens);
-      await prepareAmbush(selection.tokens);
-      break;
+      return prepareAmbush(selection.tokens);
     case "clear-ambush":
       debuglog("clear-ambush", selection.tokens);
-      await clearAmbush(selection.tokens);
-      break;
+      return clearAmbush(selection.tokens);
     case "remove-stealth":
       debuglog("remove-stealth", selection.tokens);
       await iterateTokensAndParties(selection.tokens, async (combatant) => {
-        await clearActorStealth({ actor: combatant?.actor ?? combatant });
+        return clearActorStealth({ actor: combatant?.actor ?? combatant });
       });
-      refreshEverybody();
-      break;
+      return refreshEverybody();
     case "avoidance-check":
       debuglog("avoidance-check", selection.tokens);
-      await avoidanceCheck(selection.tokens);
-      break;
+      return avoidanceCheck(selection.tokens);
     case "undo-reveals":
       debuglog("undo-reveals", selection.tokens);
       undoRevealsOf({ avoiders: selection.tokens });
-      refreshEverybody();
-      break;
+      return refreshEverybody();
   }
 }

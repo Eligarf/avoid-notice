@@ -164,7 +164,7 @@ async function createStealthEffect(actor, rules, flags, baselineVisibility) {
     },
   };
 
-  await actor.createEmbeddedDocuments("Item", [effectData]);
+  return actor.createEmbeddedDocuments("Item", [effectData]);
 }
 
 export function buildVisibilitySets(observers, baselineVisibility = undefined) {
@@ -265,7 +265,7 @@ export async function adaptStealthEffectToObservers({
     (item) => item.system.slug === SLUGS.stealthEffect,
   );
   if (effect) {
-    await effect.update({
+    return effect.update({
       flags: {
         [MODULE_ID]: flags,
       },
@@ -276,7 +276,6 @@ export async function adaptStealthEffectToObservers({
         rules: rules,
       },
     });
-  } else {
-    await createStealthEffect(actor, rules, flags, baselineVisibility);
   }
+  return createStealthEffect(actor, rules, flags, baselineVisibility);
 }

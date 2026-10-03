@@ -20,6 +20,15 @@ export async function invokeNoTokensMenu() {
     },
   ];
 
+  const combat = game.combats.active;
+  const turns = combat?.turns ?? [];
+  if (turns.length > 0) {
+    choices.push({
+      key: "declump",
+      label: game.i18n.localize(`${MODULE_ID}.menu.declump.label`),
+      hint: `${MODULE_ID}.menu.declump.hint`,
+    });
+  }
   choices.sort((a, b) => a.label.localeCompare(b.label));
   const choice = await AvoidNoticePopupMenu.show(
     `${MODULE_ID}.menu.noTokensSelected`,
@@ -28,10 +37,23 @@ export async function invokeNoTokensMenu() {
 
   switch (choice?.key) {
     case "remove-party-stealth":
-      clearPartyStealth({});
-      break;
+      return clearPartyStealth({});
     case "refresh":
-      refreshEverybody();
-      break;
+      return refreshEverybody();
+    case "declump":
+      const delta = 3;
+      const total = turns.length;
+      const topInit = turns[0].initiative ?? 20;
+      const bottomInit = topInit - delta * (total - 1);
+
+      let init = bottomInit < 1 ? topInit + 1 - bottomInit : topInit;
+      for (let i = 0; i < total; ++i) {
+        const combatant = turns[i];
+        if (init !== combatant.initiative) {
+          await combat.setInitiative(combatant.id, init);
+        }
+        init -= delta;
+      }
+      return;
   }
 }

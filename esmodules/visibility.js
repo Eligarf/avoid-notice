@@ -2,7 +2,6 @@ import { MODULE_ID, SLUGS } from "./const.js";
 import { debuglog } from "./utils.js";
 import { createVisibilityCache } from "./cache.js";
 import { cachedSettings } from "./settings.js";
-import { buildVisibilitySets } from "./effects.js";
 
 let hooks = {};
 let observingTokenIds = new Set();

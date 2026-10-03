@@ -223,6 +223,6 @@ globalThis.Hooks.once("init", () => {
   globalThis.Hooks.on("deleteCombat", async () => {
     if (!game.user?.isActiveGM) return;
     const cleanUp = cachedSettings.clearPartyStealthAfterCombat;
-    if (cleanUp) clearPartyStealth({ showBanner: false });
+    if (cleanUp) return clearPartyStealth({ showBanner: false });
   });
 });

@@ -123,13 +123,13 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
     case "remove-controlled-stealth":
       debuglog("remove-controlled-stealth");
       await iterateTokensAndParties(controlled.tokens, async (combatant) => {
-        await clearActorStealth({ actor: combatant?.actor ?? combatant });
+        return clearActorStealth({ actor: combatant?.actor ?? combatant });
       });
       break;
     case "remove-targeted-stealth":
       debuglog("remove-targeted-stealth");
       await iterateTokensAndParties(targeted.tokens, async (combatant) => {
-        await clearActorStealth({ actor: combatant?.actor ?? combatant });
+        return clearActorStealth({ actor: combatant?.actor ?? combatant });
       });
       break;
     case "reveal-controlled":
@@ -148,14 +148,14 @@ export async function invokeConnectedTokensMenu({ controlled, targeted }) {
       break;
     case "undo-controlled-reveals":
       debuglog("undo-controlled-reveals");
-      undoRevealsOf({
+      await undoRevealsOf({
         avoiders: controlledAvoidingTokens,
         observers: targeted.tokens,
       });
       break;
     case "undo-targeted-reveals":
       debuglog("undo-targeted-reveals");
-      undoRevealsOf({
+      await undoRevealsOf({
         avoiders: targetedAvoidingTokens,
         observers: controlled.tokens,
       });

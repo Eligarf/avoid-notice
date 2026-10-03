@@ -31,7 +31,7 @@ export async function modifyInitiativeCard({
     content += await roll.render();
   }
   content += interpolateString(message, interpolations);
-  await lastMessage.update({ content });
+  return lastMessage.update({ content });
 }
 
 export async function applyInitiativeConditions(observations, tokenUpdates) {
