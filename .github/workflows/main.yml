@@ -1,29 +1,28 @@
 name: PF2e Avoid Notice Release Pipeline
 
 env:
-  # The URL used for the module's "Project URL" link on FoundryVTT's website.
   project_url: "https://github.com/${{ github.repository }}"
-
-  # A URL that will always point to the latest manifest.
-  # FoundryVTT uses this URL to check whether the current module version that
-  # is installed is the latest version. This URL should NOT change,
-  # otherwise FoundryVTT won't be able to perform this check.
-  latest_manifest_url: "https://github.com/${{ github.repository }}/releases/latest/download/module.json"
-
-  # The URL to the module archive associated with the module release being
-  # processed by this workflow.
-  release_module_url: "https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/module.zip"
-
-  release_blob: "https://github.com/${{ github.repository }}/blob/${{ github.event.release.tag_name }}"
+  latest_manifest_url: >-
+    ${{ github.event_name == 'release' 
+    && format('https://github.com{0}/releases/latest/download/module.json', github.repository) 
+    || format('https://github.com{0}/releases/download/test-build/module.json', github.repository) }}
+  release_module_url: >-
+    ${{ github.event_name == 'release' 
+    && format('https://github.com{0}/releases/download/{1}/module.zip', github.repository, github.event.release.tag_name) 
+    || format('https://github.com{0}/releases/download/test-build/module.zip', github.repository) }}
+  release_blob: >-
+    ${{ github.event_name == 'release' 
+    && format('https://github.com{0}/blob/{1}', github.repository, github.event.release.tag_name) 
+    || format('https://github.com{0}/blob/{1}', github.repository, github.ref_name) }}
 
 on:
   release:
     types: [published, released]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
     permissions:
       contents: write
 
@@ -31,19 +30,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # shrink the files
       - name: replace js and css files with minified ones
         uses: nizarmah/auto-minify@v3
         with:
           overwrite: true
           js_engine: "uglify-js"
 
-      # get part of the tag after the `v`
+      # Extracted version fallback: parses release tags or generates a fake test version string
       - name: Extract tag version number
         id: get_version
-        uses: battila7/get-version-action@v2
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || '' }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ] && [ -n "$RELEASE_TAG" ]; then
+            CLEAN_VER=$(echo "$RELEASE_TAG" | sed 's/^v//')
+          else
+            CLEAN_VER="0.0.0-test.${{ github.run_number }}"
+          fi
+          echo "version-without-v=$CLEAN_VER" >> $GITHUB_OUTPUT
 
-      # Substitute the Manifest and Download URLs in the module.json
       - name: Substitute manifest and download links for versioned ones
         id: sub_manifest_link_version
         uses: microsoft/variable-substitution@v1
@@ -69,15 +74,15 @@ jobs:
           CHANGELOG.md \
           languages/ \
           esmodules/ \
-          styles/ \
-          # Or whatever more
+          styles/
 
-      # Create a release for this specific version
+      # Create a release for this specific version (Only runs on actual releases)
       - name: Create version release
         id: create_version_release
+        if: github.event_name == 'release'
         uses: ncipollo/release-action@v1
         with:
-          allowUpdates: true # Set this to false if you want to prevent updating existing releases
+          allowUpdates: true 
           name: ${{ github.event.release.name }}
           draft: ${{ github.event.release.unpublished }}
           prerelease: ${{ github.event.release.prerelease }}
@@ -85,6 +90,19 @@ jobs:
           artifacts: "./module.json, ./module.zip"
           tag: ${{ github.event.release.tag_name }}
           body: ${{ github.event.release.body }}
+
+      # For manual runs: Overwrites a persistent static release tagged 'test-build'
+      - name: Update Test Release Artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: "Test Branch Bleeding Edge Build"
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./module.json, ./module.zip"
+          tag: "test-build"
+          body: "Automated continuous compilation from manual run. Build number: ${{ github.run_number }}"
 
   release:
     name: Release to Foundry
