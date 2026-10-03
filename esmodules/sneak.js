@@ -11,7 +11,7 @@ export function avoidNoticeCheck(_avoider, observation) {
   observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
 }
 
-export function sneakCheck(avoider, observation) {
+function sneakCheck(avoider, observation) {
   const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
   if (visibility > OBSERVED) {
     observation.visibility =

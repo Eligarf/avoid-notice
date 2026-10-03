@@ -11,7 +11,7 @@ import { cachedSettings } from "./settings.js";
 import { prepareObservedActionData } from "./action.js";
 import { adaptStealthEffectToObservers, getVisibilityOf } from "./effects.js";
 
-export function hideCheck(avoider, observation) {
+function hideCheck(avoider, observation) {
   const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
   const baselineVisibility = visibility >= HIDDEN ? visibility : HIDDEN;
   if (visibility === UNDETECTED && observation.degreeOfSuccess >= 2) {
