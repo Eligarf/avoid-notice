@@ -34,7 +34,7 @@ function testAvoiderAgainstObservers(avoiderToken, roll, observers) {
   const avoider = {
     tokenDoc: avoiderToken?.document ?? avoiderToken,
     roll,
-    stealthResult: roll.total,
+    skillResult: roll.total,
     rawRollDosDelta,
     baseCoverBonus: findBaseCoverBonus({
       actor: avoiderToken?.actor ?? avoiderToken,
@@ -137,7 +137,7 @@ async function prepareAvoidanceCheckData(tokens) {
       const { summary, targetList } = prepareObservations(observations);
       enemyStealth[avoider.id] = {
         name: avoider.name,
-        stealthResult: roll.total,
+        skillResult: roll.total,
         rawRollDosDelta,
         summary,
         targetList,
@@ -150,7 +150,7 @@ async function prepareAvoidanceCheckData(tokens) {
     for (const avoider of friendlyAvoiders) {
       friendlyStealth[avoider.id] = {
         name: avoider.name,
-        stealthResult: null,
+        skillResult: null,
         rawRollDosDelta: null,
       };
     }
@@ -201,7 +201,7 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
               <div class="${MODULE_ID}-description">
                 <div class="${MODULE_ID}-name">${avoider.name}</div>
                 <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>
-                <div class="${MODULE_ID}-roll">${avoider.stealthResult}</div>
+                <div class="${MODULE_ID}-roll">${avoider.skillResult}</div>
               </div>
               <div class="${MODULE_ID}-observations">`;
       content += renderObservations(
@@ -246,21 +246,25 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
                 <div class="${MODULE_ID}-description">
                   <div class="${MODULE_ID}-name">${avoider.name}</div>
                   <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>`;
-      if (avoider.stealthResult === null) {
+      if (avoider.skillResult === null) {
         const clickId = foundry.utils.randomID();
-        (context["clickIds"] ??= {})[clickId] = (message, event, flags) => {
-          rollClick(message, event, flags.avoidanceCheck, tokenId);
+        (context["clickIds"] ??= {})[clickId] = async (
+          message,
+          event,
+          flags,
+        ) => {
+          return rollClick(message, event, flags.avoidanceCheck, tokenId);
         };
         content += `
                   <i class="fa-solid fa-dice-d20" data-click-id="${clickId}"></i>`;
       } else {
         content += `
-                  <div class="${MODULE_ID}-roll" data-visibility="gm">${avoider.stealthResult}</div>`;
+                  <div class="${MODULE_ID}-roll" data-visibility="gm">${avoider.skillResult}</div>`;
       }
       content += `
                 </div>
                 <div class="${MODULE_ID}-observations" data-visibility="gm">`;
-      if (avoider.stealthResult !== null) {
+      if (avoider.skillResult !== null) {
         content += renderObservations(avoider.summary, avoider.targetList);
       }
       content += `
@@ -272,7 +276,7 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
   }
 
   const unrolled = Object.values(avoidanceCheck.friendlyStealth).some(
-    (s) => s.stealthResult === null,
+    (s) => s.skillResult === null,
   );
   if (!unrolled) {
     content += renderEncounterSection(avoidanceCheck, context);
@@ -333,9 +337,9 @@ async function createEncounter(message, event, flags) {
       };
       if (
         id in avoidanceCheck.enemyStealth &&
-        avoidanceCheck.enemyStealth[id]?.stealthResult !== null
+        avoidanceCheck.enemyStealth[id]?.skillResult !== null
       ) {
-        entry.initiative = avoidanceCheck.enemyStealth[id]?.stealthResult;
+        entry.initiative = avoidanceCheck.enemyStealth[id]?.skillResult;
         entry.flags = { [game.system.id]: { initiativeStatistic: "stealth" } };
       }
       return entry;
@@ -349,10 +353,10 @@ async function createEncounter(message, event, flags) {
         };
         if (
           id in avoidanceCheck.friendlyStealth &&
-          avoidanceCheck.friendlyStealth[id]?.stealthResult !== null
+          avoidanceCheck.friendlyStealth[id]?.skillResult !== null
         ) {
           const stealthEntry = avoidanceCheck.friendlyStealth[id];
-          entry.initiative = stealthEntry?.stealthResult;
+          entry.initiative = stealthEntry?.skillResult;
           if (scoutBonus) {
             const message = game.messages.get(stealthEntry?.rollMessageId);
             const modifiers = message.flags[game.system.id]?.modifiers;
@@ -384,9 +388,8 @@ async function createEncounter(message, event, flags) {
 
 async function rollClick(message, event, avoidanceCheck, tokenId) {
   debuglog("rollClick", { message, event, avoidanceCheck, tokenId });
-  if (avoidanceCheck.friendlyStealth[tokenId]?.stealthResult !== null) return;
-  const actor =
-    canvas.tokens.get(tokenId)?.actor ?? game.actors.get(combatantId);
+  if (avoidanceCheck.friendlyStealth[tokenId]?.skillResult !== null) return;
+  const actor = canvas.tokens.get(tokenId)?.actor ?? game.actors.get(tokenId);
   if (!actor) return;
   if (!game.user.isGM && !actor.isOwner) return;
   let roll = null;
@@ -408,10 +411,10 @@ async function rollClick(message, event, avoidanceCheck, tokenId) {
     });
   }
   const { rawRollDosDelta } = breakdownRoll(roll);
-  sendStealthRollToGM({
+  return sendStealthRollToGM({
     messageId: message.id,
     tokenId,
-    stealthResult: roll.total,
+    skillResult: roll.total,
     rawRollDosDelta,
     rollMessageId,
   });
@@ -420,14 +423,14 @@ async function rollClick(message, event, avoidanceCheck, tokenId) {
 export async function onStealthReply({
   messageId,
   tokenId,
-  stealthResult,
+  skillResult,
   rawRollDosDelta,
   rollMessageId,
 }) {
   debuglog("onStealthReply", {
     messageId,
     tokenId,
-    stealthResult,
+    skillResult,
     rawRollDosDelta,
     rollMessageId,
   });
@@ -441,7 +444,7 @@ export async function onStealthReply({
   if (!avoiderToken) return;
   const avoider = {
     tokenDoc: avoiderToken?.document ?? avoiderToken,
-    stealthResult,
+    skillResult,
     rawRollDosDelta,
     baseCoverBonus: findBaseCoverBonus({
       actor: avoiderToken?.actor,
@@ -457,7 +460,7 @@ export async function onStealthReply({
   });
   const { summary, targetList } = prepareObservations(observations);
   const avoiderData = avoidanceCheck.friendlyStealth[tokenId];
-  avoiderData.stealthResult = stealthResult;
+  avoiderData.skillResult = skillResult;
   avoiderData.rawRollDosDelta = rawRollDosDelta;
   avoiderData.summary = summary;
   avoiderData.targetList = targetList;

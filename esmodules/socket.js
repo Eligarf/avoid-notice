@@ -151,7 +151,7 @@ async function zoomToTokens(tokens) {
 export function sendStealthRollToGM({
   messageId,
   tokenId,
-  stealthResult,
+  skillResult,
   rawRollDosDelta,
   rollMessageId,
 }) {
@@ -159,7 +159,7 @@ export function sendStealthRollToGM({
   socket.executeAsGM("StealthReply", {
     messageId,
     tokenId,
-    stealthResult,
+    skillResult,
     rawRollDosDelta,
     rollMessageId,
   });

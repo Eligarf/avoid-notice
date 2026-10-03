@@ -27,7 +27,7 @@ export function prepareObservedActionData({ message, actingToken, analyze }) {
   const avoider = {
     tokenDoc: actingToken?.document ?? actingToken,
     roll,
-    stealthResult: roll.total,
+    skillResult: roll.total,
     rawRollDosDelta,
     baseCoverBonus: findBaseCoverBonus({
       actor: actingToken?.actor ?? actingToken,

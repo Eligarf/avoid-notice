@@ -53,7 +53,7 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
     );
     await adaptStealthEffectToObservers({
       actor: avoider.tokenDoc.actor,
-      baseline: UNDETECTED,
+      baselineVisibility: UNDETECTED,
       observers: gazers,
     });
   }

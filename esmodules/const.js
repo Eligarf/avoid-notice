@@ -26,6 +26,12 @@ export const SKILL_ACTIONS = [
   "action:sneak",
 ];
 
+export const LOCALIZATION_KEYS = {
+  observed: "PF2E.condition.observed.name",
+  hidden: "PF2E.condition.hidden.name",
+  undetected: "PF2E.condition.undetected.name",
+};
+
 export const SLUGS = {
   avoidNotice: "avoid-notice",
   circumstanceBonus: "circumstance-bonus",

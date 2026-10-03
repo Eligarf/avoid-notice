@@ -23,7 +23,7 @@ export function makeObservation({ avoider, observer, analyze }) {
     }
   }
 
-  const delta = avoider.stealthResult + coverBonus - observation.dc;
+  const delta = avoider.skillResult + coverBonus - observation.dc;
   observation.delta = delta;
   observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
   observation.degreeOfSuccess = clampDos(delta, avoider.rawRollDosDelta);

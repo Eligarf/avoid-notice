@@ -1,4 +1,4 @@
-import { MODULE_ID } from "./const.js";
+import { MODULE_ID, LOCALIZATION_KEYS, VISIBILITY_LABELS } from "./const.js";
 import { findInitiativeCard } from "./initiative.js";
 import { debuglog, interpolateString, localizeString } from "./utils.js";
 
@@ -23,23 +23,57 @@ export function prepareTargetList(sortedObservers) {
   });
 }
 
+async function visibilityClick(message, _event, flags, targetId, loopAt) {
+  const targetList = flags[flags.card]?.targetList;
+  if (!targetList) return;
+  const target = targetList.find((t) => t.tokenId === targetId);
+  if (!target) return;
+  target.visibility = (target.visibility + 1) % loopAt;
+  target.visibilityLabel = VISIBILITY_LABELS[target.visibility];
+  const update = {
+    flags: {
+      [MODULE_ID]: flags,
+    },
+  };
+  target.degreeOfSuccess =
+    loopAt === 3 ? target.visibility : target.visibility + 1;
+  return message.update(update);
+}
+
 export function renderTargetList(targetList, context) {
   let content = `
     <div data-visibility="gm">
       <div class="${MODULE_ID}-target-list">`;
 
+  const interactive = context.interactive ?? false;
   for (const target of targetList) {
     const hoverId = foundry.utils.randomID();
     (context["hoverIds"] ??= {})[hoverId] = target.tokenId;
     const vs = localizeString(`${MODULE_ID}.initiative.vs`, {
       name: target.name,
     });
+    let resultTag;
+    if (interactive) {
+      let clickId = foundry.utils.randomID();
+      (context["clickIds"] ??= {})[clickId] = async (message, event, flags) => {
+        return visibilityClick(
+          message,
+          event,
+          flags,
+          target.tokenId,
+          context.loopAt ?? 3,
+        );
+      };
+      resultTag = `<div class="${MODULE_ID}-result" data-click-id="${clickId}" data-interactive="true">`;
+    } else {
+      resultTag = `<div class="${MODULE_ID}-result" data-interactive="false">`;
+    }
     content += `
         <div class="${MODULE_ID}-target" data-hover-id="${hoverId}">
           <div class="${MODULE_ID}-name">${vs}</div>
-          <div class="${MODULE_ID}-result">
+          ${resultTag}
             <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
-              ${game.i18n.localize(`${MODULE_ID}.${target.visibilityLabel}`)}
+              ${game.i18n.localize(LOCALIZATION_KEYS[target.visibilityLabel])}
             </span>
           </div>`;
     if (target.tooltip) {

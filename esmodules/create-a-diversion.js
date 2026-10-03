@@ -35,7 +35,7 @@ export async function prepareCreateADiversionData(
   const avoider = {
     tokenDoc: actingToken?.document ?? actingToken,
     roll,
-    stealthResult: roll.total,
+    skillResult: roll.total,
     rawRollDosDelta,
     baseCoverBonus: 0,
   };

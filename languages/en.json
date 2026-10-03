@@ -1,8 +1,6 @@
 {
   "pf2e-avoid-notice": {
-    "undetected": "Undetected",
-    "hidden": "Hidden",
-    "observed": "Observed",
+    "lesserCover": "Lesser Cover: +1",
     "standardCover": "Standard Cover: +2",
     "greaterCover": "Greater Cover: +4",
     "logLevel": {
@@ -149,7 +147,12 @@
       "retain": "Success retains undetected status"
     },
     "sneak": {
-      "observed": "Sneak action requires hidden or undetected condition"
+      "observed": "Prerequisite: hidden or undetected condition"
+    },
+    "badge": {
+      "observed": "OBS",
+      "hidden": "HDN",
+      "undetected": "UDT"
     }
   }
 }

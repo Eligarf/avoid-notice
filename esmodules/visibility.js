@@ -45,7 +45,7 @@ function findObservations(token) {
   const flags = stealth.flags[MODULE_ID];
   if (!flags) return null;
   return {
-    baseline: flags.baseline,
+    baselineVisibility: stealth.badge.value,
     observers: flags.observers,
   };
 }
@@ -162,7 +162,7 @@ function findObservers(token) {
   const observations = findObservations(token);
   if (!observations) return;
   const observers = Object.entries(observations.observers)
-    .filter(([_, o]) => o.visibility < observations.baseline)
+    .filter(([_, o]) => o.visibility < observations.baselineVisibility)
     .map(([id, _]) => id);
   return new Set(observers);
 }

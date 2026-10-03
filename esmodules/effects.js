@@ -40,18 +40,21 @@ export function isAvoider(tokenOrActor) {
   );
 }
 
-export function getVisibilityOf(avoider, observer) {
-  debuglog("getVisibilityBetween", { avoider, observer });
+export function getVisibilityOf(avoider, observerId) {
   const actor = avoider.tokenDoc.actor;
   const stealthEffect = actor?.items?.find(
     (item) => item.system.slug === SLUGS.stealthEffect,
   );
+  const visibilityBaseline = stealthEffect?.system?.badge?.value;
   const flags = stealthEffect?.flags?.[MODULE_ID];
-  const undetected = flags?.undetected;
-  if (undetected && !undetected.except?.includes(observer.id))
-    return UNDETECTED;
-  const hidden = flags?.hidden;
-  if (hidden && !hidden.except?.includes(observer.id)) return HIDDEN;
+  if (visibilityBaseline >= UNDETECTED) {
+    const undetected = flags?.undetected || {};
+    if (!undetected?.except?.includes(observerId)) return UNDETECTED;
+  }
+  if (visibilityBaseline >= HIDDEN) {
+    const hidden = flags?.hidden || {};
+    if (!hidden?.except?.includes(observerId)) return HIDDEN;
+  }
   return OBSERVED;
 }
 
@@ -72,13 +75,13 @@ export async function undoRevealsOf({ avoiders, observers = [] }) {
     }
 
     const reveals = foundry.utils.duplicate(flags.observers);
-    const baseline = flags.baseline;
+    const baselineVisibility = stealthEffect.badge.value;
     const scrubbed = Object.fromEntries(
       Object.entries(reveals).filter(([id, _]) => !undos.includes(id)),
     );
     await adaptStealthEffectToObservers({
       actor,
-      baseline,
+      baselineVisibility,
       observers: scrubbed,
     });
   }
@@ -106,7 +109,7 @@ export async function revealAvoidersTo({
     const flags = stealthEffect?.flags?.[MODULE_ID] || {};
     if (!flags) continue;
     const reveals = foundry.utils.duplicate(flags.observers);
-    const baseline = flags.baseline;
+    const baselineVisibility = stealthEffect.badge.value;
     for (const observer of observers) {
       const id = observer.id;
       if (id in reveals) {
@@ -117,13 +120,13 @@ export async function revealAvoidersTo({
     }
     await adaptStealthEffectToObservers({
       actor,
-      baseline,
+      baselineVisibility,
       observers: reveals,
     });
   }
 }
 
-async function createStealthEffect(actor, rules, flags) {
+async function createStealthEffect(actor, rules, flags, baselineVisibility) {
   let effectData = {
     type: "effect",
     name: game.i18n.localize(`${MODULE_ID}.effects.stealth.name`),
@@ -145,23 +148,32 @@ async function createStealthEffect(actor, rules, flags) {
       },
       rules: rules,
       tokenIcon: {
-        show: true,
+        show: false,
       },
       unidentified: false,
-      badge: null,
+      badge: {
+        type: "counter",
+        value: baselineVisibility,
+        labels: [
+          game.i18n.localize(`${MODULE_ID}.badge.hidden`),
+          game.i18n.localize(`${MODULE_ID}.badge.undetected`),
+        ],
+        min: null,
+        max: null,
+      },
     },
   };
 
   await actor.createEmbeddedDocuments("Item", [effectData]);
 }
 
-export function buildVisibilitySets(observers, baseline = undefined) {
+export function buildVisibilitySets(observers, baselineVisibility = undefined) {
   const observations = Object.entries(observers);
   const list = observations.map(([_, o]) => o.visibility);
   const resultGroups = new Set(list);
-  if (baseline !== undefined) resultGroups.add(baseline);
+  if (baselineVisibility !== undefined) resultGroups.add(baselineVisibility);
   const visibilities = resultGroups.reduce((acc, visibility) => {
-    if (visibility >= baseline) return acc;
+    if (visibility >= baselineVisibility) return acc;
     const matches = observations.filter(
       ([_, o]) => o.visibility === visibility,
     );
@@ -171,16 +183,24 @@ export function buildVisibilitySets(observers, baseline = undefined) {
   return Object.fromEntries(visibilities);
 }
 
-function buildFlagAndRulesForExcept(state, exceptions) {
+function buildFlagAndRulesForExcept(
+  visibility,
+  exceptions,
+  baselineVisibility,
+) {
+  const state = VISIBILITY_LABELS[visibility];
   const rules = [
     {
       key: "GrantItem",
       uuid: `Compendium.${CONDITION_PACK}.Item.${CONDITION_IDS[state]}`,
+      predicate: [{ gte: ["parent.badge.value", visibility] }],
+      reevaluateOnUpdate: true,
+      inMemoryOnly: true,
     },
   ];
 
   const flags = {};
-  if (exceptions.length) {
+  if (baselineVisibility >= visibility && exceptions.length) {
     flags.except = exceptions.map(([id, _]) => id);
     rules.push({
       key: "RollOption",
@@ -200,21 +220,26 @@ function buildFlagAndRulesForExcept(state, exceptions) {
   return [flags, rules];
 }
 
-function buildFlagsAndRules(visibilities, baseline) {
+function buildFlagsAndRules(visibilities, baselineVisibility) {
   const flags = {};
   const rules = [];
 
   const observed = Object.entries(visibilities.observed || {});
-  if (baseline >= HIDDEN) {
-    const [hFlags, hRules] = buildFlagAndRulesForExcept("hidden", observed);
+  {
+    const [hFlags, hRules] = buildFlagAndRulesForExcept(
+      HIDDEN,
+      observed,
+      baselineVisibility,
+    );
     if (hFlags) flags.hidden = hFlags;
     rules.push(...hRules);
   }
 
-  if (baseline >= UNDETECTED) {
+  {
     const [uFlags, uRules] = buildFlagAndRulesForExcept(
-      "undetected",
+      UNDETECTED,
       observed.concat(Object.entries(visibilities.hidden || {})),
+      baselineVisibility,
     );
     if (uFlags) flags.undetected = uFlags;
     rules.push(...uRules);
@@ -225,14 +250,17 @@ function buildFlagsAndRules(visibilities, baseline) {
 
 export async function adaptStealthEffectToObservers({
   actor,
-  baseline,
+  baselineVisibility,
   observers,
 }) {
-  debuglog("adaptStealthEffectToObservers", { actor, baseline, observers });
-  const visibilities = buildVisibilitySets(observers, baseline);
-  const { flags, rules } = buildFlagsAndRules(visibilities, baseline);
+  debuglog("adaptStealthEffectToObservers", {
+    actor,
+    baselineVisibility,
+    observers,
+  });
+  const visibilities = buildVisibilitySets(observers, baselineVisibility);
+  const { flags, rules } = buildFlagsAndRules(visibilities, baselineVisibility);
   flags.observers = observers;
-  flags.baseline = baseline;
   const effect = actor?.items?.find(
     (item) => item.system.slug === SLUGS.stealthEffect,
   );
@@ -242,10 +270,13 @@ export async function adaptStealthEffectToObservers({
         [MODULE_ID]: flags,
       },
       system: {
+        badge: {
+          value: baselineVisibility,
+        },
         rules: rules,
       },
     });
   } else {
-    await createStealthEffect(actor, rules, flags);
+    await createStealthEffect(actor, rules, flags, baselineVisibility);
   }
 }

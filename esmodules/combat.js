@@ -142,7 +142,7 @@ globalThis.Hooks.once("init", () => {
 
       const avoider = {
         tokenDoc: avoiderTokenDoc,
-        stealthResult: avoidingCombatant.initiative,
+        skillResult: avoidingCombatant.initiative,
         rawRollDosDelta,
         baseCoverBonus: findBaseCoverBonus({ actor: avoidingCombatant.actor }),
         combatant: avoidingCombatant,

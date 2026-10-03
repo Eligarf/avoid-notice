@@ -1,11 +1,5 @@
 import { debuglog, localizeString, getToken } from "./utils.js";
-import {
-  MODULE_ID,
-  VISIBILITY_LABELS,
-  UNDETECTED,
-  OBSERVED,
-  HIDDEN,
-} from "./const.js";
+import { MODULE_ID, VISIBILITY_LABELS, UNDETECTED, OBSERVED } from "./const.js";
 import { renderTargetList } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
 import { prepareObservedActionData } from "./action.js";
@@ -18,7 +12,7 @@ export function avoidNoticeCheck(_avoider, observation) {
 }
 
 export function sneakCheck(avoider, observation) {
-  const visibility = getVisibilityOf(avoider, observation);
+  const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
   if (visibility > OBSERVED) {
     observation.visibility =
       observation.degreeOfSuccess >= 2
@@ -36,11 +30,6 @@ export function sneakCheck(avoider, observation) {
 }
 
 export async function prepareSneakData(message, userId, actingToken) {
-  // debuglog("sneak action", {
-  //   message,
-  //   userId,
-  //   actingToken,
-  // });
   const { summary, targetList } = prepareObservedActionData({
     message,
     userId,
@@ -68,7 +57,7 @@ async function applySneakEffects(message, _event, flags) {
   const sneak = flags.sneak;
   await adaptStealthEffectToObservers({
     actor: message.token.actor,
-    baseline: HIDDEN,
+    baselineVisibility: UNDETECTED,
     observers: Object.fromEntries(
       sneak.targetList.map((t) => [
         t.tokenId,
