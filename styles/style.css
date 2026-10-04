@@ -11,55 +11,82 @@
   color: var(--color-pf-text-critical-failure);
 }
 
-.pf2e-avoid-notice-avoidance-check {
-  .pf2e-avoid-notice-observation + .pf2e-avoid-notice-observation {
-    margin-left: 6px;
-  }
-  .pf2e-avoid-notice-avoider {
-    display: grid;
-    grid-template-rows: auto auto 1fr;
-    .pf2e-avoid-notice-description {
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-      align-items: center;
-      .pf2e-avoid-notice-name,
-      .pf2e-avoid-notice-roll {
-        font-weight: bold;
-        color: var(--color-border-divider);
-        background: rgba(0, 0, 0, 0.05);
-        padding: 2px 6px;
-        border-radius: 3px;
-      }
-    }
-    .pf2e-avoid-notice-summary {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      font-size: 0.95em;
-      .pf2e-avoid-notice-group {
-        background: rgba(0, 0, 0, 0.03);
-        padding: 2px 6px;
-        border-radius: 4px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 40%;
-      }
-    }
-    .pf2e-avoid-notice-observers {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 4px;
-    }
-  }
-}
-
 #pf2e-avoid-notice-popup-menu .window-header {
   display: none;
 }
+
+/* Avoidance Check structure */
+
+.pf2e-avoid-notice-avoidance-check {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.pf2e-avoid-notice-encounter,
+.pf2e-avoid-notice-enemies,
+.pf2e-avoid-notice-enemy-avoiders,
+.pf2e-avoid-notice-friendlies,
+.pf2e-avoid-notice-friendly-avoiders,
+.pf2e-avoid-notice-player-results,
+.pf2e-avoid-notice-avoider {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf2e-avoid-notice-description,
+.pf2e-avoid-notice-summary {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+.pf2e-avoid-notice-observed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+
+  background-color: #ecc;
+  border: 1px solid transparent;
+}
+.pf2e-avoid-notice-hidden {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+
+  background-color: #dc966e;
+  border: 1px solid transparent;
+}
+.pf2e-avoid-notice-undetected {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+
+  background-color: #cce;
+  border: 1px solid transparent;
+}
+/* Target list structure */
 
 .pf2e-avoid-notice-target-list {
   display: flex;
@@ -69,94 +96,100 @@
   border: 1px solid var(--color-border-divider);
   border-radius: 4px;
   overflow: hidden;
-
-  --basic-alpha: rgba(0, 0, 0, 0.05);
-
-  .pf2e-avoid-notice-target {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.03);
-    border-bottom: 1px solid var(--basic-alpha);
-    font-size: var(--font-size-12, 12px);
-
-    &:nth-child(even) {
-      background: rgba(0, 0, 0, 0.07);
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .pf2e-avoid-notice-name {
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .pf2e-avoid-notice-result {
-      &[data-interactive="false"] {
-        cursor: default;
-        user-select: text;
-        font-weight: normal;
-        background: none;
-        border: none;
-        padding: 0;
-      }
-      &[data-interactive="true"] {
-        cursor: pointer;
-        user-select: none;
-        font-weight: 500;
-        background: rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        padding: 1px 6px;
-        transition: all 0.15s ease-in-out;
-
-        &:hover {
-          background: rgba(0, 0, 0, 0.08);
-          border-color: var(--color-pf-primary-lighter);
-          box-shadow: 0 1px 3px var(--basic-alpha);
-        }
-        &:active {
-          transform: scale(0.95);
-          background: rgba(0, 0, 0, 0.12);
-        }
-      }
-    }
-
-    .pf2e-avoid-notice-dc {
-      font-weight: bold;
-      background: var(--basic-alpha);
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-  }
 }
 
-button.pf2e-avoid-notice-apply-effects {
+.pf2e-avoid-notice-target {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  /* font-size: var(--font-size-12, 12px); */
+}
+
+.pf2e-avoid-notice-target:nth-child(even) {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.pf2e-avoid-notice-target:last-child {
+  border-bottom: none;
+}
+
+.pf2e-avoid-notice-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pf2e-avoid-notice-dc {
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* non-interactive result */
+
+.pf2e-avoid-notice-result[data-interactive="false"] {
+  cursor: default;
+  user-select: text;
+  font-weight: normal;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* interactive result */
+
+.pf2e-avoid-notice-result[data-interactive="true"] {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 1px 6px;
+  transition: all 0.15s ease-in-out;
+}
+
+.pf2e-avoid-notice-result[data-interactive="true"]:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: var(--color-pf-primary-lighter);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pf2e-avoid-notice-result[data-interactive="true"]:active {
+  transform: scale(0.95);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Button structure */
+
+button.pf2e-avoid-notice-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
   height: 28px;
-
   border-radius: 3px;
   box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.5);
   cursor: pointer;
   transition: all 0.15s ease-in-out;
+}
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.08);
-    border-color: var(--button-focus-outline-color);
-    box-shadow: 0 0 4px rgba(255, 100, 0, 0.3);
-  }
+button.pf2e-avoid-notice-button:hover {
+  background: var(--button-hover-background-color);
+  color: var(--button-hover-text-color);
+  border-color: var(--tertiary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
 
-  &:active {
-    transform: scale(0.98);
-    background: rgba(0, 0, 0, 0.12);
-  }
+button.pf2e-avoid-notice-button:active {
+  background: var(--primary);
+  color: var(--text-light);
+  transform: scale(0.95);
+  background: rgba(0, 0, 0, 0.12);
 }

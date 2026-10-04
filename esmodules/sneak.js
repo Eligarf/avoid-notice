@@ -84,7 +84,7 @@ export function renderSneakCard(_message, html, _data, flags) {
     (context["clickIds"] ??= {})[clickId] = applySneakEffects;
     content += `
       <div class="${MODULE_ID}-sneak">
-        <button class="${MODULE_ID}-apply-effects" data-click-id="${clickId}" data-visibility="gm">
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm">
           ${localizeString(`${MODULE_ID}.effects.apply`)}
         </button>
       </div>`;
