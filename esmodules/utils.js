@@ -64,7 +64,7 @@ export async function iterateTokensAndParties(tokens, callback) {
   for (const party of parties) {
     for (const member of party.members) {
       if (tokens.some((token) => token.actor?.id === member.id)) continue;
-      await callback(member);
+      await callback(member.prototypeToken);
     }
   }
 }

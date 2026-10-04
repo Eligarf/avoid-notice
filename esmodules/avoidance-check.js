@@ -89,11 +89,15 @@ function makeMissingActorsString() {
 function renderEncounterSection(avoidanceCheck, context) {
   let content = `
     <div class="${MODULE_ID}-encounter" data-visibility="gm">`;
-  const friendlyIds = avoidanceCheck.friendlyIds ?? [];
-  const missing = friendlyIds.filter((id) => !getToken(id));
+  const missing = avoidanceCheck.missing;
   if (missing.length > 0) {
-    content += `<div class="${MODULE_ID}-missing">${makeMissingActorsString()}</div>`;
-  } else if (!avoidanceCheck.addedToCombat) {
+    content += `<div class="${MODULE_ID}-alert">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span class="${MODULE_ID}-missing">${makeMissingActorsString()}</span>
+      </div>
+    </div>`;
+  }
+  if (!avoidanceCheck.addedToCombat) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = createEncounter;
     content += `
@@ -149,7 +153,7 @@ async function prepareAvoidanceCheckData(tokens) {
   let friendlyStealth = {};
   if (friendlyAvoiders.length > 0) {
     for (const avoider of friendlyAvoiders) {
-      friendlyStealth[avoider.id] = {
+      friendlyStealth[avoider.id || avoider.actor.id] = {
         name: avoider.name,
         skillResult: null,
         rawRollDosDelta: null,
@@ -163,8 +167,9 @@ async function prepareAvoidanceCheckData(tokens) {
     enemyIds: enemyTokens.map((t) => t.id),
     enemyStealth: enemyStealth ?? {},
     noticableFriendlies: noticableFriendlies,
-    friendlyIds: friendlies.map((c) => c.id),
+    friendlyIds: friendlies.map((c) => c.id || c.actor.id),
     friendlyStealth: friendlyStealth ?? {},
+    missing: friendlies.filter((c) => !getToken(c.id)).map((c) => c.actor.id),
   };
   return avoidanceCheckData;
 }
@@ -292,7 +297,7 @@ export async function avoidanceCheck(tokens) {
   const avoidanceCheckData = await prepareAvoidanceCheckData(tokens);
   const secret = !avoidanceCheckData.friendlyIds.length;
   avoidanceCheckData.secret = secret;
-  await ChatMessage.create({
+  return ChatMessage.create({
     content: "Hey there",
     rollmode: "gmroll",
     ...(secret ? { whisper: gmIds } : {}),
@@ -323,13 +328,15 @@ function getScoutBonus() {
 }
 
 async function createEncounter(message, event, flags) {
-  debuglog("createEncounter", { message, event, flags });
   const avoidanceCheck = flags.avoidanceCheck;
   const combat = !game.combat
     ? await Combat.create({ scene: canvas.scene.id, active: true })
     : game.combat;
-  if (avoidanceCheck.friendlyIds.some((id) => !getToken(id))) {
+  const missing = avoidanceCheck.friendlyIds.filter((id) => !getToken(id));
+  avoidanceCheck.missing = missing;
+  if (missing.length > 0) {
     ui.notifications.warn(makeMissingActorsString());
+    return message.update({ flags: { [MODULE_ID]: flags } });
   }
   const scoutBonus = getScoutBonus();
   const combatants = avoidanceCheck.enemyIds
@@ -391,7 +398,6 @@ async function createEncounter(message, event, flags) {
 }
 
 async function rollClick(message, event, avoidanceCheck, tokenId) {
-  debuglog("rollClick", { message, event, avoidanceCheck, tokenId });
   if (avoidanceCheck.friendlyStealth[tokenId]?.skillResult !== null) return;
   const actor = canvas.tokens.get(tokenId)?.actor ?? game.actors.get(tokenId);
   if (!actor) return;
@@ -444,7 +450,8 @@ export async function onStealthReply({
   if (!flags) return;
   const avoidanceCheck = flags.avoidanceCheck;
   if (!avoidanceCheck) return;
-  let avoiderToken = canvas.tokens.get(tokenId);
+  let avoiderToken =
+    canvas.tokens.get(tokenId) || game.actors.get(tokenId)?.prototypeToken;
   if (!avoiderToken) return;
   const avoider = {
     tokenDoc: avoiderToken?.document ?? avoiderToken,
