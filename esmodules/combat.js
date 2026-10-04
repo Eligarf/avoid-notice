@@ -32,8 +32,8 @@ export function findPossibleObservers({
   eidolonTokens,
 }) {
   const alliance = avoider.actor?.system?.details?.alliance;
-  const tokens = encounter.combatants.contents
-    .map((c) => c.token)
+  const tokens = encounter.combatants.contents.map((c) => c.token);
+  const them = tokens
     .concat(
       alliance !== "party" || cachedSettings.hideFromAllies ? minionTokens : [],
     )
@@ -42,11 +42,26 @@ export function findPossibleObservers({
       cachedSettings.hideFromAllies
         ? t.id !== avoider.id
         : t.actor?.system?.details?.alliance !== alliance,
+    )
+    .map((t) =>
+      t instanceof foundry.canvas.placeables.Token ? t.document : t,
     );
-  const tokenDocs = tokens.map((t) =>
-    t instanceof foundry.canvas.placeables.Token ? t.document : t,
-  );
-  return tokenDocs;
+
+  const us = tokens
+    .concat(
+      alliance === "party" && !cachedSettings.hideFromAllies
+        ? minionTokens
+        : [],
+    )
+    .concat(eidolonTokens)
+    .filter(
+      (t) =>
+        !cachedSettings.hideFromAllies &&
+        t.id !== avoider.id &&
+        t.actor?.system?.details?.alliance === alliance,
+    )
+    .map((t) => t.id);
+  return { us, them };
 }
 
 globalThis.Hooks.once("init", () => {
@@ -126,7 +141,7 @@ globalThis.Hooks.once("init", () => {
         }
       }
 
-      const observers = findPossibleObservers({
+      const { them: observers, us } = findPossibleObservers({
         encounter,
         avoider: avoidingCombatant.token,
         minionTokens,
@@ -148,7 +163,12 @@ globalThis.Hooks.once("init", () => {
         combatant: avoidingCombatant,
       };
 
-      const avoiderSeenBy = { avoider, observers: {} };
+      const alliance = avoiderTokenDoc.actor?.system?.details?.alliance;
+      const avoiderSeenBy = {
+        avoider,
+        observers: {},
+        allies: alliance === "party" ? us : [],
+      };
       observations[avoidingCombatant.token.id] = avoiderSeenBy;
 
       for (const observerTokenDoc of observers) {

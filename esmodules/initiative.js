@@ -1,6 +1,6 @@
 import { adaptStealthEffectToObservers } from "./effects.js";
-import { UNDETECTED } from "./const.js";
-import { debuglog, interpolateString } from "./utils.js";
+import { UNDETECTED, OBSERVED } from "./const.js";
+import { debuglog, interpolateString, getToken } from "./utils.js";
 
 export async function findInitiativeCard(combatant) {
   let messages = game.messages.contents.filter(
@@ -37,7 +37,8 @@ export async function modifyInitiativeCard({
 export async function applyInitiativeConditions(observations, tokenUpdates) {
   debuglog("applyInitiativeConditions", { observations, tokenUpdates });
   for (const avoiderId in observations) {
-    const { avoider, observers } = observations[avoiderId];
+    const { avoider, observers, allies } = observations[avoiderId];
+    debuglog("applyInitiativeConditions", { avoider, observers, allies });
     const gazers = Object.fromEntries(
       Object.entries(observers)
         .filter(([_, o]) => o.observation.degreeOfSuccess < UNDETECTED)
@@ -49,7 +50,16 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
               signature: o.observation.tokenDoc.actor?.signature,
             },
           ];
-        }),
+        })
+        .concat(
+          allies.map((allyId) => [
+            allyId,
+            {
+              visibility: OBSERVED,
+              signature: getToken(allyId)?.actor?.signature,
+            },
+          ]),
+        ),
     );
     await adaptStealthEffectToObservers({
       actor: avoider.tokenDoc.actor,

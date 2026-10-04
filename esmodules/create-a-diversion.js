@@ -24,7 +24,7 @@ export async function prepareCreateADiversionData(
   });
   const combat = game?.combat;
   const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
-  const observers = findPossibleObservers({
+  const { them: observers, us } = findPossibleObservers({
     encounter: combat,
     avoider: actingToken,
     minionTokens,

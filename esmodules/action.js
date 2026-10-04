@@ -16,7 +16,7 @@ const pointOutLabel = "PF2E.Actions.PointOut.Title";
 export function prepareObservedActionData({ message, actingToken, analyze }) {
   const combat = game?.combat;
   const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
-  const observers = findPossibleObservers({
+  const { them: observers, us } = findPossibleObservers({
     encounter: combat,
     avoider: actingToken,
     minionTokens,

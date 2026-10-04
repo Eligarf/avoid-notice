@@ -103,7 +103,7 @@ export function renderTargetList(targetList, context) {
 
 export async function updateInitiativeCards(observations) {
   for (const avoiderId in observations) {
-    const { avoider, observers } = observations[avoiderId];
+    const { avoider, observers, allies } = observations[avoiderId];
 
     const sortedObservers = Object.values(observers).sort((a, b) => {
       const diff = b.observation.dc - a.observation.dc;
@@ -125,7 +125,7 @@ export async function updateInitiativeCards(observations) {
           card: "initiative",
           name: avoider.tokenDoc.name,
           activity: "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
-          initiative: { targetList: targetList },
+          initiative: { targetList: targetList, allies },
         },
       },
     };

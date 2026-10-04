@@ -16,20 +16,20 @@
       "error": "{actor} needs to use {action} if wanting to hide at combat start."
     },
     "hideFromAllies": {
-      "name": "Stealth affects allies",
-      "hint": "If enabled, stealth will affect both allied and non-allied tokens"
+      "name": "Party stealth affects party members",
+      "hint": "If enabled, party member stealth effect can affect other party members. This checkbox doesn't apply to neutral or opposing tokens."
     },
     "useEffects": {
       "name": "Use PF2e Avoid Notice effects",
-      "hint": "If enabled, a Stealth effect will be applied to avoiding tokens which can track per-token visibility"
+      "hint": "If enabled, a Stealth effect will be applied to avoiding tokens which can track per-token visibility."
     },
     "clearPartyStealthAfterCombat": {
       "name": "Clear Stealth from Party after combat",
-      "hint": "Will remove stealth conditions from party tokens on the current scene when combat is ended"
+      "hint": "Will remove stealth conditions from party tokens on the current scene when combat is ended."
     },
     "panZoomToCombat": {
       "name": "Pan/Zoom to combat",
-      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden or undetected combatants"
+      "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden or undetected combatants."
     },
     "notifications": {
       "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
