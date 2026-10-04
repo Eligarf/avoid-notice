@@ -40,12 +40,21 @@ export function isAvoider(tokenOrActor) {
   );
 }
 
+export function getStealth(token) {
+  const actor = token.actor;
+  return actor?.items?.find((item) => item.system.slug === SLUGS.stealthEffect);
+}
+
+export function getVisibilityBaseline(stealth) {
+  return stealth?.system?.badge?.value;
+}
+
 export function getVisibilityOf(avoider, observerId) {
   const actor = avoider.tokenDoc.actor;
   const stealthEffect = actor?.items?.find(
     (item) => item.system.slug === SLUGS.stealthEffect,
   );
-  const visibilityBaseline = stealthEffect?.system?.badge?.value;
+  const visibilityBaseline = getVisibilityBaseline(stealthEffect);
   const flags = stealthEffect?.flags?.[MODULE_ID];
   if (visibilityBaseline >= UNDETECTED) {
     const undetected = flags?.undetected || {};

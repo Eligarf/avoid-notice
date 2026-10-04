@@ -9,11 +9,19 @@ import {
 import { renderTargetList } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
 import { prepareObservedActionData } from "./action.js";
-import { adaptStealthEffectToObservers, getVisibilityOf } from "./effects.js";
+import {
+  adaptStealthEffectToObservers,
+  getStealth,
+  getVisibilityBaseline,
+  getVisibilityOf,
+} from "./effects.js";
 
 function hideCheck(avoider, observation) {
+  const stealth = getStealth(avoider.tokenDoc);
+  const baseline = stealth
+    ? Math.max(getVisibilityBaseline(stealth), HIDDEN)
+    : HIDDEN;
   const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
-  const baselineVisibility = visibility >= HIDDEN ? visibility : HIDDEN;
   if (visibility === UNDETECTED && observation.degreeOfSuccess >= 2) {
     const tooltip = game.i18n.localize(`${MODULE_ID}.hide.retain`);
     observation.tooltip = observation.tooltip
@@ -21,7 +29,7 @@ function hideCheck(avoider, observation) {
       : tooltip;
   }
   observation.visibility =
-    observation.degreeOfSuccess >= 2 ? baselineVisibility : OBSERVED;
+    observation.degreeOfSuccess >= 2 ? baseline : OBSERVED;
   observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
 }
 
@@ -55,10 +63,14 @@ export async function prepareHideData(message, userId, actingToken) {
 
 async function applyHideEffects(message, _event, flags) {
   if (!game.user.isGM) return;
+  const stealth = getStealth(message.token);
+  const baseline = stealth
+    ? Math.max(getVisibilityBaseline(stealth), HIDDEN)
+    : HIDDEN;
   const hide = flags.hide;
   await adaptStealthEffectToObservers({
     actor: message.token.actor,
-    baselineVisibility: HIDDEN,
+    baselineVisibility: baseline,
     observers: Object.fromEntries(
       hide.targetList.map((t) => [
         t.tokenId,
