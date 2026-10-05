@@ -1,6 +1,11 @@
 import { MODULE_ID } from "./const.js";
 import { invokeMenu } from "./menu.js";
-import { setupVisibilityHooks, releaseVisibilityHooks } from "./visibility.js";
+import {
+  setupVisibilityHooks,
+  releaseVisibilityHooks,
+  refreshVisibilityCache,
+} from "./visibility.js";
+import { refreshPerception } from "./utils.js";
 
 export const SETTINGS = {
   // General settings
@@ -9,6 +14,7 @@ export const SETTINGS = {
   requireActivity: "requireActivity",
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
+  showEyeballs: "showEyeballs",
 
   // Advanced settings
   logLevel: "logLevel",
@@ -27,6 +33,7 @@ export let cachedSettings = {
   clearPartyStealthAfterCombat: false,
   logLevel: "none",
   useNewApis: false,
+  showEyeballs: true,
 };
 
 export function setupSettings() {
@@ -94,6 +101,24 @@ export function setupSettings() {
   cachedSettings.hideFromAllies = game.settings.get(
     MODULE_ID,
     SETTINGS.hideFromAllies,
+  );
+
+  game.settings.register(MODULE_ID, SETTINGS.showEyeballs, {
+    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.showEyeballs}.name`),
+    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.showEyeballs}.hint`),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: cachedSettings.showEyeballs,
+    onChange: (newValue) => {
+      cachedSettings.showEyeballs = newValue;
+      refreshVisibilityCache();
+      refreshPerception();
+    },
+  });
+  cachedSettings.showEyeballs = game.settings.get(
+    MODULE_ID,
+    SETTINGS.showEyeballs,
   );
 
   game.settings.register(MODULE_ID, SETTINGS.clearPartyStealthAfterCombat, {

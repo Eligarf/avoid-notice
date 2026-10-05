@@ -31,6 +31,10 @@
       "name": "Pan/Zoom to combat",
       "hint": "When combat starts, pan/zoom the camera to fit observed and hidden combatants for controlled tokens. Will ignore any foundry-hidden or undetected combatants."
     },
+    "showEyeballs": {
+      "name": "Enable eyeball indicators",
+      "hint": "Display eyeballs on canvas tokens that ignore the controlled tokens' stealth-based hidden and/or undetected conditions"
+    },
     "notifications": {
       "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
     },

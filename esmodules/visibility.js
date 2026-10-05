@@ -200,7 +200,7 @@ function refreshTokenHook(token, _options) {
   //     observingTokenIds,
   //   },
   // );
-  if (game.user.isGM) {
+  if (game.user.isGM && cachedSettings.showEyeballs) {
     const isRevealed = revealedToTokenIds.has(token.id);
     showEyeball({ token, isVisible: isRevealed });
   }
