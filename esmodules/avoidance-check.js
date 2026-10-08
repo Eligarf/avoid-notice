@@ -130,10 +130,10 @@ async function prepareAvoidanceCheckData(tokens) {
   const enemyAvoiders = enemyTokens.filter((t) => isAvoider(t));
   const noticableEnemies = enemyTokens
     .filter((t) => !enemyAvoiders.includes(t))
-    .map((t) => t.name);
+    .map((t) => ({ id: t.id, name: t.name }));
   const noticableFriendlies = friendlies
     .filter((t) => !friendlyAvoiders.includes(t))
-    .map((t) => t.name);
+    .map((t) => ({ id: t.id, name: t.name }));
 
   let enemyStealth = {};
   if (enemyAvoiders.length > 0) {
@@ -192,11 +192,16 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
     const noticableEnemies = avoidanceCheck.noticableEnemies;
     if (noticableEnemies?.length > 0) {
       content += `
-          <div class="${MODULE_ID}-observed-enemies">
+          <div class="${MODULE_ID}-noticable-enemies">
             ${localizeString(`${MODULE_ID}.avoidanceCheck.observedEnemies`)}
             <div class="${MODULE_ID}-noticables">`;
-      for (const name of noticableEnemies) {
-        content += `<span>${name}</span>`;
+      for (const noticable of noticableEnemies) {
+        const hoverId = foundry.utils.randomID();
+        (context["hoverIds"] ??= {})[hoverId] = noticable.id;
+        content += `
+              <div class="${MODULE_ID}-noticable">
+                <div class="${MODULE_ID}-name" data-hover-id=${hoverId}>${noticable.name}</div>
+              </div>`;
       }
       content += `
             </div>
@@ -233,15 +238,20 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
     const noticableFriendlies = avoidanceCheck.noticableFriendlies;
     if (noticableFriendlies.length > 0) {
       content += `
-            <div class="${MODULE_ID}-observed-friendlies">
+            <div class="${MODULE_ID}-noticable-friendlies">
               ${localizeString(`${MODULE_ID}.avoidanceCheck.observedFriendlies`)}
               <div class="${MODULE_ID}-noticables">`;
-      for (const name of noticableFriendlies) {
-        content += `<li>${name}</li>`;
+      for (const noticable of noticableFriendlies) {
+        const hoverId = foundry.utils.randomID();
+        (context["hoverIds"] ??= {})[hoverId] = noticable.id;
+        content += `
+              <div class="${MODULE_ID}-noticable">
+                <div class="${MODULE_ID}-name" data-hover-id=${hoverId}>${noticable.name}</div>
+              </div>`;
       }
       content += `
-              </div>
-            </div>`;
+            </div>
+          </div>`;
     }
     const friendlyAvoiders = avoidanceCheck.friendlyStealth;
     for (const [tokenId, avoider] of Object.entries(friendlyAvoiders)) {

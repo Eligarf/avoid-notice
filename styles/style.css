@@ -28,6 +28,9 @@
 .pf2e-avoid-notice-enemies,
 .pf2e-avoid-notice-enemy-avoiders,
 .pf2e-avoid-notice-friendlies,
+.pf2e-avoid-notice-noticable-friendlies,
+.pf2e-avoid-notice-noticable-enemies,
+.pf2e-avoid-notice-noticables,
 .pf2e-avoid-notice-friendly-avoiders,
 .pf2e-avoid-notice-player-results,
 .pf2e-avoid-notice-hide,
@@ -102,6 +105,7 @@
   overflow: hidden;
 }
 
+.pf2e-avoid-notice-noticable,
 .pf2e-avoid-notice-target {
   display: flex;
   align-items: center;
@@ -112,10 +116,12 @@
   /* font-size: var(--font-size-12, 12px); */
 }
 
+.pf2e-avoid-notice-noticable:nth-child(even),
 .pf2e-avoid-notice-target:nth-child(even) {
   background: rgba(0, 0, 0, 0.07);
 }
 
+.pf2e-avoid-notice-noticable:last-child,
 .pf2e-avoid-notice-target:last-child {
   border-bottom: none;
 }
