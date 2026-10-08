@@ -102,7 +102,7 @@ async function applySeekEffects(message, _event, flags) {
   avoiders.forEach(async (t) => {
     const origin = getToken(t.tokenId);
     if (!origin) return;
-    await setStealthinessTo(getToken(t.tokenId), token, t.stealth);
+    await setStealthinessTo(origin, token, t.stealth);
   });
   seek.showApplyButton = false;
   return message.update({ flags: { [MODULE_ID]: flags } });

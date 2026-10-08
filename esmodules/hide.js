@@ -39,7 +39,7 @@ export async function prepareHideData(message, userId, actingToken) {
   //   userId,
   //   actingToken,
   // });
-  const { summary, targetList } = prepareStealthChecks({
+  const { allies, summary, targetList } = prepareStealthChecks({
     message,
     userId,
     actingToken,
@@ -53,6 +53,7 @@ export async function prepareHideData(message, userId, actingToken) {
         hide: {
           summary,
           targetList,
+          allies,
           showApplyButton: cachedSettings.useEffects,
         },
       },
@@ -68,18 +69,26 @@ async function applyHideEffects(message, _event, flags) {
     ? Math.max(getStealthBaseline(stealthEffect), HIDDEN)
     : HIDDEN;
   const hide = flags.hide;
-  await adaptStealthEffectToObservers({
-    actor: message.token.actor,
-    baselineStealth,
-    detectors: Object.fromEntries(
-      hide.targetList.map((t) => [
+  const detectors = Object.fromEntries(
+    hide.targetList
+      .map((t) => [
         t.tokenId,
         {
           stealth: t.stealth,
           signature: getToken(t.tokenId)?.actor?.signature,
         },
-      ]),
-    ),
+      ])
+      .concat(
+        hide.allies.map((id) => [
+          id,
+          { stealth: OBSERVED, signature: getToken(id)?.actor?.signature },
+        ]),
+      ),
+  );
+  await adaptStealthEffectToObservers({
+    actor: message.token.actor,
+    baselineStealth,
+    detectors,
   });
 
   hide.showApplyButton = false;

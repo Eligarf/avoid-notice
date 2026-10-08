@@ -43,7 +43,7 @@ function resolveSneak(origin, check) {
 }
 
 export async function prepareSneakData(message, userId, actingToken) {
-  const { summary, targetList } = prepareStealthChecks({
+  const { allies, summary, targetList } = prepareStealthChecks({
     message,
     userId,
     actingToken,
@@ -57,6 +57,7 @@ export async function prepareSneakData(message, userId, actingToken) {
         sneak: {
           summary,
           targetList,
+          allies,
           showApplyButton: cachedSettings.useEffects,
         },
       },
@@ -68,18 +69,26 @@ export async function prepareSneakData(message, userId, actingToken) {
 async function applySneakEffects(message, _event, flags) {
   if (!game.user.isGM) return;
   const sneak = flags.sneak;
-  await adaptStealthEffectToObservers({
-    actor: message.token.actor,
-    baselineStealth: UNDETECTED,
-    detectors: Object.fromEntries(
-      sneak.targetList.map((t) => [
+  const detectors = Object.fromEntries(
+    sneak.targetList
+      .map((t) => [
         t.tokenId,
         {
           stealth: t.stealth,
           signature: getToken(t.tokenId)?.actor?.signature,
         },
-      ]),
-    ),
+      ])
+      .concat(
+        sneak.allies.map((id) => [
+          id,
+          { stealth: OBSERVED, signature: getToken(id)?.actor?.signature },
+        ]),
+      ),
+  );
+  await adaptStealthEffectToObservers({
+    actor: message.token.actor,
+    baselineStealth: UNDETECTED,
+    detectors,
   });
 
   sneak.showApplyButton = false;

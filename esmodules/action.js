@@ -19,7 +19,7 @@ globalThis.Hooks.once("ready", () => {
 export function prepareStealthChecks({ message, actingToken, resolver }) {
   const combat = game?.combat;
   const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
-  const { them } = findPossibleTargets({
+  const { us, them } = findPossibleTargets({
     encounter: combat,
     origin: actingToken,
     minionTokens,
@@ -35,13 +35,14 @@ export function prepareStealthChecks({ message, actingToken, resolver }) {
     baseCoverBonus: findBaseCoverBonus({
       actor: actingToken?.actor ?? actingToken,
     }),
+    allies: us,
   };
   const checks = resolveStealthChecks({
     origin,
     targets: them,
     resolver,
   }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
-  return prepareSummaryAndTargetList(checks);
+  return { allies: us, ...prepareSummaryAndTargetList(checks) };
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {

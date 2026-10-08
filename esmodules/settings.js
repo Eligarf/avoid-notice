@@ -19,21 +19,19 @@ export const SETTINGS = {
   // Advanced settings
   logLevel: "logLevel",
   schema: "schema",
-  useNewApis: "useBulkApi",
 
   // keybindings
   menu: "menu",
 };
 
 export let cachedSettings = {
-  panZoomToCombat: true,
-  useEffects: true,
-  requireActivity: true,
-  hideFromAllies: false,
   clearPartyStealthAfterCombat: false,
-  logLevel: "none",
-  useNewApis: false,
+  hideFromAllies: false,
+  requireActivity: true,
+  useEffects: true,
+  panZoomToCombat: true,
   showEyeballs: true,
+  logLevel: "none",
 };
 
 export function setupSettings() {
@@ -157,19 +155,6 @@ export function setupSettings() {
     },
   });
   cachedSettings.logLevel = game.settings.get(MODULE_ID, SETTINGS.logLevel);
-
-  game.settings.register(MODULE_ID, SETTINGS.useNewApis, {
-    name: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.name`),
-    hint: game.i18n.localize(`${MODULE_ID}.${SETTINGS.useNewApis}.hint`),
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: cachedSettings.useNewApis,
-    onChange: (newValue) => {
-      cachedSettings.useNewApis = newValue;
-    },
-  });
-  cachedSettings.useNewApis = game.settings.get(MODULE_ID, SETTINGS.useNewApis);
 }
 
 export function setupKeybindings() {
