@@ -96,13 +96,13 @@ export function renderHideCard(_message, html, _data, flags) {
   };
   let content = renderTargetList(targetList, context);
   const change = targetList.some((t) => t.stealth !== t.was);
-  if (context.interactive && change) {
+  if (context.interactive) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applyHideEffects;
     content += `
       <div class="${MODULE_ID}-hide">
-        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm">
-          ${localizeString(`${MODULE_ID}.effects.apply`)}
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${change ? "" : "disabled"}>
+          ${localizeString(`${MODULE_ID}.effects.${change ? "apply" : "noChange"}`)}
         </button>
       </div>`;
   }

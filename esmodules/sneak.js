@@ -26,6 +26,7 @@ export function resolveAvoidNotice(_origin, check) {
 
 function resolveSneak(origin, check) {
   const stealth = getStealthinessTo(origin, check.tokenDoc.id);
+  check.was = stealth;
   if (stealth > OBSERVED) {
     check.stealth =
       check.degreeOfSuccess >= SUCCESS
@@ -94,13 +95,14 @@ export function renderSneakCard(_message, html, _data, flags) {
     stealthDosStates: [CRITICAL_FAILURE, FAILURE, SUCCESS],
   };
   let content = renderTargetList(targetList, context);
+  const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applySneakEffects;
     content += `
       <div class="${MODULE_ID}-sneak">
-        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm">
-          ${localizeString(`${MODULE_ID}.effects.apply`)}
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${change ? "" : "disabled"}>
+          ${localizeString(`${MODULE_ID}.effects.${change ? "apply" : "noChange"}`)}
         </button>
       </div>`;
   }

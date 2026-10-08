@@ -133,7 +133,8 @@
         "name": "Stealth",
         "description": "Stealth effect will apply hidden/undetected to observer tokens as appropriate"
       },
-      "apply": "Apply Effects"
+      "apply": "Apply Changes",
+      "noChange": "No Change"
     },
     "initiative": {
       "vs": "vs {name}"

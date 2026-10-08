@@ -198,6 +198,15 @@ button.pf2e-avoid-notice-button:active {
   background: rgba(0, 0, 0, 0.12);
 }
 
+button.pf2e-avoid-notice-button:disabled {
+  background: var(--color-light-4);
+  color: var(--color-dark-6);
+  border-color: var(--color-light-5);
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
 /* missing PCs alert */
 
 .pf2e-avoid-notice-alert {
