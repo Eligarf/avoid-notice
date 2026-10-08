@@ -6,10 +6,10 @@ import {
 } from "./initiative.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { clearPartyStealth } from "./stealth.js";
-import { makeObservation } from "./observation-logic.js";
+import { resolveStealthCheck } from "./observation-logic.js";
 import { updateInitiativeCards } from "./render-status.js";
 import { zoomToCombat } from "./socket.js";
-import { avoidNoticeCheck } from "./sneak.js";
+import { resolveAvoidNotice } from "./sneak.js";
 import { breakdownRoll, debuglog, refreshPerception } from "./utils.js";
 import { MODULE_ID } from "./const.js";
 
@@ -25,13 +25,13 @@ export function findCompanionsOnCanvas() {
   return { minionTokens, eidolonTokens };
 }
 
-export function findPossibleObservers({
+export function findPossibleTargets({
   encounter,
-  avoider,
+  origin,
   minionTokens,
   eidolonTokens,
 }) {
-  const alliance = avoider.actor?.system?.details?.alliance;
+  const alliance = origin.actor?.system?.details?.alliance;
   const tokens = encounter.combatants.contents.map((c) => c.token);
   const them = tokens
     .concat(
@@ -40,7 +40,7 @@ export function findPossibleObservers({
     .concat(eidolonTokens)
     .filter((t) =>
       cachedSettings.hideFromAllies
-        ? t.id !== avoider.id
+        ? t.id !== origin.id
         : t.actor?.system?.details?.alliance !== alliance,
     )
     .map((t) =>
@@ -57,7 +57,7 @@ export function findPossibleObservers({
     .filter(
       (t) =>
         !cachedSettings.hideFromAllies &&
-        t.id !== avoider.id &&
+        t.id !== origin.id &&
         t.actor?.system?.details?.alliance === alliance,
     )
     .map((t) => t.id);
@@ -141,9 +141,9 @@ globalThis.Hooks.once("init", () => {
         }
       }
 
-      const { them: observers, us } = findPossibleObservers({
+      const { them: observers, us } = findPossibleTargets({
         encounter,
-        avoider: avoidingCombatant.token,
+        origin: avoidingCombatant.token,
         minionTokens,
         eidolonTokens,
       });
@@ -155,7 +155,7 @@ globalThis.Hooks.once("init", () => {
         ? avoidingCombatant.token.document
         : avoidingCombatant.token;
 
-      const avoider = {
+      const origin = {
         tokenDoc: avoiderTokenDoc,
         skillResult: avoidingCombatant.initiative,
         rawRollDosDelta,
@@ -165,7 +165,7 @@ globalThis.Hooks.once("init", () => {
 
       const alliance = avoiderTokenDoc.actor?.system?.details?.alliance;
       const avoiderSeenBy = {
-        avoider,
+        avoider: origin,
         observers: {},
         allies: alliance === "party" ? us : [],
       };
@@ -174,13 +174,13 @@ globalThis.Hooks.once("init", () => {
       for (const observerTokenDoc of observers) {
         const observerActor = observerTokenDoc.actor;
         if (observerActor.type === "hazard") continue;
-        let observation = makeObservation({
-          avoider,
-          observer: observerTokenDoc,
-          analyze: avoidNoticeCheck,
+        const check = resolveStealthCheck({
+          origin,
+          target: observerTokenDoc,
+          resolver: resolveAvoidNotice,
         });
 
-        avoiderSeenBy.observers[observation.observerId] = { observation };
+        avoiderSeenBy.observers[check.targetId] = { check };
       }
     }
 

@@ -49,13 +49,13 @@ export const COMBAT_STATES = {
   started: "started",
 };
 
+export const CRITICAL_FAILURE = 0;
+export const FAILURE = 1;
+export const SUCCESS = 2;
+export const CRITICAL_SUCCESS = 3;
+
 export const OBSERVED = 0;
 export const HIDDEN = 1;
 export const UNDETECTED = 2;
 
-export const VISIBILITY_LABELS = [
-  "observed",
-  "hidden",
-  "undetected",
-  "undetected",
-];
+export const STEALTH_LABELS = ["observed", "hidden", "undetected"];

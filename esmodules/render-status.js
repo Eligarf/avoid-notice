@@ -1,42 +1,49 @@
-import { MODULE_ID, LOCALIZATION_KEYS, VISIBILITY_LABELS } from "./const.js";
+import { MODULE_ID, LOCALIZATION_KEYS, STEALTH_LABELS } from "./const.js";
 import { findInitiativeCard } from "./initiative.js";
 import { debuglog, interpolateString, localizeString } from "./utils.js";
 
 const dosTable = ["critical-failure", "failure", "success", "critical-success"];
 
-export function prepareTargetList(sortedObservers) {
-  return sortedObservers.map((o) => {
-    const observation = o.observation ?? o;
-    const tokenId = observation.tokenDoc.id;
+export function prepareTargetList(sortedChecks) {
+  return sortedChecks.map((o) => {
+    const check = o.check ?? o;
+    const tokenId = check.tokenDoc.id;
     const entry = {
-      dc: observation.dc,
-      degreeOfSuccess: observation.degreeOfSuccess,
-      delta: observation.delta,
-      deltaStr: observation.deltaStr,
-      name: observation.name,
+      dc: check.dc,
+      degreeOfSuccess: check.degreeOfSuccess,
+      delta: check.delta,
+      deltaStr: check.deltaStr,
+      name: check.name,
       tokenId: tokenId,
-      visibility: observation.visibility,
-      visibilityLabel: observation.visibilityLabel,
-      ...(observation.tooltip && { tooltip: observation.tooltip }),
+      stealth: check.stealth,
+      ...(check.was && { was: check.was }),
+      stealthLabel: check.stealthLabel,
+      ...(check.tooltip && { tooltip: check.tooltip }),
     };
     return entry;
   });
 }
 
-async function visibilityClick(message, _event, flags, targetId, loopAt) {
+async function stealthLabelClick(
+  message,
+  _event,
+  flags,
+  targetId,
+  stealthDosStates,
+) {
   const targetList = flags[flags.card]?.targetList;
   if (!targetList) return;
   const target = targetList.find((t) => t.tokenId === targetId);
   if (!target) return;
-  target.visibility = (target.visibility + 1) % loopAt;
-  target.visibilityLabel = VISIBILITY_LABELS[target.visibility];
+  target.stealth = (target.stealth + 1) % stealthDosStates.length;
+  target.stealthLabel = STEALTH_LABELS[target.stealth];
   const update = {
     flags: {
       [MODULE_ID]: flags,
     },
   };
-  target.degreeOfSuccess =
-    loopAt === 3 ? target.visibility : target.visibility + 1;
+  const dos = stealthDosStates[target.stealth];
+  if (dos !== -1) target.degreeOfSuccess = stealthDosStates[target.stealth];
   return message.update(update);
 }
 
@@ -56,12 +63,12 @@ export function renderTargetList(targetList, context) {
     if (interactive) {
       let clickId = foundry.utils.randomID();
       (context["clickIds"] ??= {})[clickId] = async (message, event, flags) => {
-        return visibilityClick(
+        return stealthLabelClick(
           message,
           event,
           flags,
           target.tokenId,
-          context.loopAt ?? 3,
+          context.stealthDosStates,
         );
       };
       resultTag = `<div class="${MODULE_ID}-result" data-click-id="${clickId}" data-interactive="true">`;
@@ -73,7 +80,7 @@ export function renderTargetList(targetList, context) {
           <div class="${MODULE_ID}-name">${vs}</div>
           ${resultTag}
             <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
-              ${game.i18n.localize(LOCALIZATION_KEYS[target.visibilityLabel])}
+              ${game.i18n.localize(LOCALIZATION_KEYS[target.stealthLabel])}
             </span>
           </div>`;
     if (target.tooltip) {
@@ -105,14 +112,12 @@ export async function updateInitiativeCards(observations) {
   for (const avoiderId in observations) {
     const { avoider, observers, allies } = observations[avoiderId];
 
-    const sortedObservers = Object.values(observers).sort((a, b) => {
-      const diff = b.observation.dc - a.observation.dc;
-      return diff !== 0
-        ? diff
-        : a.observation.name.localeCompare(b.observation.name);
-    });
+    const sortedChecks = Object.values(observers).sort(
+      (a, b) =>
+        b.check.dc - a.check.dc || a.check.name.localeCompare(b.check.name),
+    );
 
-    const targetList = prepareTargetList(sortedObservers);
+    const targetList = prepareTargetList(sortedChecks);
 
     const initiativeMessage = await findInitiativeCard(avoider.combatant);
     if (!initiativeMessage) {

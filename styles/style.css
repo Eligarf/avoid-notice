@@ -30,6 +30,9 @@
 .pf2e-avoid-notice-friendlies,
 .pf2e-avoid-notice-friendly-avoiders,
 .pf2e-avoid-notice-player-results,
+.pf2e-avoid-notice-hide,
+.pf2e-avoid-notice-sneak,
+.pf2e-avoid-notice-seek,
 .pf2e-avoid-notice-avoider {
   width: 100%;
   display: flex;

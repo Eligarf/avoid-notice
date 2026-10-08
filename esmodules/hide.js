@@ -1,36 +1,36 @@
 import { debuglog, localizeString, getToken } from "./utils.js";
 import {
   MODULE_ID,
-  VISIBILITY_LABELS,
+  STEALTH_LABELS,
   HIDDEN,
   OBSERVED,
   UNDETECTED,
+  SUCCESS,
+  FAILURE,
 } from "./const.js";
 import { renderTargetList } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
-import { prepareObservedActionData } from "./action.js";
+import { prepareStealthChecks } from "./action.js";
 import {
   adaptStealthEffectToObservers,
-  getStealth,
-  getVisibilityBaseline,
-  getVisibilityOf,
+  getStealthEffect,
+  getStealthBaseline,
+  getStealthinessTo,
 } from "./effects.js";
 
-function hideCheck(avoider, observation) {
-  const stealth = getStealth(avoider.tokenDoc);
-  const baseline = stealth
-    ? Math.max(getVisibilityBaseline(stealth), HIDDEN)
+function resolveHide(origin, check) {
+  const stealthEffect = getStealthEffect(origin.tokenDoc);
+  const stealthBaseline = stealthEffect
+    ? Math.max(getStealthBaseline(stealthEffect), HIDDEN)
     : HIDDEN;
-  const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
-  if (visibility === UNDETECTED && observation.degreeOfSuccess >= 2) {
+  const stealth = getStealthinessTo(origin, check.tokenDoc.id);
+  check.was = stealth;
+  if (stealth === UNDETECTED && check.degreeOfSuccess >= SUCCESS) {
     const tooltip = game.i18n.localize(`${MODULE_ID}.hide.retain`);
-    observation.tooltip = observation.tooltip
-      ? `${observation.tooltip}<br>${tooltip}`
-      : tooltip;
+    check.tooltip = check.tooltip ? `${check.tooltip}<br>${tooltip}` : tooltip;
   }
-  observation.visibility =
-    observation.degreeOfSuccess >= 2 ? baseline : OBSERVED;
-  observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
+  check.stealth = check.degreeOfSuccess >= SUCCESS ? stealthBaseline : OBSERVED;
+  check.stealthLabel = STEALTH_LABELS[check.stealth];
 }
 
 export async function prepareHideData(message, userId, actingToken) {
@@ -39,11 +39,11 @@ export async function prepareHideData(message, userId, actingToken) {
   //   userId,
   //   actingToken,
   // });
-  const { summary, targetList } = prepareObservedActionData({
+  const { summary, targetList } = prepareStealthChecks({
     message,
     userId,
     actingToken,
-    analyze: hideCheck,
+    resolver: resolveHide,
   });
   const update = {
     flags: {
@@ -63,19 +63,19 @@ export async function prepareHideData(message, userId, actingToken) {
 
 async function applyHideEffects(message, _event, flags) {
   if (!game.user.isGM) return;
-  const stealth = getStealth(message.token);
-  const baseline = stealth
-    ? Math.max(getVisibilityBaseline(stealth), HIDDEN)
+  const stealthEffect = getStealthEffect(message.token);
+  const baselineStealth = stealthEffect
+    ? Math.max(getStealthBaseline(stealthEffect), HIDDEN)
     : HIDDEN;
   const hide = flags.hide;
   await adaptStealthEffectToObservers({
     actor: message.token.actor,
-    baselineVisibility: baseline,
-    observers: Object.fromEntries(
+    baselineStealth,
+    detectors: Object.fromEntries(
       hide.targetList.map((t) => [
         t.tokenId,
         {
-          visibility: t.visibility,
+          stealth: t.stealth,
           signature: getToken(t.tokenId)?.actor?.signature,
         },
       ]),
@@ -90,9 +90,13 @@ export function renderHideCard(_message, html, _data, flags) {
   const hide = flags.hide;
   const targetList = hide.targetList;
   if (!targetList?.length) return {};
-  const context = { interactive: hide.showApplyButton, loopAt: 2 };
+  const context = {
+    interactive: hide.showApplyButton,
+    stealthDosStates: [FAILURE, SUCCESS],
+  };
   let content = renderTargetList(targetList, context);
-  if (context.interactive) {
+  const change = targetList.some((t) => t.stealth !== t.was);
+  if (context.interactive && change) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applyHideEffects;
     content += `

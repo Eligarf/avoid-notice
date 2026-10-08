@@ -5,6 +5,7 @@ import { renderInitiativeCard } from "./render-status.js";
 import { renderSneakCard } from "./sneak.js";
 import { renderHideCard } from "./hide.js";
 import { renderCreateADiversionCard } from "./create-a-diversion.js";
+import { renderSeekCard } from "./seek.js";
 
 function attachHoverId(html, el, hoverIds) {
   const hoverId = el.dataset.hoverId;
@@ -121,6 +122,9 @@ globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
         break;
       case "sneak":
         interactionContext = renderSneakCard(message, html, data, flags);
+        break;
+      case "seek":
+        interactionContext = renderSeekCard(message, html, data, flags);
         break;
       case "create-a-diversion":
         interactionContext = renderCreateADiversionCard(

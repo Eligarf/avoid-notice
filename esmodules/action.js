@@ -4,27 +4,30 @@ import { prepareHideData } from "./hide.js";
 import { prepareSneakData } from "./sneak.js";
 import { prepareCreateADiversionData } from "./create-a-diversion.js";
 import { preparePointOutData } from "./point-out.js";
-import { findCompanionsOnCanvas, findPossibleObservers } from "./combat.js";
+import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
 import {
-  testAvoiderStealthAgainstObservers,
-  prepareObservations,
+  resolveStealthChecks,
+  prepareSummaryAndTargetList,
 } from "./observation-logic.js";
 import { findBaseCoverBonus } from "./cover.js";
 
-const pointOutLabel = "PF2E.Actions.PointOut.Title";
+let pointOutText = "J0V4p0dn40xIY4rR";
+globalThis.Hooks.once("ready", () => {
+  pointOutText = `<strong>${game.i18n.localize("PF2E.Actions.PointOut.Title")}</strong>`;
+});
 
-export function prepareObservedActionData({ message, actingToken, analyze }) {
+export function prepareStealthChecks({ message, actingToken, resolver }) {
   const combat = game?.combat;
   const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
-  const { them: observers, us } = findPossibleObservers({
+  const { them } = findPossibleTargets({
     encounter: combat,
-    avoider: actingToken,
+    origin: actingToken,
     minionTokens,
     eidolonTokens,
   });
   const roll = message.rolls?.[0];
   const { rawRollDosDelta } = breakdownRoll(roll);
-  const avoider = {
+  const origin = {
     tokenDoc: actingToken?.document ?? actingToken,
     roll,
     skillResult: roll.total,
@@ -33,12 +36,12 @@ export function prepareObservedActionData({ message, actingToken, analyze }) {
       actor: actingToken?.actor ?? actingToken,
     }),
   };
-  const observations = testAvoiderStealthAgainstObservers({
-    avoider,
-    observers,
-    analyze,
-  });
-  return prepareObservations(observations);
+  const checks = resolveStealthChecks({
+    origin,
+    targets: them,
+    resolver,
+  }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
+  return prepareSummaryAndTargetList(checks);
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {
@@ -64,11 +67,7 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
     return;
   }
 
-  if (
-    message.flavor?.includes(
-      `<strong>${game.i18n.localize(pointOutLabel)}</strong>`,
-    )
-  ) {
+  if (message.flavor?.includes(pointOutText)) {
     return preparePointOutData(message, userId, actingToken);
   }
 });

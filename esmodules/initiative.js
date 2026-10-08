@@ -36,18 +36,19 @@ export async function modifyInitiativeCard({
 
 export async function applyInitiativeConditions(observations, tokenUpdates) {
   debuglog("applyInitiativeConditions", { observations, tokenUpdates });
+  const baselineStealth = UNDETECTED;
   for (const avoiderId in observations) {
     const { avoider, observers, allies } = observations[avoiderId];
     debuglog("applyInitiativeConditions", { avoider, observers, allies });
-    const gazers = Object.fromEntries(
+    const detectors = Object.fromEntries(
       Object.entries(observers)
-        .filter(([_, o]) => o.observation.degreeOfSuccess < UNDETECTED)
+        .filter(([_, o]) => o.check.stealth < baselineStealth)
         .map(([id, o]) => {
           return [
             id,
             {
-              visibility: o.observation.visibility,
-              signature: o.observation.tokenDoc.actor?.signature,
+              stealth: o.check.stealth,
+              signature: o.check.tokenDoc.actor?.signature,
             },
           ];
         })
@@ -55,7 +56,7 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
           allies.map((allyId) => [
             allyId,
             {
-              visibility: OBSERVED,
+              stealth: OBSERVED,
               signature: getToken(allyId)?.actor?.signature,
             },
           ]),
@@ -63,8 +64,8 @@ export async function applyInitiativeConditions(observations, tokenUpdates) {
     );
     await adaptStealthEffectToObservers({
       actor: avoider.tokenDoc.actor,
-      baselineVisibility: UNDETECTED,
-      observers: gazers,
+      baselineStealth,
+      detectors,
     });
   }
 }

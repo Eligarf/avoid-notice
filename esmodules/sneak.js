@@ -1,40 +1,52 @@
 import { debuglog, localizeString, getToken } from "./utils.js";
-import { MODULE_ID, VISIBILITY_LABELS, UNDETECTED, OBSERVED } from "./const.js";
+import {
+  MODULE_ID,
+  STEALTH_LABELS,
+  UNDETECTED,
+  OBSERVED,
+  HIDDEN,
+  SUCCESS,
+  FAILURE,
+  CRITICAL_FAILURE,
+} from "./const.js";
 import { renderTargetList } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
-import { prepareObservedActionData } from "./action.js";
-import { adaptStealthEffectToObservers, getVisibilityOf } from "./effects.js";
+import { prepareStealthChecks } from "./action.js";
+import { adaptStealthEffectToObservers, getStealthinessTo } from "./effects.js";
 
-export function avoidNoticeCheck(_avoider, observation) {
-  observation.visibility =
-    observation.degreeOfSuccess >= 2 ? UNDETECTED : observation.degreeOfSuccess;
-  observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
+export function resolveAvoidNotice(_origin, check) {
+  check.stealth =
+    check.degreeOfSuccess >= SUCCESS
+      ? UNDETECTED
+      : check.degreeOfSuccess > CRITICAL_FAILURE
+        ? HIDDEN
+        : OBSERVED;
+  check.stealthLabel = STEALTH_LABELS[check.stealth];
 }
 
-function sneakCheck(avoider, observation) {
-  const visibility = getVisibilityOf(avoider, observation.tokenDoc.id);
-  if (visibility > OBSERVED) {
-    observation.visibility =
-      observation.degreeOfSuccess >= 2
+function resolveSneak(origin, check) {
+  const stealth = getStealthinessTo(origin, check.tokenDoc.id);
+  if (stealth > OBSERVED) {
+    check.stealth =
+      check.degreeOfSuccess >= SUCCESS
         ? UNDETECTED
-        : observation.degreeOfSuccess;
-    observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
+        : check.degreeOfSuccess > CRITICAL_FAILURE
+          ? HIDDEN
+          : OBSERVED;
   } else {
-    observation.visibility = OBSERVED;
+    check.stealth = OBSERVED;
     const tooltip = game.i18n.localize(`${MODULE_ID}.sneak.observed`);
-    observation.tooltip = observation.tooltip
-      ? `${observation.tooltip}<br>${tooltip}`
-      : tooltip;
+    check.tooltip = check.tooltip ? `${check.tooltip}<br>${tooltip}` : tooltip;
   }
-  observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
+  check.stealthLabel = STEALTH_LABELS[check.stealth];
 }
 
 export async function prepareSneakData(message, userId, actingToken) {
-  const { summary, targetList } = prepareObservedActionData({
+  const { summary, targetList } = prepareStealthChecks({
     message,
     userId,
     actingToken,
-    analyze: sneakCheck,
+    resolver: resolveSneak,
   });
   const update = {
     flags: {
@@ -57,12 +69,12 @@ async function applySneakEffects(message, _event, flags) {
   const sneak = flags.sneak;
   await adaptStealthEffectToObservers({
     actor: message.token.actor,
-    baselineVisibility: UNDETECTED,
-    observers: Object.fromEntries(
+    baselineStealth: UNDETECTED,
+    detectors: Object.fromEntries(
       sneak.targetList.map((t) => [
         t.tokenId,
         {
-          visibility: t.visibility,
+          stealth: t.stealth,
           signature: getToken(t.tokenId)?.actor?.signature,
         },
       ]),
@@ -77,7 +89,10 @@ export function renderSneakCard(_message, html, _data, flags) {
   const sneak = flags.sneak;
   const targetList = sneak.targetList;
   if (!targetList?.length) return {};
-  const context = { interactive: sneak.showApplyButton };
+  const context = {
+    interactive: sneak.showApplyButton,
+    stealthDosStates: [CRITICAL_FAILURE, FAILURE, SUCCESS],
+  };
   let content = renderTargetList(targetList, context);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

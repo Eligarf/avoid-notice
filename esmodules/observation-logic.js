@@ -2,68 +2,72 @@ import { clampDos, debuglog } from "./utils.js";
 import { prepareTargetList } from "./render-status.js";
 import { MODULE_ID } from "./const.js";
 
-export function makeObservation({ avoider, observer, analyze }) {
-  let observation = {
-    dc: observer.actor.system.perception.dc,
-    name: observer.name,
-    observerId: observer.id,
-    tokenDoc: observer,
+export function resolveStealthCheck({ origin, target, resolver }) {
+  let check = {
+    dc: target.actor.system.perception.dc,
+    name: target.name,
+    targetId: target.id,
+    tokenDoc: target,
   };
 
-  let coverBonus = avoider.baseCoverBonus;
+  let coverBonus = origin.baseCoverBonus || 0;
   if (coverBonus > 0) {
-    observation.coverBonus = coverBonus;
+    check.coverBonus = coverBonus;
     switch (coverBonus) {
       case 2:
-        observation.tooltip = game.i18n.localize(`${MODULE_ID}.standardCover`);
+        check.tooltip = game.i18n.localize(`${MODULE_ID}.standardCover`);
         break;
       case 4:
-        observation.tooltip = game.i18n.localize(`${MODULE_ID}.greaterCover`);
+        check.tooltip = game.i18n.localize(`${MODULE_ID}.greaterCover`);
         break;
     }
   }
 
-  const delta = avoider.skillResult + coverBonus - observation.dc;
-  observation.delta = delta;
-  observation.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
-  observation.degreeOfSuccess = clampDos(delta, avoider.rawRollDosDelta);
-  analyze(avoider, observation);
-  // debuglog("makeObservation", { avoider, observer, observation });
+  const delta = origin.skillResult + coverBonus - check.dc;
+  check.delta = delta;
+  check.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
+  check.degreeOfSuccess = clampDos(delta, origin.rawRollDosDelta);
+  resolver(origin, check);
 
-  return observation;
+  return check;
 }
 
-export function testAvoiderStealthAgainstObservers({
-  avoider,
-  observers,
-  analyze,
-}) {
-  const observations = observers
-    .filter((observer) => {
-      return observer.actor?.system?.perception?.dc;
-    })
-    .map((observer) => {
-      const observation = makeObservation({
-        avoider,
-        observer,
-        analyze,
-      });
-      return observation;
-    });
-  return observations.sort((a, b) => a.delta - b.delta);
+export function resolveStealthChecks({ origin, targets, resolver }) {
+  const checks = targets
+    .filter((target) => target.actor?.system?.perception?.dc)
+    .map((target) =>
+      resolveStealthCheck({
+        origin,
+        target,
+        resolver,
+      }),
+    );
+  return checks.sort((a, b) => a.delta - b.delta);
 }
 
-export function prepareObservations(observations) {
-  const summary = observations.reduce((acc, obs) => {
-    const visibility = obs.visibility;
-    acc[visibility] = (acc[visibility] || 0) + 1;
+export function resolveSeekCheck({ origin, target, resolver }) {
+  let check = {
+    dc: target.actor.system.skills.stealth.dc,
+    name: target.name,
+    observerId: target.id,
+    tokenDoc: target,
+  };
+
+  const delta = origin.skillResult - check.dc;
+  check.delta = delta;
+  check.deltaStr = delta < 0 ? `${delta}` : `+${delta}`;
+  check.degreeOfSuccess = clampDos(delta, origin.rawRollDosDelta);
+  resolver(origin, check);
+  return check;
+}
+
+export function prepareSummaryAndTargetList(checks) {
+  const summary = checks.reduce((acc, obs) => {
+    const stealth = obs.stealth;
+    acc[stealth] = (acc[stealth] || 0) + 1;
     return acc;
   }, {});
 
-  const sortedObservers = observations.sort((a, b) => {
-    const diff = b.dc - a.dc;
-    return diff !== 0 ? diff : a.name.localeCompare(b.name);
-  });
-  const targetList = prepareTargetList(sortedObservers);
+  const targetList = prepareTargetList(checks);
   return { summary, targetList };
 }

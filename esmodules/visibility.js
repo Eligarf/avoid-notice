@@ -44,8 +44,8 @@ function findObservations(token) {
   const flags = stealth.flags[MODULE_ID];
   if (!flags) return null;
   return {
-    baselineVisibility: stealth.badge.value,
-    observers: flags.observers,
+    baselineStealth: stealth.system.badge.value,
+    detectors: flags.detectors || {},
   };
 }
 
@@ -160,10 +160,10 @@ function showEyeball({ token, isVisible }) {
 function findObservers(token) {
   const observations = findObservations(token);
   if (!observations) return;
-  const observers = Object.entries(observations.observers)
-    .filter(([_, o]) => o.visibility < observations.baselineVisibility)
+  const detectors = Object.entries(observations.detectors)
+    .filter(([_, o]) => o.stealth < observations.baselineStealth)
     .map(([id, _]) => id);
-  return new Set(observers);
+  return new Set(detectors);
 }
 
 function controlTokenHook(token, controlled) {

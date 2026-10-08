@@ -1,15 +1,21 @@
 import { debuglog, breakdownRoll } from "./utils.js";
-import { MODULE_ID, VISIBILITY_LABELS, HIDDEN, OBSERVED } from "./const.js";
-import { findCompanionsOnCanvas, findPossibleObservers } from "./combat.js";
 import {
-  testAvoiderStealthAgainstObservers,
-  prepareObservations,
+  MODULE_ID,
+  STEALTH_LABELS,
+  HIDDEN,
+  OBSERVED,
+  SUCCESS,
+} from "./const.js";
+import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
+import {
+  resolveStealthChecks,
+  prepareSummaryAndTargetList,
 } from "./observation-logic.js";
 import { renderTargetList } from "./render-status.js";
 
-export function createADiversionCheck(_avoider, observation) {
-  observation.visibility = observation.degreeOfSuccess >= 2 ? HIDDEN : OBSERVED;
-  observation.visibilityLabel = VISIBILITY_LABELS[observation.visibility];
+export function resolveDiversion(_origin, check) {
+  check.stealth = check.degreeOfSuccess >= SUCCESS ? HIDDEN : OBSERVED;
+  check.stealthLabel = STEALTH_LABELS[check.stealth];
 }
 
 export async function prepareCreateADiversionData(
@@ -24,27 +30,29 @@ export async function prepareCreateADiversionData(
   });
   const combat = game?.combat;
   const { minionTokens, eidolonTokens } = findCompanionsOnCanvas();
-  const { them: observers, us } = findPossibleObservers({
+  const { them: targets, us } = findPossibleTargets({
     encounter: combat,
-    avoider: actingToken,
+    origin: actingToken,
     minionTokens,
     eidolonTokens,
   });
   const roll = message.rolls?.[0];
   const { rawRollDosDelta } = breakdownRoll(roll);
-  const avoider = {
+
+  const origin = {
     tokenDoc: actingToken?.document ?? actingToken,
     roll,
     skillResult: roll.total,
     rawRollDosDelta,
     baseCoverBonus: 0,
   };
-  const observations = testAvoiderStealthAgainstObservers({
-    avoider,
-    observers,
-    analyze: createADiversionCheck,
-  });
-  const { summary, targetList } = prepareObservations(observations);
+  const checks = resolveStealthChecks({
+    origin,
+    targets,
+    resolver: resolveDiversion,
+  }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
+  const { summary, targetList } = prepareSummaryAndTargetList(checks);
+
   const update = {
     flags: {
       [MODULE_ID]: {

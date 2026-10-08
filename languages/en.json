@@ -157,6 +157,9 @@
     "sneak": {
       "observed": "Prerequisite: hidden or undetected condition"
     },
+    "seek": {
+      "was": "Was {stealth}"
+    },
     "badge": {
       "observed": "OBS",
       "hidden": "HDN",

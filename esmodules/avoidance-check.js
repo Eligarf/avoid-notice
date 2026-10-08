@@ -3,10 +3,10 @@ import { MODULE_ID, SLUGS, OBSERVED, HIDDEN, UNDETECTED } from "./const.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { sendStealthRollToGM } from "./socket.js";
 import {
-  testAvoiderStealthAgainstObservers,
-  prepareObservations,
+  resolveStealthChecks,
+  prepareSummaryAndTargetList,
 } from "./observation-logic.js";
-import { avoidNoticeCheck } from "./sneak.js";
+import { resolveAvoidNotice } from "./sneak.js";
 import { renderTargetList } from "./render-status.js";
 import {
   getToken,
@@ -29,25 +29,33 @@ async function rollStealth(actor, { skipDialog = true, player = false } = {}) {
   return roll;
 }
 
-function testAvoiderAgainstObservers(avoiderToken, roll, observers) {
-  const { rawRollDosDelta } = breakdownRoll(roll);
-  const avoider = {
-    tokenDoc: avoiderToken?.document ?? avoiderToken,
-    roll,
-    skillResult: roll.total,
+function resolveStealthRoll({
+  avoider,
+  roll = null,
+  targets,
+  rawRollDosDelta = 0,
+  skillResult = 10,
+}) {
+  if (roll) {
+    ({ rawRollDosDelta } = breakdownRoll(roll));
+    skillResult = roll.total;
+  }
+  const origin = {
+    tokenDoc: avoider?.document ?? avoider,
+    skillResult,
     rawRollDosDelta,
     baseCoverBonus: findBaseCoverBonus({
-      actor: avoiderToken?.actor ?? avoiderToken,
+      actor: avoider?.actor ?? avoider,
     }),
   };
-  return testAvoiderStealthAgainstObservers({
-    avoider,
-    observers,
-    analyze: avoidNoticeCheck,
+  return resolveStealthChecks({
+    origin,
+    targets,
+    resolver: resolveAvoidNotice,
   });
 }
 
-function renderObservations(summary, targetList, context) {
+function renderSummary(summary, _context) {
   let content = `<div class="${MODULE_ID}-summary">`;
   if (summary[OBSERVED]) {
     const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
@@ -71,7 +79,6 @@ function renderObservations(summary, targetList, context) {
     content += `<span class="${MODULE_ID}-undetected">${observation}</span>`;
   }
   content += "</div>";
-  content += renderTargetList(targetList.slice(0, 2), context);
   return content;
 }
 
@@ -133,13 +140,13 @@ async function prepareAvoidanceCheckData(tokens) {
     for (const avoider of enemyAvoiders) {
       const roll = await rollStealth(avoider.actor);
       const { rawRollDosDelta } = breakdownRoll(roll);
-      const observations = testAvoiderAgainstObservers(
+      const checks = resolveStealthRoll({
         avoider,
         roll,
-        friendlies,
-      );
+        targets: friendlies,
+      }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
+      const { summary, targetList } = prepareSummaryAndTargetList(checks);
 
-      const { summary, targetList } = prepareObservations(observations);
       enemyStealth[avoider.id] = {
         name: avoider.name,
         skillResult: roll.total,
@@ -209,11 +216,8 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
                 <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>
                 <div class="${MODULE_ID}-roll">${avoider.skillResult}</div>
               </div>`;
-      content += renderObservations(
-        avoider.summary,
-        avoider.targetList,
-        context,
-      );
+      content += renderSummary(avoider.summary, context);
+      content += renderTargetList(avoider.targetList.slice(0, 2), context);
       content += `
             </div>
           </div>`;
@@ -269,11 +273,8 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
                 </div>
                 <div class="${MODULE_ID}-player-results" data-visibility="gm">`;
       if (avoider.skillResult !== null) {
-        content += renderObservations(
-          avoider.summary,
-          avoider.targetList,
-          context,
-        );
+        content += renderSummary(avoider.summary, context);
+        content += renderTargetList(avoider.targetList.slice(0, 2), context);
       }
       content += `
                 </div>
@@ -450,26 +451,19 @@ export async function onStealthReply({
   if (!flags) return;
   const avoidanceCheck = flags.avoidanceCheck;
   if (!avoidanceCheck) return;
-  let avoiderToken =
+  let avoider =
     canvas.tokens.get(tokenId) || game.actors.get(tokenId)?.prototypeToken;
-  if (!avoiderToken) return;
-  const avoider = {
-    tokenDoc: avoiderToken?.document ?? avoiderToken,
-    skillResult,
-    rawRollDosDelta,
-    baseCoverBonus: findBaseCoverBonus({
-      actor: avoiderToken?.actor,
-    }),
-  };
-  const enemyTokens = avoidanceCheck.enemyIds.map((id) =>
-    canvas.tokens.get(id),
-  );
-  const observations = testAvoiderStealthAgainstObservers({
+  if (!avoider) return;
+
+  const targets = avoidanceCheck.enemyIds.map((id) => canvas.tokens.get(id));
+  const checks = resolveStealthRoll({
     avoider,
-    observers: enemyTokens,
-    analyze: avoidNoticeCheck,
-  });
-  const { summary, targetList } = prepareObservations(observations);
+    rawRollDosDelta,
+    skillResult,
+    targets,
+  }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
+  const { summary, targetList } = prepareSummaryAndTargetList(checks);
+
   const avoiderData = avoidanceCheck.friendlyStealth[tokenId];
   avoiderData.skillResult = skillResult;
   avoiderData.rawRollDosDelta = rawRollDosDelta;
