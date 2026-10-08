@@ -19,17 +19,17 @@ import {
 } from "./effects.js";
 
 function resolveHide(origin, check) {
-  const stealthEffect = getStealthEffect(origin.tokenDoc);
-  const stealthBaseline = stealthEffect
-    ? Math.max(getStealthBaseline(stealthEffect), HIDDEN)
-    : HIDDEN;
   const stealth = getStealthinessTo(origin, check.tokenDoc.id);
   check.was = stealth;
-  if (stealth === UNDETECTED && check.degreeOfSuccess >= SUCCESS) {
-    const tooltip = game.i18n.localize(`${MODULE_ID}.hide.retain`);
-    check.tooltip = check.tooltip ? `${check.tooltip}<br>${tooltip}` : tooltip;
-  }
-  check.stealth = check.degreeOfSuccess >= SUCCESS ? stealthBaseline : OBSERVED;
+  if (check.degreeOfSuccess >= SUCCESS) {
+    if (stealth === UNDETECTED) {
+      const tooltip = game.i18n.localize(`${MODULE_ID}.hide.retain`);
+      check.tooltip = check.tooltip
+        ? `${check.tooltip}<br>${tooltip}`
+        : tooltip;
+      check.stealth = UNDETECTED;
+    } else check.stealth = HIDDEN;
+  } else check.stealth = OBSERVED;
   check.stealthLabel = STEALTH_LABELS[check.stealth];
 }
 

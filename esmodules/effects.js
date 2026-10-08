@@ -68,7 +68,6 @@ export function getStealthinessTo(origin, targetId) {
 }
 
 function buildRulesFromFlags(flags, stealthBaseline) {
-  debuglog("flags", flags);
   const rules = [];
   for (let stealth = HIDDEN; stealth <= stealthBaseline; ++stealth) {
     const stealthLabel = STEALTH_LABELS[stealth];
@@ -207,7 +206,7 @@ export async function revealAvoidersTo({
     if (!stealthEffect) continue;
     const flags = stealthEffect?.flags?.[MODULE_ID] || {};
     if (!flags) continue;
-    const detectors = foundry.utils.duplicate(flags.detectors);
+    const detectors = foundry.utils.duplicate(flags.detectors || {});
     const baselineStealth = getStealthBaseline(stealthEffect);
     for (const detector of observers) {
       const id = detector.id;
