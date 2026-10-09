@@ -8,6 +8,8 @@ import {
 } from "./const.js";
 import { findInitiativeCard } from "./initiative.js";
 import { debuglog, interpolateString, localizeString } from "./utils.js";
+import { cachedSettings } from "./settings.js";
+import { prepareSummaryAndTargetList } from "./observation-logic.js";
 
 const dosTable = ["critical-failure", "failure", "success", "critical-success"];
 
@@ -152,7 +154,7 @@ export async function updateInitiativeCards(observations) {
         b.check.dc - a.check.dc || a.check.name.localeCompare(b.check.name),
     );
 
-    const targetList = prepareTargetList(sortedChecks);
+    const { summary, targetList } = prepareSummaryAndTargetList(sortedChecks);
 
     const initiativeMessage = await findInitiativeCard(avoider.combatant);
     if (!initiativeMessage) {
@@ -165,7 +167,7 @@ export async function updateInitiativeCards(observations) {
           card: "initiative",
           name: avoider.tokenDoc.name,
           activity: "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
-          initiative: { targetList: targetList, allies },
+          initiative: { targetList: targetList, summary, allies },
         },
       },
     };
@@ -182,9 +184,13 @@ export function renderInitiativeCard(_message, html, _data, flags) {
     },
   );
   let content = `<div class="${MODULE_ID}-init-activity">${activity}</div>`;
-  const context = { interactive: false };
-  const summary = "initiative summary";
-  content += renderTargetList(flags.initiative?.targetList, summary, context);
+  const context = {
+    interactive: false,
+    collapsed: cachedSettings.collapseTargetList,
+  };
+  const initiative = flags.initiative;
+  const summary = renderSummary(initiative.summary, context);
+  content += renderTargetList(initiative.targetList, summary, context);
   html.insertAdjacentHTML("beforeend", content);
   return context;
 }

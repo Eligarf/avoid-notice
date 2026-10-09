@@ -77,7 +77,6 @@ export async function invokeTokensMenu({ selection }) {
   if (!selection.dispositions.has(1)) {
     if (
       selection.tokens.some((t) => {
-        if (!t?.document?.hidden) return true;
         const actor = t?.actor;
         if (!actor) return false;
         const stat = actor?.system?.initiative?.statistic;
@@ -95,7 +94,6 @@ export async function invokeTokensMenu({ selection }) {
     }
     if (
       selection.tokens.some((t) => {
-        if (t?.document?.hidden) return true;
         const actor = t?.actor;
         if (!actor) return false;
         const stat = actor?.system?.initiative?.statistic;

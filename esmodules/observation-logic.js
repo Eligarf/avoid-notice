@@ -62,8 +62,9 @@ export function resolveSeekCheck({ origin, target, resolver }) {
 }
 
 export function prepareSummaryAndTargetList(checks) {
-  const summary = checks.reduce((acc, obs) => {
-    const stealth = obs.stealth;
+  const summary = checks.reduce((acc, o) => {
+    const check = o.check ?? o;
+    const stealth = check.stealth;
     acc[stealth] = (acc[stealth] || 0) + 1;
     return acc;
   }, {});
