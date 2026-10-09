@@ -7,7 +7,7 @@ import {
   SUCCESS,
   CRITICAL_SUCCESS,
 } from "./const.js";
-import { renderTargetList } from "./render-status.js";
+import { renderTargetList, renderSummary } from "./render-status.js";
 import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
 import { cachedSettings } from "./settings.js";
 import {
@@ -116,8 +116,10 @@ export function renderSeekCard(message, html, data, flags) {
   const context = {
     interactive: seek.showApplyButton,
     stealthDosStates: [-1, -1, -1],
+    collapsed: cachedSettings.collapseTargetList,
   };
-  let content = renderTargetList(targetList, context);
+  const summary = renderSummary(seek.summary, context);
+  let content = renderTargetList(targetList, summary, context);
   const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

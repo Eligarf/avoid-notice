@@ -35,6 +35,10 @@
       "name": "Enable eyeball indicators",
       "hint": "Display eyeballs on canvas tokens that ignore the controlled tokens' stealth-based hidden and/or undetected conditions"
     },
+    "collapseTargetList": {
+      "name": "Collapse Target Lists",
+      "hint": "Initially collapse target lists when adding them to a chat card"
+    },
     "notifications": {
       "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
     },
@@ -143,9 +147,9 @@
       "title": "Avoidance Check",
       "secretTitle": "Secret Avoidance Check",
       "checkLabel": "Check result:",
-      "observed": "observed by {observed}",
-      "hidden": "hidden to {hidden}",
-      "undetected": "undetected to {undetected}",
+      "observed": "Observed: {observed}",
+      "hidden": "Hidden: {hidden}",
+      "undetected": "Undetected: {undetected}",
       "createEncounter": "Add All to Combat",
       "createEncounterTooltip": "Add all tokens in this card to the combat using the rolled stealth results as initiative.&#10Note that some initiative adjustments might shift slightly due to the approximations used in the Avoidance Check",
       "missingActors": "Please {clownCar} to the canvas before pressing the {createEncounter} button:",

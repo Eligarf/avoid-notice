@@ -81,10 +81,6 @@ function buildRulesFromFlags(flags, stealthBaseline) {
 
     const exceptions = flags[stealthLabel]?.except || [];
     if (exceptions.length > 0) {
-      debuglog("exceptions,detectors", {
-        exceptions,
-        detectors: flags.detectors,
-      });
       rules.push({
         key: "RollOption",
         domain: "all",

@@ -8,7 +8,7 @@ import {
   SUCCESS,
   FAILURE,
 } from "./const.js";
-import { renderTargetList } from "./render-status.js";
+import { renderTargetList, renderSummary } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
 import { prepareStealthChecks } from "./action.js";
 import {
@@ -102,8 +102,10 @@ export function renderHideCard(_message, html, _data, flags) {
   const context = {
     interactive: hide.showApplyButton,
     stealthDosStates: [FAILURE, SUCCESS],
+    collapsed: cachedSettings.collapseTargetList,
   };
-  let content = renderTargetList(targetList, context);
+  const summary = renderSummary(hide.summary, context);
+  let content = renderTargetList(targetList, summary, context);
   const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

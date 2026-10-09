@@ -66,7 +66,11 @@ export async function prepareCreateADiversionData(
 
 export function renderCreateADiversionCard(_message, html, _data, flags) {
   const context = { interactive: flags.showApplyButton };
-  const content = renderTargetList(flags.createADiversion?.targetList, context);
+  const content = renderTargetList(
+    flags.createADiversion?.targetList,
+    "seek summary",
+    context,
+  );
   html.insertAdjacentHTML("beforeend", content);
   return context;
 }

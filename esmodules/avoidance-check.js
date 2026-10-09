@@ -1,5 +1,5 @@
 import { isAvoider } from "./effects.js";
-import { MODULE_ID, SLUGS, OBSERVED, HIDDEN, UNDETECTED } from "./const.js";
+import { MODULE_ID, SLUGS } from "./const.js";
 import { findBaseCoverBonus } from "./cover.js";
 import { sendStealthRollToGM } from "./socket.js";
 import {
@@ -7,7 +7,7 @@ import {
   prepareSummaryAndTargetList,
 } from "./observation-logic.js";
 import { resolveAvoidNotice } from "./sneak.js";
-import { renderTargetList } from "./render-status.js";
+import { renderSummary, renderTargetList } from "./render-status.js";
 import {
   getToken,
   breakdownRoll,
@@ -53,33 +53,6 @@ function resolveStealthRoll({
     targets,
     resolver: resolveAvoidNotice,
   });
-}
-
-function renderSummary(summary, _context) {
-  let content = `<div class="${MODULE_ID}-summary">`;
-  if (summary[OBSERVED]) {
-    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
-      observed: summary[OBSERVED],
-    });
-    content += `<span class="${MODULE_ID}-observed">${observation}</span>`;
-  }
-  if (summary[HIDDEN]) {
-    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.hidden`, {
-      hidden: summary[HIDDEN],
-    });
-    content += `<span class="${MODULE_ID}-hidden">${observation}</span>`;
-  }
-  if (summary[UNDETECTED]) {
-    const observation = localizeString(
-      `${MODULE_ID}.avoidanceCheck.undetected`,
-      {
-        undetected: summary[UNDETECTED],
-      },
-    );
-    content += `<span class="${MODULE_ID}-undetected">${observation}</span>`;
-  }
-  content += "</div>";
-  return content;
 }
 
 function makeMissingActorsString() {
@@ -221,8 +194,8 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
                 <span>${localizeString(`${MODULE_ID}.avoidanceCheck.checkLabel`)}</span>
                 <div class="${MODULE_ID}-roll">${avoider.skillResult}</div>
               </div>`;
-      content += renderSummary(avoider.summary, context);
-      content += renderTargetList(avoider.targetList.slice(0, 2), context);
+      const summary = renderSummary(avoider.summary, context);
+      content += renderTargetList(avoider.targetList, summary, context);
       content += `
             </div>
           </div>`;
@@ -283,8 +256,8 @@ function renderAvoidanceCheck(avoidanceCheck, context) {
                 </div>
                 <div class="${MODULE_ID}-player-results" data-visibility="gm">`;
       if (avoider.skillResult !== null) {
-        content += renderSummary(avoider.summary, context);
-        content += renderTargetList(avoider.targetList.slice(0, 2), context);
+        const summary = renderSummary(avoider.summary, context);
+        content += renderTargetList(avoider.targetList, summary, context);
       }
       content += `
                 </div>
@@ -489,7 +462,7 @@ export async function onStealthReply({
 }
 
 export function renderAvoidanceCheckCard(_message, html, _data, flags) {
-  const context = { interactive: false };
+  const context = { interactive: false, collapsed: true };
   const content = renderAvoidanceCheck(flags.avoidanceCheck, context);
   html.insertAdjacentHTML("beforeend", content);
   return context;

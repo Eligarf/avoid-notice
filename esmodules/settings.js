@@ -15,6 +15,7 @@ export const SETTINGS = {
   useEffects: "useEffects",
   panZoomToCombat: "panZoomToCombat",
   showEyeballs: "showEyeballs",
+  collapseTargetList: "collapseTargetList",
 
   // Advanced settings
   logLevel: "logLevel",
@@ -31,6 +32,7 @@ export let cachedSettings = {
   useEffects: true,
   panZoomToCombat: true,
   showEyeballs: true,
+  collapseTargetList: false,
   logLevel: "none",
 };
 
@@ -117,6 +119,26 @@ export function setupSettings() {
   cachedSettings.showEyeballs = game.settings.get(
     MODULE_ID,
     SETTINGS.showEyeballs,
+  );
+
+  game.settings.register(MODULE_ID, SETTINGS.collapseTargetList, {
+    name: game.i18n.localize(
+      `${MODULE_ID}.${SETTINGS.collapseTargetList}.name`,
+    ),
+    hint: game.i18n.localize(
+      `${MODULE_ID}.${SETTINGS.collapseTargetList}.hint`,
+    ),
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: cachedSettings.collapseTargetList,
+    onChange: (newValue) => {
+      cachedSettings.collapseTargetList = newValue;
+    },
+  });
+  cachedSettings.collapseTargetList = game.settings.get(
+    MODULE_ID,
+    SETTINGS.collapseTargetList,
   );
 
   game.settings.register(MODULE_ID, SETTINGS.clearPartyStealthAfterCombat, {

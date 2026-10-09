@@ -9,7 +9,7 @@ import {
   FAILURE,
   CRITICAL_FAILURE,
 } from "./const.js";
-import { renderTargetList } from "./render-status.js";
+import { renderTargetList, renderSummary } from "./render-status.js";
 import { cachedSettings } from "./settings.js";
 import { prepareStealthChecks } from "./action.js";
 import { adaptStealthEffectToObservers, getStealthinessTo } from "./effects.js";
@@ -102,8 +102,10 @@ export function renderSneakCard(_message, html, _data, flags) {
   const context = {
     interactive: sneak.showApplyButton,
     stealthDosStates: [CRITICAL_FAILURE, FAILURE, SUCCESS],
+    collapsed: cachedSettings.collapseTargetList,
   };
-  let content = renderTargetList(targetList, context);
+  const summary = renderSummary(sneak.summary, context);
+  let content = renderTargetList(targetList, summary, context);
   const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

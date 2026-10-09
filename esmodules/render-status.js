@@ -1,4 +1,11 @@
-import { MODULE_ID, LOCALIZATION_KEYS, STEALTH_LABELS } from "./const.js";
+import {
+  MODULE_ID,
+  LOCALIZATION_KEYS,
+  STEALTH_LABELS,
+  OBSERVED,
+  HIDDEN,
+  UNDETECTED,
+} from "./const.js";
 import { findInitiativeCard } from "./initiative.js";
 import { debuglog, interpolateString, localizeString } from "./utils.js";
 
@@ -47,10 +54,38 @@ async function stealthLabelClick(
   return message.update(update);
 }
 
-export function renderTargetList(targetList, context) {
+export function renderSummary(summary, _context) {
+  let content = `<div class="${MODULE_ID}-summary">`;
+  if (summary[OBSERVED]) {
+    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
+      observed: summary[OBSERVED],
+    });
+    content += `<span class="${MODULE_ID}-observed">${observation}</span>`;
+  }
+  if (summary[HIDDEN]) {
+    const observation = localizeString(`${MODULE_ID}.avoidanceCheck.hidden`, {
+      hidden: summary[HIDDEN],
+    });
+    content += `<span class="${MODULE_ID}-hidden">${observation}</span>`;
+  }
+  if (summary[UNDETECTED]) {
+    const observation = localizeString(
+      `${MODULE_ID}.avoidanceCheck.undetected`,
+      {
+        undetected: summary[UNDETECTED],
+      },
+    );
+    content += `<span class="${MODULE_ID}-undetected">${observation}</span>`;
+  }
+  content += "</div>";
+  return content;
+}
+
+export function renderTargetList(targetList, summary, context) {
   let content = `
     <div data-visibility="gm">
-      <div class="${MODULE_ID}-target-list">`;
+      <details ${context.collapsed ? "" : "open"} class="${MODULE_ID}-target-list">
+        <summary>${summary}</summary>`;
 
   const interactive = context.interactive ?? false;
   for (const target of targetList) {
@@ -103,7 +138,7 @@ export function renderTargetList(targetList, context) {
         </div>`;
   }
   content += `
-      </div>
+      </details>
     </div>`;
   return content;
 }
@@ -148,7 +183,8 @@ export function renderInitiativeCard(_message, html, _data, flags) {
   );
   let content = `<div class="${MODULE_ID}-init-activity">${activity}</div>`;
   const context = { interactive: false };
-  content += renderTargetList(flags.initiative?.targetList, context);
+  const summary = "initiative summary";
+  content += renderTargetList(flags.initiative?.targetList, summary, context);
   html.insertAdjacentHTML("beforeend", content);
   return context;
 }
