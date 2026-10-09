@@ -282,7 +282,6 @@ export async function avoidanceCheck(tokens) {
   const secret = !avoidanceCheckData.friendlyIds.length;
   avoidanceCheckData.secret = secret;
   return ChatMessage.create({
-    content: "Hey there",
     rollmode: "gmroll",
     ...(secret ? { whisper: gmIds } : {}),
     flags: {

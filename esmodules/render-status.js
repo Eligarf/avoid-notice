@@ -85,9 +85,8 @@ export function renderSummary(summary, _context) {
 
 export function renderTargetList(targetList, summary, context) {
   let content = `
-    <div data-visibility="gm">
-      <details ${context.collapsed ? "" : "open"} class="${MODULE_ID}-target-list">
-        <summary>${summary}</summary>`;
+    <details ${context.collapsed ? "" : "open"} data-visibility="gm" class="${MODULE_ID}-target-list">
+      <summary>${summary}</summary>`;
 
   const interactive = context.interactive ?? false;
   for (const target of targetList) {
@@ -108,40 +107,33 @@ export function renderTargetList(targetList, summary, context) {
           context.stealthDosStates,
         );
       };
-      resultTag = `<div class="${MODULE_ID}-result" data-click-id="${clickId}" data-interactive="true">`;
+      resultTag = `
+      <div class="${MODULE_ID}-result" data-click-id="${clickId}" data-interactive="true">`;
     } else {
-      resultTag = `<div class="${MODULE_ID}-result" data-interactive="false">`;
+      resultTag = `
+      <div class="${MODULE_ID}-result" data-interactive="false">`;
     }
+    const tooltip = target.tooltip
+      ? `data-tooltip="<div>${target.tooltip}</div>"`
+      : "";
     content += `
-        <div class="${MODULE_ID}-target" data-hover-id="${hoverId}">
-          <div class="${MODULE_ID}-name">${vs}</div>
-          ${resultTag}
-            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
-              ${game.i18n.localize(LOCALIZATION_KEYS[target.stealthLabel])}
-            </span>
-          </div>`;
-    if (target.tooltip) {
-      content += `
-          <div class="${MODULE_ID}-dc" data-tooltip="<div>${target.tooltip}</div>">
-            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
-              DC ${target.dc}
-            </span>
-            <i class="fas fa-info-circle"></i>
-          </div>`;
-    } else {
-      content += `
-          <div class="${MODULE_ID}-dc">
-            <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
-              DC ${target.dc}
-            </span>
-          </div>`;
-    }
-    content += `
-        </div>`;
+      <div class="${MODULE_ID}-target" data-hover-id="${hoverId}">
+        <div class="${MODULE_ID}-name">${vs}</div>
+        ${resultTag}
+          <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
+            ${game.i18n.localize(LOCALIZATION_KEYS[target.stealthLabel])}
+          </span>
+        </div>
+        <div class="${MODULE_ID}-dc" ${tooltip}>
+          <span class="degree-of-success ${dosTable[target.degreeOfSuccess]}">
+            DC ${target.dc}
+          </span>
+          <i class="fas fa-info-circle"></i>
+        </div>
+      </div>`;
   }
   content += `
-      </details>
-    </div>`;
+    </details>`;
   return content;
 }
 
