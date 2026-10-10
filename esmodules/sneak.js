@@ -123,7 +123,7 @@ export function renderSneakCard(_message, html, _data, flags) {
     onStatusClick: onSneakStatusClick,
     change: targetList.some((t) => t.stealth !== t.was),
   };
-  const summary = renderSummary(sneak.summary, context);
+  const summary = renderSummary(targetList, context);
   let content = renderTargetList(targetList, summary, context);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

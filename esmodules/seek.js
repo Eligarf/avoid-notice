@@ -7,13 +7,14 @@ import {
   SUCCESS,
   CRITICAL_SUCCESS,
 } from "./const.js";
-import { renderTargetList, renderSummary } from "./render-status.js";
+import {
+  renderTargetList,
+  renderSummary,
+  prepareTargetList,
+} from "./render-status.js";
 import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
 import { cachedSettings } from "./settings.js";
-import {
-  resolveSeekCheck,
-  prepareSummaryAndTargetList,
-} from "./observation-logic.js";
+import { resolveSeekCheck } from "./observation-logic.js";
 import { getStealthinessTo, setStealthinessTo } from "./effects.js";
 
 function resolveSeek(origin, check) {
@@ -75,7 +76,7 @@ export async function prepareSeekData(message, userId, actingToken) {
       b.delta - a.delta ||
       a.name.localeCompare(b.name),
   );
-  const { summary, targetList } = prepareSummaryAndTargetList(checks);
+  const targetList = prepareTargetList(checks);
 
   const update = {
     flags: {
@@ -83,7 +84,6 @@ export async function prepareSeekData(message, userId, actingToken) {
         card: "seek",
         origin: actingToken.id,
         seek: {
-          summary,
           targetList,
           showApplyButton: cachedSettings.useEffects,
         },
@@ -133,7 +133,7 @@ export function renderSeekCard(message, html, data, flags) {
     onStatusClick: onSeekStatusClick,
     change: targetList.some((t) => t.stealth !== t.was),
   };
-  const summary = renderSummary(seek.summary, context);
+  const summary = renderSummary(targetList, context);
   let content = renderTargetList(targetList, summary, context);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

@@ -2,20 +2,12 @@ import { debuglog, localizeString, getToken, breakdownRoll } from "./utils.js";
 import {
   MODULE_ID,
   STEALTH_LABELS,
-  OBSERVED,
   LOCALIZATION_KEYS,
-  SUCCESS,
-  CRITICAL_SUCCESS,
   UNDETECTED,
   HIDDEN,
 } from "./const.js";
-import { renderTargetList, renderSummary } from "./render-status.js";
-import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
+import { findCompanionsOnCanvas } from "./combat.js";
 import { cachedSettings } from "./settings.js";
-import {
-  resolveSeekCheck,
-  prepareSummaryAndTargetList,
-} from "./observation-logic.js";
 import {
   getStealthEffect,
   getStealthBaseline,

@@ -9,7 +9,7 @@ import {
 import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
 import {
   resolveStealthChecks,
-  prepareSummaryAndTargetList,
+  prepareTargetList,
 } from "./observation-logic.js";
 import { renderTargetList } from "./render-status.js";
 
@@ -51,13 +51,13 @@ export async function prepareCreateADiversionData(
     targets,
     resolver: resolveDiversion,
   }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
-  const { summary, targetList } = prepareSummaryAndTargetList(checks);
+  const targetList = prepareTargetList(checks);
 
   const update = {
     flags: {
       [MODULE_ID]: {
         card: "create-a-diversion",
-        createADiversion: { summary, targetList },
+        createADiversion: { targetList },
       },
     },
   };

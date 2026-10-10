@@ -124,7 +124,7 @@ export function renderHideCard(_message, html, _data, flags) {
     onStatusClick: onHideStatusClick,
     change: targetList.some((t) => t.stealth !== t.was),
   };
-  const summary = renderSummary(hide.summary, context);
+  const summary = renderSummary(targetList, context);
   let content = renderTargetList(targetList, summary, context);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();

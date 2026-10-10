@@ -61,14 +61,11 @@ export function resolveSeekCheck({ origin, target, resolver }) {
   return check;
 }
 
-export function prepareSummaryAndTargetList(checks) {
-  const summary = checks.reduce((acc, o) => {
+export function summarizeTargetList(checks) {
+  return checks.reduce((acc, o) => {
     const check = o.check ?? o;
     const stealth = check.stealth;
     acc[stealth] = (acc[stealth] || 0) + 1;
     return acc;
   }, {});
-
-  const targetList = prepareTargetList(checks);
-  return { summary, targetList };
 }

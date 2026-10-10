@@ -5,10 +5,8 @@ import { prepareSneakData } from "./sneak.js";
 // import { prepareCreateADiversionData } from "./create-a-diversion.js";
 import { preparePointOutData } from "./point-out.js";
 import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
-import {
-  resolveStealthChecks,
-  prepareSummaryAndTargetList,
-} from "./observation-logic.js";
+import { resolveStealthChecks } from "./observation-logic.js";
+import { prepareTargetList } from "./render-status.js";
 import { findBaseCoverBonus } from "./cover.js";
 
 let pointOutText = "J0V4p0dn40xIY4rR";
@@ -42,7 +40,7 @@ export function prepareStealthChecks({ message, actingToken, resolver }) {
     targets: them,
     resolver,
   }).sort((a, b) => b.dc - a.dc || a.name.localeCompare(b.name));
-  return { allies: us, ...prepareSummaryAndTargetList(checks) };
+  return { allies: us, targetList: prepareTargetList(checks) };
 }
 
 Hooks.on("createChatMessage", async (message, options, userId) => {

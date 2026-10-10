@@ -1,7 +1,6 @@
 import {
   MODULE_ID,
   LOCALIZATION_KEYS,
-  STEALTH_LABELS,
   OBSERVED,
   HIDDEN,
   UNDETECTED,
@@ -9,7 +8,7 @@ import {
 import { findInitiativeCard } from "./initiative.js";
 import { debuglog, interpolateString, localizeString } from "./utils.js";
 import { cachedSettings } from "./settings.js";
-import { prepareSummaryAndTargetList } from "./observation-logic.js";
+import { summarizeTargetList } from "./observation-logic.js";
 
 const dosTable = ["critical-failure", "failure", "success", "critical-success"];
 
@@ -33,7 +32,8 @@ export function prepareTargetList(sortedChecks) {
   });
 }
 
-export function renderSummary(summary, _context) {
+export function renderSummary(targetList, _context) {
+  const summary = summarizeTargetList(targetList);
   let content = `<div class="${MODULE_ID}-summary">`;
   if (summary[OBSERVED]) {
     const observation = localizeString(`${MODULE_ID}.avoidanceCheck.observed`, {
@@ -117,7 +117,7 @@ export async function updateInitiativeCards(observations) {
         b.check.dc - a.check.dc || a.check.name.localeCompare(b.check.name),
     );
 
-    const { summary, targetList } = prepareSummaryAndTargetList(sortedChecks);
+    const targetList = prepareTargetList(sortedChecks);
 
     const initiativeMessage = await findInitiativeCard(avoider.combatant);
     if (!initiativeMessage) {
@@ -130,7 +130,7 @@ export async function updateInitiativeCards(observations) {
           card: "initiative",
           name: avoider.tokenDoc.name,
           activity: "PF2E.TravelSpeed.ExplorationActivities.AvoidNotice",
-          initiative: { targetList: targetList, summary, allies },
+          initiative: { targetList: targetList, allies },
         },
       },
     };
@@ -152,7 +152,7 @@ export function renderInitiativeCard(_message, html, _data, flags) {
     collapsed: cachedSettings.collapseTargetList,
   };
   const initiative = flags.initiative;
-  const summary = renderSummary(initiative.summary, context);
+  const summary = renderSummary(initiative.targetList, context);
   content += renderTargetList(initiative.targetList, summary, context);
   html.insertAdjacentHTML("beforeend", content);
   return context;
