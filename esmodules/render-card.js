@@ -4,8 +4,9 @@ import { renderAvoidanceCheckCard } from "./avoidance-check.js";
 import { renderInitiativeCard } from "./render-status.js";
 import { renderSneakCard } from "./sneak.js";
 import { renderHideCard } from "./hide.js";
-import { renderCreateADiversionCard } from "./create-a-diversion.js";
+// import { renderCreateADiversionCard } from "./create-a-diversion.js";
 import { renderSeekCard } from "./seek.js";
+import { renderPointOutCard } from "./point-out.js";
 
 function attachHoverId(html, el, hoverIds) {
   const hoverId = el.dataset.hoverId;
@@ -126,14 +127,17 @@ globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
       case "seek":
         interactionContext = renderSeekCard(message, html, data, flags);
         break;
-      case "create-a-diversion":
-        interactionContext = renderCreateADiversionCard(
-          message,
-          html,
-          data,
-          flags,
-        );
+      case "pointOut":
+        interactionContext = renderPointOutCard(message, html, data, flags);
         break;
+      // case "create-a-diversion":
+      //   interactionContext = renderCreateADiversionCard(
+      //     message,
+      //     html,
+      //     data,
+      //     flags,
+      //   );
+      //   break;
       default:
         debuglog(`Unknown card type '${flags.card}'`, {
           message,
@@ -143,7 +147,6 @@ globalThis.Hooks.on("renderChatMessageHTML", (message, html, data) => {
         });
     }
     if (!interactionContext) return;
-    debuglog("interactionContext", { interactionContext });
 
     if (interactionContext.clickIds) {
       html.addEventListener(

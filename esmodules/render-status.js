@@ -33,29 +33,6 @@ export function prepareTargetList(sortedChecks) {
   });
 }
 
-async function stealthLabelClick(
-  message,
-  _event,
-  flags,
-  targetId,
-  stealthDosStates,
-) {
-  const targetList = flags[flags.card]?.targetList;
-  if (!targetList) return;
-  const target = targetList.find((t) => t.tokenId === targetId);
-  if (!target) return;
-  target.stealth = (target.stealth + 1) % stealthDosStates.length;
-  target.stealthLabel = STEALTH_LABELS[target.stealth];
-  const update = {
-    flags: {
-      [MODULE_ID]: flags,
-    },
-  };
-  const dos = stealthDosStates[target.stealth];
-  if (dos !== -1) target.degreeOfSuccess = stealthDosStates[target.stealth];
-  return message.update(update);
-}
-
 export function renderSummary(summary, _context) {
   let content = `<div class="${MODULE_ID}-summary">`;
   if (summary[OBSERVED]) {
@@ -99,13 +76,7 @@ export function renderTargetList(targetList, summary, context) {
     if (interactive) {
       let clickId = foundry.utils.randomID();
       (context["clickIds"] ??= {})[clickId] = async (message, event, flags) => {
-        return stealthLabelClick(
-          message,
-          event,
-          flags,
-          target.tokenId,
-          context.stealthDosStates,
-        );
+        return context.onStatusClick(message, event, flags, target.tokenId);
       };
       resultTag = `
       <div class="${MODULE_ID}-result" data-click-id="${clickId}" data-interactive="true">`;

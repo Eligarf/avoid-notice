@@ -36,6 +36,9 @@
 .pf2e-avoid-notice-hide,
 .pf2e-avoid-notice-sneak,
 .pf2e-avoid-notice-seek,
+.pf2e-avoid-notice-point-out,
+.pf2e-avoid-notice-designated,
+.pf2e-avoid-notice-detectors,
 .pf2e-avoid-notice-avoider {
   width: 100%;
   display: flex;
@@ -106,6 +109,7 @@
 }
 
 .pf2e-avoid-notice-noticable,
+.pf2e-avoid-notice-detector,
 .pf2e-avoid-notice-target {
   display: flex;
   align-items: center;
@@ -117,11 +121,13 @@
 }
 
 .pf2e-avoid-notice-noticable:nth-child(even),
+.pf2e-avoid-notice-detector:nth-child(even),
 .pf2e-avoid-notice-target:nth-child(even) {
   background: rgba(0, 0, 0, 0.07);
 }
 
 .pf2e-avoid-notice-noticable:last-child,
+.pf2e-avoid-notice-detector:last-child,
 .pf2e-avoid-notice-target:last-child {
   border-bottom: none;
 }
@@ -131,6 +137,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.pf2e-avoid-notice-name:hover {
+  font-weight: 500color: var(--tertiary);
+  border-bottom-color: var(--tertiary);
+  text-shadow: 0 0 2px var(--color-shadow-highlight);
 }
 
 .pf2e-avoid-notice-dc {

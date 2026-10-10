@@ -95,25 +95,43 @@ async function applySneakEffects(message, _event, flags) {
   return message.update({ flags: { [MODULE_ID]: flags } });
 }
 
+const sneakDosStates = [CRITICAL_FAILURE, FAILURE, SUCCESS];
+
+async function onSneakStatusClick(message, _event, flags, targetId) {
+  const targetList = flags[flags.card]?.targetList;
+  if (!targetList) return;
+  const target = targetList.find((t) => t.tokenId === targetId);
+  if (!target) return;
+  target.stealth = (target.stealth + 1) % 3;
+  target.stealthLabel = STEALTH_LABELS[target.stealth];
+  const update = {
+    flags: {
+      [MODULE_ID]: flags,
+    },
+  };
+  target.degreeOfSuccess = sneakDosStates[target.stealth];
+  return message.update(update);
+}
+
 export function renderSneakCard(_message, html, _data, flags) {
   const sneak = flags.sneak;
   const targetList = sneak.targetList;
   if (!targetList?.length) return {};
   const context = {
     interactive: sneak.showApplyButton,
-    stealthDosStates: [CRITICAL_FAILURE, FAILURE, SUCCESS],
-    collapsed: cachedSettings.collapseTargetList,
+    collapsed: false,
+    onStatusClick: onSneakStatusClick,
+    change: targetList.some((t) => t.stealth !== t.was),
   };
   const summary = renderSummary(sneak.summary, context);
   let content = renderTargetList(targetList, summary, context);
-  const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applySneakEffects;
     content += `
       <div class="${MODULE_ID}-sneak">
-        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${change ? "" : "disabled"}>
-          ${localizeString(`${MODULE_ID}.effects.${change ? "apply" : "noChange"}`)}
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${context.change ? "" : "disabled"}>
+          ${localizeString(`${MODULE_ID}.effects.${context.change ? "apply" : "noChange"}`)}
         </button>
       </div>`;
   }

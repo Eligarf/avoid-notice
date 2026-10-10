@@ -95,25 +95,44 @@ async function applyHideEffects(message, _event, flags) {
   return message.update({ flags: { [MODULE_ID]: flags } });
 }
 
+const hideDosStates = [FAILURE, SUCCESS, SUCCESS];
+
+async function onHideStatusClick(message, _event, flags, targetId) {
+  const targetList = flags[flags.card]?.targetList;
+  if (!targetList) return;
+  const target = targetList.find((t) => t.tokenId === targetId);
+  if (!target) return;
+  target.stealth =
+    target.stealth === OBSERVED ? Math.max(HIDDEN, target.was) : OBSERVED;
+  target.stealthLabel = STEALTH_LABELS[target.stealth];
+  const update = {
+    flags: {
+      [MODULE_ID]: flags,
+    },
+  };
+  target.degreeOfSuccess = hideDosStates[target.stealth];
+  return message.update(update);
+}
+
 export function renderHideCard(_message, html, _data, flags) {
   const hide = flags.hide;
   const targetList = hide.targetList;
   if (!targetList?.length) return {};
   const context = {
     interactive: hide.showApplyButton,
-    stealthDosStates: [FAILURE, SUCCESS],
-    collapsed: cachedSettings.collapseTargetList,
+    collapsed: false,
+    onStatusClick: onHideStatusClick,
+    change: targetList.some((t) => t.stealth !== t.was),
   };
   const summary = renderSummary(hide.summary, context);
   let content = renderTargetList(targetList, summary, context);
-  const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applyHideEffects;
     content += `
       <div class="${MODULE_ID}-hide">
-        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${change ? "" : "disabled"}>
-          ${localizeString(`${MODULE_ID}.effects.${change ? "apply" : "noChange"}`)}
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${context.change ? "" : "disabled"}>
+          ${localizeString(`${MODULE_ID}.effects.${context.change ? "apply" : "noChange"}`)}
         </button>
       </div>`;
   }

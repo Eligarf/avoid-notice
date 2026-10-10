@@ -17,7 +17,6 @@ import {
 import { getStealthinessTo, setStealthinessTo } from "./effects.js";
 
 function resolveSeek(origin, check) {
-  debuglog("resolving");
   const stealth = getStealthinessTo(check.tokenDoc, origin.tokenDoc.id);
   check.was = stealth;
   const tooltip = localizeString(`${MODULE_ID}.seek.was`, {
@@ -108,6 +107,21 @@ async function applySeekEffects(message, _event, flags) {
   return message.update({ flags: { [MODULE_ID]: flags } });
 }
 
+async function onSeekStatusClick(message, _event, flags, targetId) {
+  const targetList = flags[flags.card]?.targetList;
+  if (!targetList) return;
+  const target = targetList.find((t) => t.tokenId === targetId);
+  if (!target) return;
+  target.stealth = (target.stealth + 2) % 3;
+  target.stealthLabel = STEALTH_LABELS[target.stealth];
+  const update = {
+    flags: {
+      [MODULE_ID]: flags,
+    },
+  };
+  return message.update(update);
+}
+
 export function renderSeekCard(message, html, data, flags) {
   debuglog("renderSeekCard", { message, html, data, flags });
   const seek = flags.seek;
@@ -115,19 +129,19 @@ export function renderSeekCard(message, html, data, flags) {
   if (!targetList?.length) return {};
   const context = {
     interactive: seek.showApplyButton,
-    stealthDosStates: [-1, -1, -1],
-    collapsed: cachedSettings.collapseTargetList,
+    collapsed: false,
+    onStatusClick: onSeekStatusClick,
+    change: targetList.some((t) => t.stealth !== t.was),
   };
   const summary = renderSummary(seek.summary, context);
   let content = renderTargetList(targetList, summary, context);
-  const change = targetList.some((t) => t.stealth !== t.was);
   if (context.interactive) {
     const clickId = foundry.utils.randomID();
     (context["clickIds"] ??= {})[clickId] = applySeekEffects;
     content += `
       <div class="${MODULE_ID}-seek">
-        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${change ? "" : "disabled"}>
-          ${localizeString(`${MODULE_ID}.effects.${change ? "apply" : "noChange"}`)}
+        <button class="${MODULE_ID}-button" data-click-id="${clickId}" data-visibility="gm" ${context.change ? "" : "disabled"}>
+          ${localizeString(`${MODULE_ID}.effects.${context.change ? "apply" : "noChange"}`)}
         </button>
       </div>`;
   }

@@ -2,7 +2,7 @@ import { debuglog, breakdownRoll } from "./utils.js";
 import { prepareSeekData } from "./seek.js";
 import { prepareHideData } from "./hide.js";
 import { prepareSneakData } from "./sneak.js";
-import { prepareCreateADiversionData } from "./create-a-diversion.js";
+// import { prepareCreateADiversionData } from "./create-a-diversion.js";
 import { preparePointOutData } from "./point-out.js";
 import { findCompanionsOnCanvas, findPossibleTargets } from "./combat.js";
 import {
@@ -62,8 +62,8 @@ Hooks.on("createChatMessage", async (message, options, userId) => {
       return prepareHideData(message, userId, actingToken);
     } else if (options.includes("action:sneak")) {
       return prepareSneakData(message, userId, actingToken);
-    } else if (options.includes("action:create-a-diversion")) {
-      return prepareCreateADiversionData(message, userId, actingToken);
+      // } else if (options.includes("action:create-a-diversion")) {
+      //   return prepareCreateADiversionData(message, userId, actingToken);
     }
     return;
   }

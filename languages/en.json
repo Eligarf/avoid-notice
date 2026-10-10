@@ -36,11 +36,12 @@
       "hint": "Display eyeballs on canvas tokens that ignore the controlled tokens' stealth-based hidden and/or undetected conditions"
     },
     "collapseTargetList": {
-      "name": "Collapse Target Lists",
-      "hint": "Initially collapse target lists when adding them to a chat card"
+      "name": "Collapse Intiative Target Lists",
+      "hint": "Initially collapse target lists when adding them to initiative chat cards"
     },
     "notifications": {
-      "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it."
+      "noSocketLib": "PF2e Avoid Notice needs socketlib module to be active in order to pan/zoom to combat. Please activate it.",
+      "target1": "Point Out action requires a single token to be targeted"
     },
     "schema": {
       "name": "Schema Version",
@@ -164,6 +165,11 @@
     },
     "seek": {
       "was": "Was {stealth}"
+    },
+    "pointOut": {
+      "subject": "Points out {name}",
+      "to": "to {name}",
+      "hiddens": "Hidden to {count}"
     },
     "badge": {
       "observed": "OBS",

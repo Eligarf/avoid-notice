@@ -46,7 +46,7 @@ export function getStealthEffect(token) {
 }
 
 export function getStealthBaseline(stealth) {
-  return stealth?.system?.badge?.value;
+  return stealth?.system?.badge?.value || OBSERVED;
 }
 
 export function getStealthinessTo(origin, targetId) {
